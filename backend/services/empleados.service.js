@@ -2,7 +2,6 @@ import xlsx from "xlsx";
 import pool from "../db.js";
 import fs from "fs/promises";
 
-// 🔹 Normaliza claves (ej: "Num Trab" → "NUM_TRAB")
 const normalizeKey = (key) =>
   key
     .toString()
@@ -11,7 +10,6 @@ const normalizeKey = (key) =>
     .replace(/\s+/g, "_")
     .replace(/[^A-Z0-9_]/g, "");
 
-// 🔹 Convierte fechas Excel/Texto a formato YYYY-MM-DD
 const parseExcelDate = (value) => {
   if (!value) return null;
 
@@ -42,28 +40,27 @@ const parseExcelDate = (value) => {
   return null;
 };
 
-// 🔹 Inserta o actualiza un empleado
-const saveEmpleado = async (row) => {
+export const saveEmpleado = async (row) => {
   const {
-    NUM_TRAB,
-    RFC,
-    NOM_TRAB,
-    NUM_IMSS,
-    SEXO,
-    FECHA_ING,
-    FECHA_INGRESO,
-    NUM_DEPTO,
-    NOM_DEPTO,
-    CATEGORIA,
-    PUESTO,
-    SIND,
-    CONF,
-    NOMINA,
-    VENCIMIENTO_CONTRATO,
-    VENCIMIENTO_DE_CONTRATO,
+    num_trab,
+    rfc,
+    nom_trab,
+    num_imss,
+    sexo,
+    fecha_ing,
+    fecha_ingreso,
+    num_depto,
+    nom_depto,
+    categoria,
+    puesto,
+    sind,
+    conf,
+    nomina,
+    vencimiento_contrato,
+    vencimiento_de_contrato,
   } = row;
 
-  if (!NUM_TRAB || !NOM_TRAB) return; // obligatorio
+  if (!num_trab || !nom_trab) return;
 
   await pool.query(
     `INSERT INTO empleados 
@@ -76,25 +73,24 @@ const saveEmpleado = async (row) => {
       sind=VALUES(sind), conf=VALUES(conf), nomina=VALUES(nomina),
       vencimiento_contrato=VALUES(vencimiento_contrato)`,
     [
-      NUM_TRAB,
-      RFC,
-      NOM_TRAB,
-      NUM_IMSS,
-      SEXO,
-      parseExcelDate(FECHA_ING ?? FECHA_INGRESO),
-      NUM_DEPTO,
-      NOM_DEPTO,
-      CATEGORIA,
-      PUESTO,
-      SIND,
-      CONF,
-      NOMINA,
-      parseExcelDate(VENCIMIENTO_CONTRATO ?? VENCIMIENTO_DE_CONTRATO),
+      num_trab,
+      rfc,
+      nom_trab,
+      num_imss,
+      sexo,
+      parseExcelDate(fecha_ing ?? fecha_ingreso),
+      num_depto,
+      nom_depto,
+      categoria,
+      puesto,
+      sind,
+      conf,
+      nomina,
+      parseExcelDate(vencimiento_contrato ?? vencimiento_de_contrato),
     ]
   );
 };
 
-// 🔹 Importa desde Excel
 export const importarDesdeExcel = async (filePath) => {
   if (!filePath) throw new Error("No se proporcionó archivo");
 
@@ -105,7 +101,7 @@ export const importarDesdeExcel = async (filePath) => {
   });
 
   if (!rawRows.length) {
-    await fs.unlink(filePath).catch(() => {});
+    await fs.unlink(filePath).catch(() => { });
     throw new Error("El Excel está vacío o no se pudo leer");
   }
 
@@ -121,16 +117,14 @@ export const importarDesdeExcel = async (filePath) => {
     }
   }
 
-  await fs.unlink(filePath).catch(() => {});
+  await fs.unlink(filePath).catch(() => { });
 };
 
-// 🔹 Obtener todos los empleados
 export const obtenerEmpleados = async () => {
   const [rows] = await pool.query("SELECT * FROM empleados");
   return rows;
 };
 
-// 🔹 Obtener empleados con paginación
 export const obtenerEmpleadosPaginados = async (page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
 
@@ -146,7 +140,6 @@ export const obtenerEmpleadosPaginados = async (page = 1, limit = 10) => {
   return { data: rows, total };
 };
 
-// 🔹 Eliminar empleado por ID
 export const eliminarEmpleado = async (id) => {
   await pool.query("DELETE FROM empleados WHERE id = ?", [id]);
 };

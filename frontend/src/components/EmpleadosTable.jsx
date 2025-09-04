@@ -13,40 +13,34 @@ function formatDate(value) {
     return "";
   }
 
-  // Date object
   if (value instanceof Date) {
     if (isNaN(value)) return "";
     return value.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
   }
 
-  // String: prefer to extract YYYY-MM-DD to avoid timezone shifts
   if (typeof value === "string") {
-    // If starts with YYYY-MM-DD (ISO-like), take that part and format dd/mm/yyyy
     const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (isoMatch) {
       const [, y, m, d] = isoMatch;
       return `${d}/${m}/${y}`;
     }
 
-    // Fallback: try Date parsing (may be subject to timezone)
     const d = new Date(value);
     if (!isNaN(d)) {
       return d.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
     }
 
-    return ""; // formato desconocido
+    return ""; 
   }
 
   return "";
 }
 
 function EmpleadosTable({ empleados }) {
-  // seguridad: aseguramos que sea array
   if (!Array.isArray(empleados) || empleados.length === 0) {
     return <p style={{ marginTop: "20px" }}>No hay empleados registrados</p>;
   }
 
-  // remove or keep console.log for debugging
   console.log("Primer empleado (raw):", empleados[0]);
 
   return (

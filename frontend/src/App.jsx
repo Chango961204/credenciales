@@ -1,7 +1,16 @@
-import EmpleadosPage from "./pages/EmpleadosPage";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes/routes";
+import Navbar from "./components/Navbar";
 
 function App() {
-  return <EmpleadosPage />;
+  return (
+    <BrowserRouter>
+      <div className="App">
+        <Navbar />
+        <AppRoutes />
+      </div>
+    </BrowserRouter>
+  );
 }
 
 export default App;
