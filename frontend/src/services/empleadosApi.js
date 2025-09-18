@@ -5,12 +5,40 @@ const API_URL = "http://localhost:4000/api/empleados";
 export const importarExcel = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  return await axios.post(`${API_URL}/importar`, formData);
+  return await axios.post(`${API_URL}/importar`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 };
+
 export const obtenerEmpleados = async (page = 1, limit = 10) => {
-  const res = await axios.get("http://localhost:4000/api/empleados", {
+  const res = await axios.get(API_URL, {
     params: { page, limit },
-    headers: { "Cache-Control": "no-cache" }
+    headers: { "Cache-Control": "no-cache" },
   });
   return res.data;
 };
+
+export const actualizarEstadoEmpleado = async (id, estado) => {
+  const res = await axios.patch(`${API_URL}/${id}/estado`, { estado });
+  return res.data;
+};
+
+export const buscarEmpleados = async (query) => {
+  const res = await axios.get(`${API_URL}/search`, { params: query });
+  return res.data;
+};
+
+export const generarQr = async (id) => {
+  const res = await axios.post(`${API_URL}/${id}/generar-qr`);
+  return res.data;
+};
+
+export const obtenerEmpleadosPaginados = async (page, limit) => {
+  const res = await axios.get(API_URL, { params: { page, limit } });
+  return res.data;
+};
+
+export const buscarEmpleadoPorNombre = async (nombre) => {
+  const res = await axios.get(`${API_URL}/empleados/buscar`, { params: { nombre } });
+  return res.data;
+}

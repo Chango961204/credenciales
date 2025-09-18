@@ -22,10 +22,8 @@ function RegistrarEmpleado() {
     const handleChange = e => {
         const { name, value } = e.target;
         if (name === "num_trab" || name === "num_depto") {
-            // Solo enteros
             if (/^\d*$/.test(value)) setForm({ ...form, [name]: value });
         } else if (name === "sind" || name === "conf") {
-            // Solo 0 o 1
             if (value === "0" || value === "1") setForm({ ...form, [name]: value });
         } else {
             setForm({ ...form, [name]: value });
@@ -52,7 +50,7 @@ function RegistrarEmpleado() {
         <form onSubmit={handleSubmit}>
             <h2>Registrar Empleado</h2>
             <label>
-                Número de empleado (entero):
+                Número de empleado:
                 <input
                     name="num_trab"
                     type="number"
@@ -121,7 +119,7 @@ function RegistrarEmpleado() {
                 />
             </label>
             <label>
-                No. Departamento (entero):
+                No. Departamento:
                 <input
                     name="num_depto"
                     type="number"

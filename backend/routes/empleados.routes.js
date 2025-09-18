@@ -1,20 +1,27 @@
-import { Router } from "express";
+import express from "express";
 import multer from "multer";
-import { uploadEmpleados, getEmpleados, deleteEmpleado, registrarEmpleado } from "../controllers/empleados.controller.js";
+import {
+  uploadEmpleados,
+  getEmpleados,
+  deleteEmpleado,
+  registrarEmpleado,
+  actualizarEstadoEmpleado,
+  postGenerarQr,
+  getBuscarEmpleados,
+  buscarEmpleadoQR
+} from "../controllers/empleados.controller.js";
 
-const router = Router();
+const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
-// Subir archivo Excel e importar empleados
 router.post("/importar", upload.single("file"), uploadEmpleados);
-
-// Listar empleados con paginación
 router.get("/", getEmpleados);
-
-// Eliminar empleado por ID
 router.delete("/:id", deleteEmpleado);
-
-// Registrar nuevo empleado
 router.post("/", registrarEmpleado);
+router.patch("/:id/estado", actualizarEstadoEmpleado);
+router.post("/:id/generar-qr", postGenerarQr);
+router.get("/search", getBuscarEmpleados);
+router.get("/empleados/buscar", buscarEmpleadoQR);
+
 
 export default router;

@@ -7,6 +7,7 @@ function Navbar() {
       <Link to="/empleados" style={{ marginRight: "1rem" }}>Empleados</Link>
       <Link to="/importar-empleados" style={{ marginRight: "1rem" }}>Importar Empleados</Link>
       <Link to="/registrar-empleados">Registrar Empleados</Link>
+      <Link to="/buscar-empleado" style={{ marginLeft: "1rem" }}>Buscar Empleado</Link>
     </nav>
   );
 }

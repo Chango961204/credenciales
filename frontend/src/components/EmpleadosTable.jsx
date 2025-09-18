@@ -1,10 +1,10 @@
-/* eslint-disable react/prop-types */
 import React from "react";
+import { QRCodeCanvas } from "qrcode.react";
+
 
 function formatDate(value) {
   if (value === null || value === undefined || value === "") return "";
 
-  // Excel serial number
   if (typeof value === "number") {
     const date = new Date(Math.round((value - 25569) * 86400 * 1000));
     if (!isNaN(date)) {
@@ -30,7 +30,7 @@ function formatDate(value) {
       return d.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
     }
 
-    return ""; 
+    return "";
   }
 
   return "";
@@ -62,6 +62,8 @@ function EmpleadosTable({ empleados }) {
           <th>Conf</th>
           <th>Nómina</th>
           <th>Vencimiento Contrato</th>
+          <th>QR Code</th>
+          <th>Estado</th>
         </tr>
       </thead>
       <tbody>
@@ -82,6 +84,13 @@ function EmpleadosTable({ empleados }) {
             <td>{emp.conf}</td>
             <td>{emp.nomina}</td>
             <td>{formatDate(emp.vencimiento_contrato)}</td>
+            <td>
+
+              <QRCodeCanvas
+                value={` https://e53a705ffeae.ngrok-free.app/api/empleados/qr/${empleados.qr_code}`}
+              />
+            </td>
+            <td>{emp.activo ? "Activo" : "Inactivo"} </td>
           </tr>
         ))}
       </tbody>
