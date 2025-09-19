@@ -8,7 +8,8 @@ import {
   actualizarEstadoEmpleado,
   postGenerarQr,
   getBuscarEmpleados,
-  buscarEmpleadoQR
+  buscarEmpleadoQR,
+  actualizarEmpleado,
 } from "../controllers/empleados.controller.js";
 
 const router = express.Router();
@@ -22,6 +23,7 @@ router.patch("/:id/estado", actualizarEstadoEmpleado);
 router.post("/:id/generar-qr", postGenerarQr);
 router.get("/search", getBuscarEmpleados);
 router.get("/empleados/buscar", buscarEmpleadoQR);
+router.patch("/:id", actualizarEmpleado);
 
 
 export default router;

@@ -9,7 +9,7 @@ function excelDateToJSDate(serial) {
   if (typeof serial === "number") {
     const utc_days = Math.floor(serial - 25569);
     const utc_value = utc_days * 86400;
-    return new Date(utc_value * 1000).toISOString().split("T")[0]; 
+    return new Date(utc_value * 1000).toISOString().split("T")[0];
   }
 
   return serial;
@@ -23,7 +23,7 @@ export const importarDesdeExcel = async (filePath) => {
   const rawRows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: null });
 
   if (!rawRows.length) {
-    await fs.unlink(filePath).catch(() => {});
+    await fs.unlink(filePath).catch(() => { });
     throw new Error("El Excel está vacío o no se pudo leer");
   }
 
@@ -56,5 +56,5 @@ export const importarDesdeExcel = async (filePath) => {
     }
   }
 
-  await fs.unlink(filePath).catch(() => {});
+  await fs.unlink(filePath).catch(() => { });
 };

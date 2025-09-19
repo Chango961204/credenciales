@@ -114,3 +114,41 @@ export const buscarEmpleados = async ({ num_trab, nombre }) => {
   }
   return [];
 };
+
+export const actualizarEmpleado = async (id, data) => {
+  const allowed = [
+    "num_trab", "rfc", "nom_trab", "num_imss", "sexo",
+    "fecha_ing", "num_depto", "nom_depto", "categoria",
+    "puesto", "sind", "conf", "nomina", "vencimiento_contrato"
+  ];
+
+  const updates = [];
+  const values = [];
+
+  for (const key of allowed) {
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      updates.push(`${key} = ?`);
+      if (key === "fecha_ing" || key === "vencimiento_contrato") {
+        values.push(parseExcelDate(data[key]));
+      } else {
+        values.push(data[key]);
+      }
+    }
+  }
+
+  if (updates.length === 0) throw new Error("No hay campos para actualizar");
+
+  values.push(id);
+  const sql = `UPDATE empleados SET ${updates.join(", ")} WHERE id = ?`;
+  await pool.query(sql, values);
+
+  if (Object.prototype.hasOwnProperty.call(data, "vencimiento_contrato")) {
+    await pool.query(
+      "UPDATE empleados SET estado_qr = IF(vencimiento_contrato < CURDATE(), 'inactivo', 'activo') WHERE id = ?",
+      [id]
+    );
+  }
+
+  const [rows] = await pool.query("SELECT * FROM empleados WHERE id = ?", [id]);
+  return rows[0] || null;
+};

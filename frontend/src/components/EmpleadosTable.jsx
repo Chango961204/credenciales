@@ -5,6 +5,10 @@ import { QRCodeCanvas } from "qrcode.react";
 function formatDate(value) {
   if (value === null || value === undefined || value === "") return "";
 
+  if (typeof value === "string" && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(value)) {
+    return value;
+  }
+
   if (typeof value === "number") {
     const date = new Date(Math.round((value - 25569) * 86400 * 1000));
     if (!isNaN(date)) {
@@ -30,18 +34,16 @@ function formatDate(value) {
       return d.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
     }
 
-    return "";
+    return value; 
   }
 
   return "";
 }
 
-function EmpleadosTable({ empleados }) {
+function EmpleadosTable({ empleados, onEdit }) {
   if (!Array.isArray(empleados) || empleados.length === 0) {
     return <p style={{ marginTop: "20px" }}>No hay empleados registrados</p>;
   }
-
-  console.log("Primer empleado (raw):", empleados[0]);
 
   return (
     <table border="1" cellPadding="6" style={{ marginTop: "20px", width: "100%", borderCollapse: "collapse" }}>
@@ -62,7 +64,6 @@ function EmpleadosTable({ empleados }) {
           <th>Conf</th>
           <th>Nómina</th>
           <th>Vencimiento Contrato</th>
-          <th>QR Code</th>
           <th>Estado</th>
         </tr>
       </thead>
@@ -84,13 +85,10 @@ function EmpleadosTable({ empleados }) {
             <td>{emp.conf}</td>
             <td>{emp.nomina}</td>
             <td>{formatDate(emp.vencimiento_contrato)}</td>
+            <td>{emp.activo ? "Activo" : "Inactivo"}</td>
             <td>
 
-              <QRCodeCanvas
-                value={` https://e53a705ffeae.ngrok-free.app/api/empleados/qr/${empleados.qr_code}`}
-              />
             </td>
-            <td>{emp.activo ? "Activo" : "Inactivo"} </td>
           </tr>
         ))}
       </tbody>
@@ -99,3 +97,5 @@ function EmpleadosTable({ empleados }) {
 }
 
 export default EmpleadosTable;
+
+

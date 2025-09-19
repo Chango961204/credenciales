@@ -30,8 +30,14 @@ export const buscarEmpleados = async (query) => {
 
 export const generarQr = async (id) => {
   const res = await axios.post(`${API_URL}/${id}/generar-qr`);
-  return res.data;
+  return res.data; 
 };
+
+export const buscarEmpleadoQR = async (qr) => {
+  const res = await axios.get(`${API_URL}/qr/${qr}`);
+  return res.data; 
+};
+
 
 export const obtenerEmpleadosPaginados = async (page, limit) => {
   const res = await axios.get(API_URL, { params: { page, limit } });
@@ -40,5 +46,10 @@ export const obtenerEmpleadosPaginados = async (page, limit) => {
 
 export const buscarEmpleadoPorNombre = async (nombre) => {
   const res = await axios.get(`${API_URL}/empleados/buscar`, { params: { nombre } });
+  return res.data;
+}
+
+export const updateEmpleado = async (id, data) => {
+  const res = await axios.patch(`${API_URL}/${id}`, data);
   return res.data;
 }
