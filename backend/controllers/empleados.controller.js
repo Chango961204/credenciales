@@ -98,21 +98,53 @@ export const actualizarEstadoEmpleado = async (req, res) => {
     }
 
     await pool.query("UPDATE empleados SET estado_qr = ? WHERE id = ?", [estado, id]);
-    res.json({ message: `QR actualizado a ${estado}` });
+
+    const [rows] = await pool.query("SELECT * FROM empleados WHERE id = ?", [id]);
+
+    res.json({ 
+      message: `Empleado actualizado a ${estado}`, 
+      empleado: rows[0] 
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
+
 export const postGenerarQr = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await generarQrParaEmpleado(Number(id));
-    res.json(result);
+
+    const [rows] = await pool.query("SELECT * FROM empleados WHERE id = ?", [id]);
+    if (rows.length === 0) return res.status(404).json({ message: "Empleado no encontrado" });
+
+    const empleado = rows[0];
+
+    const qrPayload = {
+      id: empleado.id,
+      num_trab: empleado.num_trab,
+      nom_trab: empleado.nom_trab,
+      rfc: empleado.rfc || "N/A",
+      num_imss: empleado.num_imss || "N/A",
+      nom_depto: empleado.nom_depto || "N/A",
+      puesto: empleado.puesto || "N/A",
+      vencimiento_contrato: empleado.vencimiento_contrato,
+      estado_qr: empleado.estado_qr
+    };
+
+    const qrCode = await QRCode.toDataURL(JSON.stringify(qrPayload));
+
+    res.json({
+      message: "QR generado",
+      empleado: empleado, 
+      qrCode
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error postGenerarQr:", err);
+    res.status(500).json({ message: "Error al generar QR" });
   }
 };
+
 
 export const getBuscarEmpleados = async (req, res) => {
   try {

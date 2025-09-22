@@ -1,5 +1,4 @@
 import React from "react";
-import { QRCodeCanvas } from "qrcode.react";
 
 
 function formatDate(value) {
