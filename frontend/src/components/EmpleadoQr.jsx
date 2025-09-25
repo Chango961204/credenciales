@@ -19,10 +19,8 @@ function formatDate(date) {
 function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
   if (!empleado) return null;
 
-  // Usamos directamente el campo estado_qr que viene de la BD
   const estatus = empleado.estado_qr === "activo" ? "Activo" : "Inactivo";
 
-  // Información que va dentro del QR
   const qrValue = `
     Número: ${empleado.num_trab}
     Nombre: ${empleado.nom_trab}
@@ -62,7 +60,6 @@ function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
             </span>
           </p>
 
-          {/* Toggle para activar/inactivar */}
           <EstadoToggle empleado={empleado} onQrUpdate={onQrUpdate} />
         </div>
       </div>

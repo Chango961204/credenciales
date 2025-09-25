@@ -4,21 +4,21 @@ import { mapRowToEmpleado } from "../utils/empleados.mapper.js";
 
 const parseDateSafely = (dateValue) => {
   if (!dateValue) return null;
-  
+
   if (typeof dateValue === 'number') {
     return parseExcelDate(dateValue);
   }
-  
+
   if (typeof dateValue === 'string') {
     const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
     const match = dateValue.match(dateRegex);
-    
+
     if (match) {
       const [, day, month, year] = match;
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     }
   }
-  
+
   console.warn('No se pudo parsear la fecha:', dateValue);
   return null;
 };
@@ -60,7 +60,7 @@ export const saveEmpleado = async (row) => {
 
 export const saveEmpleadoManual = async (data) => {
   const { num_trab, rfc, nom_trab, num_imss, sexo, fecha_ing, num_depto,
-          nom_depto, categoria, puesto, sind, conf, nomina, vencimiento_contrato } = data;
+    nom_depto, categoria, puesto, sind, conf, nomina, vencimiento_contrato } = data;
 
   if (!num_trab || !nom_trab) return;
 

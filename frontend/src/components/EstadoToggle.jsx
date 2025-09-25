@@ -21,7 +21,7 @@ function EstadoToggle({ empleado, onQrUpdate }) {
   return (
     <div className="mt-2">
       <label className="flex items-center gap-2 cursor-pointer">
-        <span className="text-sm">Estado QR:</span>
+        <span className="text-sm">Empleado:</span>
         <button
           onClick={handleToggle}
           className={`px-3 py-1 rounded text-white ${

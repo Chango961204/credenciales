@@ -1,5 +1,4 @@
 import {
-  saveEmpleado,
   saveEmpleadoManual,
   obtenerEmpleadosPaginados,
   eliminarEmpleado,
@@ -7,10 +6,15 @@ import {
   actualizarEmpleado as actualizarEmpleadoService,
 } from "../services/empleados.service.js";
 import { importarDesdeExcel } from "../services/excel.service.js";
-import { generarQrParaEmpleado } from "../services/qr.service.js";
 import pool from "../db.js";
 import QRCode from "qrcode";
 import dayjs from "dayjs";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const uploadEmpleados = async (req, res) => {
   try {
@@ -25,6 +29,7 @@ export const uploadEmpleados = async (req, res) => {
   }
 };
 
+
 export const getEmpleados = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -34,7 +39,6 @@ export const getEmpleados = async (req, res) => {
     res.status(500).json({ message: "Error al obtener empleados", error: error.message });
   }
 };
-
 
 
 export const deleteEmpleado = async (req, res) => {
@@ -47,6 +51,7 @@ export const deleteEmpleado = async (req, res) => {
   }
 };
 
+
 export const registrarEmpleado = async (req, res) => {
   try {
     await saveEmpleadoManual(req.body);
@@ -56,36 +61,34 @@ export const registrarEmpleado = async (req, res) => {
   }
 };
 
+
+
 export const buscarEmpleadoQR = async (req, res) => {
   try {
     const { qr } = req.params;
-    const [rows] = await pool.query("SELECT * FROM empleados WHERE qr_code = ?", [qr]);
-    if (!rows.length) return res.status(404).json({ message: "QR no encontrado" });
 
-    const emp = rows[0];
+    const empleado = await Empleado.findOne({ where: { codigo_qr: qr } });
 
-    const hoy = dayjs().startOf('day');
-    if (emp.vencimiento_contrato && dayjs(emp.vencimiento_contrato).isBefore(hoy, 'day')) {
-      await pool.query("UPDATE empleados SET estado_qr = 'inactivo' WHERE id = ?", [emp.id]);
-      emp.estado_qr = 'inactivo';
+    if (!empleado) {
+      return res.status(404).json({ message: "Empleado no encontrado" });
     }
 
-    const venc = emp.vencimiento_contrato ? dayjs(emp.vencimiento_contrato).format("DD/MM/YYYY") : null;
-    const fecha_ing = emp.fecha_ing ? dayjs(emp.fecha_ing).format("DD/MM/YYYY") : null;
+    let fotoUrl = null;
+    if (empleado.foto) {
+      fotoUrl = `http://localhost:4000/api/empleados/${empleado.id}/foto`;
+    }
 
     res.json({
-      id: emp.id,
-      num_trab: emp.num_trab,
-      nom_trab: emp.nom_trab,
-      num_imss: emp.num_imss,
-      vencimiento_contrato: venc,
-      fecha_ing,
-      estado_qr: emp.estado_qr,
+      ...empleado.toJSON(),
+      fotoUrl,
     });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("Error al buscar empleado por QR:", error);
+    res.status(500).json({ message: "Error interno" });
   }
 };
+
+
 
 
 export const actualizarEstadoEmpleado = async (req, res) => {
@@ -101,9 +104,9 @@ export const actualizarEstadoEmpleado = async (req, res) => {
 
     const [rows] = await pool.query("SELECT * FROM empleados WHERE id = ?", [id]);
 
-    res.json({ 
-      message: `Empleado actualizado a ${estado}`, 
-      empleado: rows[0] 
+    res.json({
+      message: `Empleado actualizado a ${estado}`,
+      empleado: rows[0]
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -136,7 +139,7 @@ export const postGenerarQr = async (req, res) => {
 
     res.json({
       message: "QR generado",
-      empleado: empleado, 
+      empleado: empleado,
       qrCode
     });
   } catch (err) {
@@ -148,11 +151,11 @@ export const postGenerarQr = async (req, res) => {
 
 export const getBuscarEmpleados = async (req, res) => {
   try {
-    let num_trab = req.query.num_trab;
-    let nombre = req.query.nombre;
+    const { num_trab, nombre } = req.query;
 
     console.log("Buscando empleado con:", { num_trab, nombre });
 
+    // Validación básica
     if ((!num_trab || String(num_trab).trim() === "") && (!nombre || String(nombre).trim() === "")) {
       return res.json([]);
     }
@@ -178,33 +181,16 @@ export const getBuscarEmpleados = async (req, res) => {
       return res.json([]);
     }
 
-    rows.forEach(emp => {
-      console.log(`Empleado ${emp.nom_trab}:`);
-      console.log('vencimiento_contrato original:', emp.vencimiento_contrato);
-      console.log('tipo:', typeof emp.vencimiento_contrato);
-      console.log('es null:', emp.vencimiento_contrato === null);
+    const normalized = rows.map(emp => ({
+      ...emp,
+      fecha_ing: emp.fecha_ing ? dayjs(emp.fecha_ing).format("YYYY-MM-DD") : null,
+      vencimiento_contrato: emp.vencimiento_contrato
+        ? dayjs(emp.vencimiento_contrato).format("YYYY-MM-DD")
+        : null,
+    }));
 
-      if (emp.vencimiento_contrato) {
-        try {
-          emp.vencimiento_contrato = dayjs(emp.vencimiento_contrato).format("DD/MM/YYYY");
-          console.log('vencimiento_contrato formateado:', emp.vencimiento_contrato);
-        } catch (error) {
-          console.log('Error formateando vencimiento_contrato:', error);
-          emp.vencimiento_contrato = null;
-        }
-      }
-
-      if (emp.fecha_ing) {
-        try {
-          emp.fecha_ing = dayjs(emp.fecha_ing).format("DD/MM/YYYY");
-        } catch (error) {
-          console.log('Error formateando fecha_ing:', error);
-        }
-      }
-    });
-
-    console.log('Enviando resultados:', rows);
-    res.json(rows);
+    console.log("Enviando resultados:", normalized);
+    res.json(normalized);
   } catch (err) {
     console.error("Error en getBuscarEmpleados:", err);
     res.status(500).json({ message: err.message });
@@ -230,6 +216,84 @@ export const actualizarEmpleado = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+export const uploadFotoEmpleado = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No se subió ninguna foto" });
+    }
+
+    const empleadoId = req.params.id;
+    const fotoPath = `/uploads/fotosEmpleados/${req.file.filename}`;
+
+    await pool.query("UPDATE empleados SET foto_path = ? WHERE id = ?", [
+      fotoPath,
+      empleadoId,
+    ]);
+
+    res.json({
+      message: "Foto subida correctamente",
+      path: fotoPath,
+    });
+  } catch (error) {
+    console.error("Error subiendo foto:", error);
+    res.status(500).json({ message: "Error interno al subir foto" });
+  }
+};
+
+
+export const getFotoEmpleado = (req, res) => {
+  const { id } = req.params;
+  const filePath = path.join(process.cwd(), "uploads/fotosEmpleados", `${id}.jpg`);
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  } else {
+    return res.status(404).json({ message: "Foto no encontrada" });
+  }
+};
+
+
+export const getEmpleadoById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await pool.query("SELECT * FROM empleados WHERE id = ?", [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Empleado no encontrado" });
+    }
+
+    const empleado = rows[0];
+
+    if (empleado.foto) {
+      empleado.fotoUrl = `${req.protocol}://${req.get("host")}/api/empleados/${empleado.id}/foto`;
+    }
+
+    res.json(empleado);
+  } catch (err) {
+    console.error("Error en getEmpleadoById:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getEmpleadoFoto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query("SELECT foto FROM empleados WHERE id = ?", [id]);
+
+    if (rows.length === 0 || !rows[0].foto) {
+      return res.status(404).send("Foto no encontrada");
+    }
+
+    const filePath = path.join(__dirname, "../uploads", rows[0].foto);
+    res.sendFile(filePath);
+  } catch (err) {
+    console.error("Error en getEmpleadoFoto:", err);
+    res.status(500).send("Error interno del servidor");
+  }
+};
+
 
 
 
