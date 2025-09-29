@@ -4,8 +4,8 @@
   "main": "./backend/index.js",
   "type": "module",
   "scripts": {
-    "start": "node ./backend/index.js",
-    "dev": "nodemon ./backend/index.js",
+    "start": "node --env-file=./backend/.env ./backend/index.js",
+    "dev": "nodemon --env-file=./backend/.env ./backend/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -22,6 +22,7 @@
     "mysql2": "^3.14.4",
     "qrcode": "^1.5.4",
     "react-router-dom": "^7.8.2",
+    "sharp": "^0.34.4",
     "uuid": "^11.1.0",
     "xlsx": "^0.18.5"
   },

@@ -1,38 +1,37 @@
 import express from "express";
 import multer from "multer";
-import {
-  uploadEmpleados,
+import { 
   getEmpleados,
-  deleteEmpleado,
   registrarEmpleado,
-  actualizarEstadoEmpleado,
-  postGenerarQr,
   getBuscarEmpleados,
-  buscarEmpleadoQR,
   actualizarEmpleado,
-  uploadFotoEmpleado,
-  getFotoEmpleado,
+  actualizarEstadoEmpleado,
   getEmpleadoById,
+  deleteEmpleado
 } from "../controllers/empleados.controller.js";
+
+import { uploadFotoEmpleado, getEmpleadoFoto } from "../controllers/fotos.controller.js";
+import { postGenerarQr } from "../controllers/qr.controller.js";
+import { uploadEmpleados } from "../controllers/excel.controller.js";
+
 import { uploadFoto } from "../middlewares/uploadFoto.js";
 
 const router = express.Router();
-const upload = multer({ dest: "uploads/" });
+const uploadExcel = multer({ dest: "uploads/" });
 
-router.post("/importar", upload.single("file"), uploadEmpleados);
+router.post("/importar", uploadExcel.single("file"), uploadEmpleados);
 
 router.get("/", getEmpleados);
-router.delete("/:id", deleteEmpleado);
 router.post("/", registrarEmpleado);
+router.get("/search", getBuscarEmpleados);
+router.get("/:id", getEmpleadoById);
+router.patch("/:id", actualizarEmpleado);
+router.delete("/:id", deleteEmpleado);
+
 router.patch("/:id/estado", actualizarEstadoEmpleado);
 router.post("/:id/generar-qr", postGenerarQr);
-router.get("/search", getBuscarEmpleados);
-router.get("/empleados/buscar", buscarEmpleadoQR);
-router.patch("/:id", actualizarEmpleado);
 
 router.post("/:id/foto", uploadFoto.single("foto"), uploadFotoEmpleado);
-router.get("/:id/foto", getFotoEmpleado);
-
-router.get("/:id", getEmpleadoById);
+router.get("/:id/foto", getEmpleadoFoto);
 
 export default router;

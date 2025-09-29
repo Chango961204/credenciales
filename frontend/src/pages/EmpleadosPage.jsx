@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { obtenerEmpleados, updateEmpleado, buscarEmpleados } from "../services/empleadosApi";
 import EmpleadosTable from "../components/EmpleadosTable";
 import { useNavigate } from "react-router-dom";
-//import EditEmpleadoModal from "../components/EditEmpleadoModal";
 
 function EmpleadosPage() {
   const [empleados, setEmpleados] = useState([]);

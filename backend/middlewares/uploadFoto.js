@@ -9,9 +9,24 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${req.params.id}${ext}`); // ej: 1306.jpg
+    cb(null, `${req.params.id}.png`);
   },
 });
 
-export const uploadFoto = multer({ storage });
+// 📌 Filtro para aceptar solo imágenes
+const fileFilter = (req, file, cb) => {
+  const allowed = ["image/jpeg", "image/png", "image/webp"];
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Solo se permiten imágenes (jpg, png, webp)"), false);
+  }
+};
+
+// ✅ Exportar middleware listo
+export const uploadFoto = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB máximo
+});
+export default uploadFoto;

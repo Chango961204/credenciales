@@ -1,4 +1,4 @@
-import pool from "../db.js";
+import pool from "../config/db.js";
 import { parseExcelDate } from "../utils/date.util.js";
 import { mapRowToEmpleado } from "../utils/empleados.mapper.js";
 

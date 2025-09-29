@@ -48,7 +48,6 @@ function EmpleadosTable({ empleados, onEdit }) {
     <table border="1" cellPadding="6" style={{ marginTop: "20px", width: "100%", borderCollapse: "collapse" }}>
       <thead>
         <tr>
-          <th>ID</th>
           <th>Num Trab</th>
           <th>RFC</th>
           <th>Nombre</th>
@@ -69,7 +68,6 @@ function EmpleadosTable({ empleados, onEdit }) {
       <tbody>
         {empleados.map((emp) => (
           <tr key={emp.id}>
-            <td>{emp.id}</td>
             <td>{emp.num_trab}</td>
             <td>{emp.rfc}</td>
             <td>{emp.nom_trab}</td>
