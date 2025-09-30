@@ -2,6 +2,7 @@ import { useState } from "react";
 import BuscarForm from "../components/BuscarForm";
 import EmpleadoCard from "../components/EmpleadoCard";
 import useEmpleados from "../../hooks/useEmpleados";
+
 export default function BuscarEmpleadosPage() {
   const {
     resultados,
@@ -42,36 +43,57 @@ export default function BuscarEmpleadosPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Buscar Empleados</h2>
+    <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <h2 className="text-3xl font-extrabold mb-6 text-gray-800 tracking-tight">
+        🔍 Buscar Empleados
+      </h2>
 
-      <BuscarForm onSearch={handleSearch} />
+      {/* Formulario */}
+      <div className="bg-white shadow-md rounded-xl p-5 mb-6 transition hover:shadow-lg">
+        <BuscarForm onSearch={handleSearch} />
+      </div>
 
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">{error}</div>}
+      {/* Mensajes de error */}
+      {error && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+          <strong className="font-semibold">Error: </strong> {error}
+        </div>
+      )}
 
-      {loading && <p className="text-gray-500">Buscando...</p>}
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center gap-2 text-gray-600 mb-4">
+          <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span>Buscando empleados...</span>
+        </div>
+      )}
 
+      {/* Resultados */}
       {resultados.length > 0 && (
-        <div>
-          <h3 className="text-green-600 mb-3 font-semibold">
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-green-600 mb-3">
             {resultados.length} empleado(s) encontrado(s)
           </h3>
-          {resultados.map((emp) => (
-            <EmpleadoCard
-              key={emp.id}
-              emp={emp}
-              qrEmpleadoId={qrEmpleadoId}
-              qrData={qrData}
-              onGenerate={handleGenerate}
-              onEdit={openModal}
-              onCloseQr={() => setQrEmpleadoId(null)}
-              modalEmpleadoId={modalEmpleadoId}
-              editForm={editForm}
-              setEditForm={setEditForm}
-              onSave={handleSave}
-              setResultados={setResultados}
-            />
-          ))}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {resultados.map((emp) => (
+              <EmpleadoCard
+                key={emp.id}
+                emp={emp}
+                qrEmpleadoId={qrEmpleadoId}
+                qrData={qrData}
+                onGenerate={handleGenerate}
+                onEdit={openModal}
+                onCloseQr={() => setQrEmpleadoId(null)}
+                modalEmpleadoId={modalEmpleadoId}
+                editForm={editForm}
+                setEditForm={setEditForm}
+                onSave={handleSave}
+                setResultados={setResultados}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>

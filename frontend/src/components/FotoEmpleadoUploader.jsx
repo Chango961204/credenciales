@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { uploadFotoEmpleado, getFotoEmpleado } from "../services/empleadosApi";
+import { Camera, Upload } from "lucide-react";
 
 const FotoEmpleadoUploader = ({ empleado }) => {
   if (!empleado) {
@@ -26,22 +27,38 @@ const FotoEmpleadoUploader = ({ empleado }) => {
   };
 
   return (
-    <div className="mt-3 p-2 border rounded">
-      <p className="font-semibold">Foto del empleado:</p>
+    <div className="mt-4 p-4 border rounded-xl shadow-md bg-white">
+      <p className="font-semibold text-gray-700 mb-2">Foto del empleado</p>
+
       {previewUrl ? (
         <img
           src={previewUrl}
           alt="Foto del empleado"
-          className="w-32 h-32 object-cover rounded mb-2"
+          className="w-32 h-32 object-cover rounded-lg border shadow-sm mb-3 transition-transform hover:scale-105"
         />
       ) : (
-        <p className="text-gray-400">Sin foto</p>
+        <div className="w-32 h-32 flex items-center justify-center bg-gray-100 rounded-lg mb-3 border text-gray-400">
+          Sin foto
+        </div>
       )}
-      <input type="file" accept="image/*" onChange={handleFileChange} />
+
+      {/* Input estilizado con ícono */}
+      <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 cursor-pointer font-medium w-fit">
+        <Camera size={18} />
+        <span>Seleccionar foto</span>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </label>
+
       <button
         onClick={handleUpload}
-        className="mt-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow"
       >
+        <Upload size={18} />
         Subir Foto
       </button>
     </div>

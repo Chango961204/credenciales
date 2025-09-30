@@ -5,9 +5,12 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const importarExcel = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  return await axios.post(`${API_URL}/importar`, formData, {
+  
+  // CAMBIO IMPORTANTE: retornar res.data en lugar de res
+  const res = await axios.post(`${API_URL}/importar`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+  return res.data; // <-- Esto estaba faltando
 };
 
 export const obtenerEmpleados = async (page = 1, limit = 10) => {
@@ -52,8 +55,6 @@ export const updateEmpleado = async (id, data) => {
   const res = await axios.patch(`${API_URL}/${id}`, data);
   return res.data;
 };
-
-
 
 export const uploadFotoEmpleado = async (id, file) => {
   const formData = new FormData();

@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { obtenerEmpleados, updateEmpleado, buscarEmpleados } from "../services/empleadosApi";
+import {
+  obtenerEmpleados,
+  updateEmpleado,
+  buscarEmpleados,
+} from "../services/empleadosApi";
 import EmpleadosTable from "../components/EmpleadosTable";
 import { useNavigate } from "react-router-dom";
 
@@ -9,13 +13,13 @@ function EmpleadosPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [selectedEmpleado, setSelectedEmpleado] = useState(null);
-  
+
   const [numTrab, setNumTrab] = useState("");
   const [nombreEmpleado, setNombreEmpleado] = useState("");
   const [esBusqueda, setEsBusqueda] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   const navigate = useNavigate();
 
   const fetchEmpleados = async (pageNumber = 1) => {
@@ -43,16 +47,16 @@ function EmpleadosPage() {
 
     setLoading(true);
     setError("");
-    
+
     try {
       const resultados = await buscarEmpleados({
         num_trab: numTrab.trim() || undefined,
         nombre: nombreEmpleado.trim() || undefined,
       });
-      
+
       setEmpleados(resultados);
       setEsBusqueda(true);
-      
+
       if (resultados.length === 0) {
         setError("No se encontraron empleados");
       }
@@ -74,11 +78,11 @@ function EmpleadosPage() {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') handleBuscar();
+    if (e.key === "Enter") handleBuscar();
   };
 
   const handleImportClick = () => {
-    navigate('/importar-empleados');
+    navigate("/importar-empleados");
   };
 
   const handleEditClick = (empleado) => {
@@ -89,7 +93,7 @@ function EmpleadosPage() {
     try {
       await updateEmpleado(empleadoActualizado.id, empleadoActualizado);
       setSelectedEmpleado(null);
-      
+
       if (esBusqueda) {
         handleBuscar();
       } else {
@@ -110,157 +114,113 @@ function EmpleadosPage() {
   }, []);
 
   return (
-    <div style={{ padding: "30px", maxWidth: "1400px", margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h1>Gestión de Empleados</h1>
-        <button 
+    <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
+          👨‍💼 Gestión de Empleados
+        </h1>
+        <button
           onClick={handleImportClick}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#28a745",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer"
-          }}
+          className="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md 
+                     hover:bg-green-700 transition transform hover:scale-105"
         >
-          Importar Excel
+          📥 Importar Excel
         </button>
       </div>
 
-      <div style={{ 
-        marginBottom: "20px", 
-        padding: "15px", 
-        backgroundColor: "#f8f9fa", 
-        borderRadius: "5px" 
-      }}>
-        <h4 style={{ marginBottom: "10px" }}>Buscar Empleados</h4>
-        
-        <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+      {/* Buscador */}
+      <div className="bg-white p-5 rounded-lg shadow-md mb-6">
+        <h4 className="text-lg font-semibold mb-3 text-gray-700">
+          🔍 Buscar Empleados
+        </h4>
+        <div className="flex flex-wrap gap-3 items-center">
           <input
             placeholder="Número de empleado"
             value={numTrab}
             onChange={(e) => setNumTrab(e.target.value)}
             onKeyPress={handleKeyPress}
-            style={{
-              padding: "8px 12px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-              minWidth: "150px"
-            }}
+            className="px-3 py-2 border border-gray-300 rounded-lg 
+                       focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
-          
           <input
             placeholder="Nombre del empleado"
             value={nombreEmpleado}
             onChange={(e) => setNombreEmpleado(e.target.value)}
             onKeyPress={handleKeyPress}
-            style={{
-              padding: "8px 12px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-              minWidth: "200px"
-            }}
+            className="px-3 py-2 border border-gray-300 rounded-lg 
+                       focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
-          
           <button
             onClick={handleBuscar}
             disabled={loading}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: loading ? "#6c757d" : "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: loading ? "not-allowed" : "pointer"
-            }}
+            className={`px-4 py-2 rounded-lg text-white font-medium transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 hover:scale-105"
+            }`}
           >
             {loading ? "Buscando..." : "Buscar"}
           </button>
-          
           <button
             onClick={handleLimpiarBusqueda}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: "#6c757d",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer"
-            }}
+            className="px-4 py-2 rounded-lg bg-gray-600 text-white font-medium 
+                       hover:bg-gray-700 hover:scale-105 transition"
           >
             Ver Todos
           </button>
         </div>
       </div>
 
+      {/* Mensajes */}
       {error && (
-        <div style={{
-          padding: "10px",
-          backgroundColor: "#f8d7da",
-          color: "#721c24",
-          border: "1px solid #f5c6cb",
-          borderRadius: "4px",
-          marginBottom: "20px"
-        }}>
+        <div className="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded">
           {error}
         </div>
       )}
 
       {esBusqueda && (
-        <div style={{
-          padding: "10px",
-          backgroundColor: "#d1ecf1",
-          color: "#0c5460",
-          border: "1px solid #bee5eb",
-          borderRadius: "4px",
-          marginBottom: "20px"
-        }}>
+        <div className="mb-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-3 rounded">
           Resultados de búsqueda ({empleados.length} encontrados)
         </div>
       )}
 
-      <EmpleadosTable empleados={empleados} onEdit={handleEditClick} />
+      {/* Tabla de empleados */}
+      <div className="bg-white shadow-md rounded-lg p-4">
+        <EmpleadosTable empleados={empleados} onEdit={handleEditClick} />
+      </div>
 
+      {/* Paginación */}
       {!esBusqueda && (
-        <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
+        <div className="mt-6 flex justify-center items-center gap-3">
           <button
             onClick={() => fetchEmpleados(page - 1)}
             disabled={page <= 1}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: page <= 1 ? "#ccc" : "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: page <= 1 ? "not-allowed" : "pointer"
-            }}
+            className={`px-4 py-2 rounded-lg font-medium transition ${
+              page <= 1
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
+            }`}
           >
             Anterior
           </button>
-          
-          <span style={{ margin: "0 15px", fontWeight: "bold" }}>
+          <span className="font-semibold text-gray-700">
             Página {page} de {Math.ceil(total / limit)}
           </span>
-          
           <button
             onClick={() => fetchEmpleados(page + 1)}
             disabled={page >= Math.ceil(total / limit)}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: page >= Math.ceil(total / limit) ? "#ccc" : "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: page >= Math.ceil(total / limit) ? "not-allowed" : "pointer"
-            }}
+            className={`px-4 py-2 rounded-lg font-medium transition ${
+              page >= Math.ceil(total / limit)
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
+            }`}
           >
             Siguiente
           </button>
         </div>
       )}
-
-          </div>
+    </div>
   );
 }
 

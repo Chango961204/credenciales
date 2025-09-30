@@ -11,7 +11,5 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-console.log(process.env.DB_HOST);
-
 
 export default pool;

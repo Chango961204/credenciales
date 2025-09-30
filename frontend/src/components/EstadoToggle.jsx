@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { actualizarEstadoEmpleado } from "../services/empleadosApi";
+import { Check, X } from "lucide-react"; // 👈 íconos modernos
 
 function EstadoToggle({ empleado, onQrUpdate }) {
   const [estado, setEstado] = useState(empleado.estado_qr);
@@ -19,21 +20,24 @@ function EstadoToggle({ empleado, onQrUpdate }) {
   };
 
   return (
-    <div className="mt-2">
-      <label className="flex items-center gap-2 cursor-pointer">
-        <span className="text-sm">Empleado:</span>
-        <button
-          onClick={handleToggle}
-          className={`px-3 py-1 rounded text-white ${
-            estado === "activo"
-              ? "bg-green-600 hover:bg-green-700"
-              : "bg-red-600 hover:bg-red-700"
-          }`}
-        >
-          {estado === "activo" ? "Activo" : "Inactivo"}
-        </button>
-      </label>
-    </div>
+    <button
+      onClick={handleToggle}
+      className={`relative inline-flex items-center h-8 w-14 rounded-full transition-colors duration-300 focus:outline-none shadow-md ${
+        estado === "activo" ? "bg-green-500" : "bg-red-500"
+      }`}
+    >
+      <span
+        className={`absolute left-1 inline-flex items-center justify-center w-6 h-6 transform rounded-full bg-white shadow transition-transform duration-300 ${
+          estado === "activo" ? "translate-x-6" : "translate-x-0"
+        }`}
+      >
+        {estado === "activo" ? (
+          <Check size={16} className="text-green-600" />
+        ) : (
+          <X size={16} className="text-red-600" />
+        )}
+      </span>
+    </button>
   );
 }
 

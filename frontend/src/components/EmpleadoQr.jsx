@@ -33,43 +33,53 @@ function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
   `;
 
   return (
-    <div className="mt-4 p-4 border border-green-400 rounded bg-gray-50">
-      <h3 className="text-green-600 font-bold mb-2">
-        QR generado para {empleado.nom_trab}
+    <div className="mt-6 p-6 bg-white shadow-lg rounded-xl border border-gray-200">
+      <h3 className="text-xl font-bold text-gray-800 mb-4">
+        📋 QR generado para <span className="text-blue-600">{empleado.nom_trab}</span>
       </h3>
-      <div className="flex gap-6 flex-wrap items-center">
-        <QRCodeCanvas value={qrValue} size={160} includeMargin={true} />
-        <div>
-          <p><strong>Número:</strong> {empleado.num_trab}</p>
-          <p><strong>Nombre:</strong> {empleado.nom_trab}</p>
-          <p><strong>IMSS:</strong> {empleado.num_imss || "N/A"}</p>
-          <p><strong>RFC:</strong> {empleado.rfc || "N/A"}</p>
-          <p><strong>Departamento:</strong> {empleado.nom_depto || "N/A"}</p>
-          <p><strong>Puesto:</strong> {empleado.puesto || "N/A"}</p>
-          <p><strong>Vencimiento:</strong> {formatDate(empleado.vencimiento_contrato)}</p>
+
+      <div className="flex flex-wrap gap-8 items-center">
+        {/* QR Code */}
+        <div className="flex justify-center">
+          <QRCodeCanvas value={qrValue} size={180} includeMargin={true} />
+        </div>
+
+        {/* Datos */}
+        <div className="text-sm space-y-2 text-gray-700">
+          <p><span className="font-semibold text-gray-900">Número:</span> {empleado.num_trab}</p>
+          <p><span className="font-semibold text-gray-900">Nombre:</span> {empleado.nom_trab}</p>
+          <p><span className="font-semibold text-gray-900">IMSS:</span> {empleado.num_imss || "N/A"}</p>
+          <p><span className="font-semibold text-gray-900">RFC:</span> {empleado.rfc || "N/A"}</p>
+          <p><span className="font-semibold text-gray-900">Departamento:</span> {empleado.nom_depto || "N/A"}</p>
+          <p><span className="font-semibold text-gray-900">Puesto:</span> {empleado.puesto || "N/A"}</p>
+          <p><span className="font-semibold text-gray-900">Vencimiento:</span> {formatDate(empleado.vencimiento_contrato)}</p>
           <p>
-            <strong>Estatus:</strong>{" "}
+            <span className="font-semibold text-gray-900">Estatus:</span>{" "}
             <span
               className={
                 estatus === "Activo"
-                  ? "text-green-600 font-semibold"
-                  : "text-red-600 font-semibold"
+                  ? "text-green-600 font-bold"
+                  : "text-red-600 font-bold"
               }
             >
               {estatus}
             </span>
           </p>
 
+          {/* Toggle de estado */}
           <EstadoToggle empleado={empleado} onQrUpdate={onQrUpdate} />
         </div>
       </div>
 
-      <button
-        className="mt-2 px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700"
-        onClick={onClose}
-      >
-        Cerrar
-      </button>
+      {/* Botón cerrar */}
+      <div className="mt-6 flex justify-end">
+        <button
+          className="px-5 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition"
+          onClick={onClose}
+        >
+          Cerrar
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import empleadosRoutes from "./routes/empleados.routes.js";
+import "./scheduler.js"; 
 
 const app = express();
 app.use(cors());

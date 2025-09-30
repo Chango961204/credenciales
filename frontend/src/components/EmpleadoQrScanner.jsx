@@ -35,46 +35,86 @@ export default function EmpleadoQrScanner() {
       fps: 10,
       qrbox: 250,
     });
-    scanner.render(onScanSuccess, (err) => console.warn("Error escaneo:", err));
+    scanner.render(onScanSuccess, (err) =>
+      console.warn("Error escaneo:", err)
+    );
 
-    return () => scanner.clear(); // limpiar al desmontar
+    return () => scanner.clear();
   }, []);
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Escanear credencial</h2>
-      <div id="reader" className="w-full max-w-md mx-auto"></div>
+    <div className="p-6 max-w-2xl mx-auto">
+      {/* Título principal */}
+      <h2 className="text-2xl font-bold text-center text-green-600 mb-6">
+        Escanear Credencial
+      </h2>
 
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {/* Contenedor del escáner */}
+      <div
+        id="reader"
+        className="w-full max-w-md mx-auto border-2 border-green-400 rounded-xl shadow-md overflow-hidden"
+      ></div>
 
+      {/* Mensaje de error */}
+      {error && (
+        <p className="text-red-500 mt-4 text-center font-medium">{error}</p>
+      )}
+
+      {/* Datos del empleado */}
       {empleado && (
-        <div className="mt-4 p-4 border rounded shadow bg-white">
-          <h3 className="text-lg font-bold mb-2">{empleado.nom_trab}</h3>
-          <p><strong>Número:</strong> {empleado.num_trab}</p>
-          <p><strong>IMSS:</strong> {empleado.num_imss || "N/A"}</p>
-          <p><strong>RFC:</strong> {empleado.rfc || "N/A"}</p>
-          <p><strong>Departamento:</strong> {empleado.nom_depto || "N/A"}</p>
-          <p><strong>Puesto:</strong> {empleado.puesto || "N/A"}</p>
-          <p><strong>Vencimiento:</strong> {empleado.vencimiento_contrato || "N/A"}</p>
-          <p>
-            <strong>Estatus:</strong>{" "}
-            <span
-              className={
-                empleado.estado_qr === "activo"
-                  ? "text-green-600 font-semibold"
-                  : "text-red-600 font-semibold"
-              }
-            >
-              {empleado.estado_qr}
-            </span>
-          </p>
+        <div className="mt-6 p-6 border rounded-xl shadow-lg bg-white">
+          <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">
+            {empleado.nom_trab}
+          </h3>
 
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-gray-700">
+            <p>
+              <span className="font-semibold">Número:</span>{" "}
+              {empleado.num_trab}
+            </p>
+            <p>
+              <span className="font-semibold">IMSS:</span>{" "}
+              {empleado.num_imss || "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">RFC:</span>{" "}
+              {empleado.rfc || "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">Departamento:</span>{" "}
+              {empleado.nom_depto || "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">Puesto:</span>{" "}
+              {empleado.puesto || "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">Vencimiento:</span>{" "}
+              {empleado.vencimiento_contrato || "N/A"}
+            </p>
+            <p className="col-span-2">
+              <span className="font-semibold">Estatus:</span>{" "}
+              <span
+                className={
+                  empleado.estado_qr === "activo"
+                    ? "text-green-600 font-bold"
+                    : "text-red-600 font-bold"
+                }
+              >
+                {empleado.estado_qr}
+              </span>
+            </p>
+          </div>
+
+          {/* Foto del empleado */}
           {empleado.fotoUrl && (
-            <img
-              src={empleado.fotoUrl}
-              alt="Foto del empleado"
-              className="mt-3 w-32 h-32 object-cover rounded border"
-            />
+            <div className="flex justify-center mt-6">
+              <img
+                src={empleado.fotoUrl}
+                alt="Foto del empleado"
+                className="w-32 h-32 object-cover rounded-full border-4 border-green-500 shadow-md"
+              />
+            </div>
           )}
         </div>
       )}
