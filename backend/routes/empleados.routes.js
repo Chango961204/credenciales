@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { 
+import {
   getEmpleados,
   registrarEmpleado,
   getBuscarEmpleados,
@@ -9,6 +9,7 @@ import {
   getEmpleadoById,
   deleteEmpleado
 } from "../controllers/empleados.controller.js";
+import { generarCredencial } from "../controllers/credenciales.controller.js";
 
 import { uploadFotoEmpleado, getEmpleadoFoto } from "../controllers/fotos.controller.js";
 import { postGenerarQr } from "../controllers/qr.controller.js";
@@ -33,5 +34,8 @@ router.post("/:id/generar-qr", postGenerarQr);
 
 router.post("/:id/foto", uploadFoto.single("foto"), uploadFotoEmpleado);
 router.get("/:id/foto", getEmpleadoFoto);
+
+router.get("/:id/credencial", generarCredencial);
+
 
 export default router;

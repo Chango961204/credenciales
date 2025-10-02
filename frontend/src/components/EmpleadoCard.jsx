@@ -1,6 +1,7 @@
 import EmpleadoQr from "./EmpleadoQr";
 import EmpleadoModal from "./EmpleadoModal";
 import FotoEmpleadoUploader from "./FotoEmpleadoUploader";
+import CredencialGenerator from "./credencialGenerator";
 
 function formatDate(value) {
   if (!value) return "N/A";
@@ -86,7 +87,6 @@ export default function EmpleadoCard({
             </p>
           </div>
 
-          {/* Subida de foto */}
           <div className="mt-4">
             <FotoEmpleadoUploader
               empleadoId={emp.id}
@@ -102,7 +102,6 @@ export default function EmpleadoCard({
           </div>
         </div>
 
-        {/* Acciones */}
         <div className="flex flex-col gap-3">
           <button
             className="px-5 py-2.5 rounded-lg bg-green-600 text-white font-medium shadow hover:bg-green-700 transition"
@@ -116,10 +115,10 @@ export default function EmpleadoCard({
           >
             Editar
           </button>
+
         </div>
       </div>
 
-      {/* QR */}
       {qrEmpleadoId === emp.id && (
         <EmpleadoQr
           empleado={qrData[emp.id]?.empleado || emp}
@@ -135,7 +134,6 @@ export default function EmpleadoCard({
         />
       )}
 
-      {/* Modal */}
       {modalEmpleadoId === emp.id && (
         <EmpleadoModal
           empleado={emp}
@@ -145,6 +143,9 @@ export default function EmpleadoCard({
           onSave={onSave}
         />
       )}
+      <CredencialGenerator empleadoId={emp.id} />
+
     </div>
+
   );
 }
