@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { actualizarEstadoEmpleado } from "../services/empleadosApi";
-import { Check, X } from "lucide-react"; // 👈 íconos modernos
+import { Check, X } from "lucide-react";
 
 function EstadoToggle({ empleado, onQrUpdate }) {
   const [estado, setEstado] = useState(empleado.estado_qr);

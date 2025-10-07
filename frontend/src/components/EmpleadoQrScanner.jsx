@@ -49,18 +49,15 @@ export default function EmpleadoQrScanner() {
         Escanear Credencial
       </h2>
 
-      {/* Contenedor del escáner */}
       <div
         id="reader"
         className="w-full max-w-md mx-auto border-2 border-green-400 rounded-xl shadow-md overflow-hidden"
       ></div>
 
-      {/* Mensaje de error */}
       {error && (
         <p className="text-red-500 mt-4 text-center font-medium">{error}</p>
       )}
 
-      {/* Datos del empleado */}
       {empleado && (
         <div className="mt-6 p-6 border rounded-xl shadow-lg bg-white">
           <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">
@@ -106,7 +103,6 @@ export default function EmpleadoQrScanner() {
             </p>
           </div>
 
-          {/* Foto del empleado */}
           {empleado.fotoUrl && (
             <div className="flex justify-center mt-6">
               <img

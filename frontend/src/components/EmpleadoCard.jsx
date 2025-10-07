@@ -54,7 +54,6 @@ export default function EmpleadoCard({
   return (
     <div className="bg-white shadow-lg rounded-2xl p-6 mb-4 border border-gray-100 hover:shadow-xl transition-all">
       <div className="flex justify-between items-start gap-6">
-        {/* Información del empleado */}
         <div className="flex-1">
           <h4 className="text-xl font-bold text-gray-800 mb-3">
             {emp.nom_trab}

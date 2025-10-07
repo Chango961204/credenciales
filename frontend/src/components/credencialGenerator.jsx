@@ -138,6 +138,24 @@ export default function CredencialGenerator({ empleadoId }) {
     }
   };
 
+  // --- Imprimir ambos lados ---
+  const handlePrintDoubleSided = async () => {
+    if (!imgs?.frente || !imgs?.reverso) {
+      alert("Genera primero ambas imágenes (frente y reverso)");
+      return;
+    }
+    try {
+      const res = await axios.post("http://localhost:4000/api/impresion", {
+        frente: imgs.frente,
+        reverso: imgs.reverso,
+      });
+      alert("Impresión doble cara enviada correctamente");
+    } catch (err) {
+      console.error("Error imprimiendo doble cara:", err);
+      alert("Error imprimiendo doble cara: " + (err?.response?.data?.error || err.message));
+    }
+  };
+
   return (
     <div className="flex flex-col gap-2 mt-3">
       <button
@@ -149,33 +167,41 @@ export default function CredencialGenerator({ empleadoId }) {
       </button>
 
       {imgs && (
-        <div className="mt-3 flex gap-6 justify-center">
-          <div className="flex flex-col items-center">
-            <img
-              src={imgs.frente || ""}
-              alt="frente"
-              className="w-80 h-48 object-contain rounded-lg shadow-md border"
-            />
-            <div className="mt-2 flex gap-2">
-              <button onClick={() => openPreviewWindow(imgs.frente)} className="px-3 py-1 rounded bg-gray-200 text-sm hover:bg-gray-300">Visualizar</button>
-              <button onClick={() => handlePrint(imgs.frente)} className="px-3 py-1 rounded bg-green-600 text-white text-sm hover:bg-green-700">Imprimir</button>
-              <button onClick={() => handleDownload(imgs.frente, "credencial_frente.png")} className="px-3 py-1 rounded bg-blue-600 text-white text-sm hover:bg-blue-700">Descargar</button>
+        <>
+          <div className="mt-3 flex gap-6 justify-center">
+            <div className="flex flex-col items-center">
+              <img
+                src={imgs.frente || ""}
+                alt="frente"
+                className="w-80 h-48 object-contain rounded-lg shadow-md border"
+              />
+              <div className="mt-2 flex gap-2">
+                <button onClick={() => openPreviewWindow(imgs.frente)} className="px-3 py-1 rounded bg-gray-200 text-sm hover:bg-gray-300">Visualizar</button>
+                <button onClick={() => handleDownload(imgs.frente, "credencial_frente.png")} className="px-3 py-1 rounded bg-blue-600 text-white text-sm hover:bg-blue-700">Descargar</button>
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-col items-center">
-            <img
-              src={imgs.reverso || ""}
-              alt="reverso"
-              className="w-80 h-48 object-contain rounded-lg shadow-md border"
-            />
-            <div className="mt-2 flex gap-2">
-              <button onClick={() => openPreviewWindow(imgs.reverso)} className="px-3 py-1 rounded bg-gray-200 text-sm hover:bg-gray-300">Visualizar</button>
-              <button onClick={() => handlePrint(imgs.reverso)} className="px-3 py-1 rounded bg-green-600 text-white text-sm hover:bg-green-700">Imprimir</button>
-              <button onClick={() => handleDownload(imgs.reverso, "credencial_reverso.png")} className="px-3 py-1 rounded bg-blue-600 text-white text-sm hover:bg-blue-700">Descargar</button>
+            <div className="flex flex-col items-center">
+              <img
+                src={imgs.reverso || ""}
+                alt="reverso"
+                className="w-80 h-48 object-contain rounded-lg shadow-md border"
+              />
+              <div className="mt-2 flex gap-2">
+                <button onClick={() => openPreviewWindow(imgs.reverso)} className="px-3 py-1 rounded bg-gray-200 text-sm hover:bg-gray-300">Visualizar</button>
+                <button onClick={() => handleDownload(imgs.reverso, "credencial_reverso.png")} className="px-3 py-1 rounded bg-blue-600 text-white text-sm hover:bg-blue-700">Descargar</button>
+              </div>
             </div>
           </div>
-        </div>
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={handlePrintDoubleSided}
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700"
+            >
+              Imprimir ambos lados
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

@@ -1,9 +1,9 @@
 import pool from "../config/db.js";
 import dayjs from "dayjs";
-import { 
-  actualizarEmpleado as actualizarEmpleadoService, 
-  saveEmpleadoManual, 
-  obtenerEmpleadosPaginados 
+import {
+  actualizarEmpleado as actualizarEmpleadoService,
+  saveEmpleadoManual,
+  obtenerEmpleadosPaginados
 } from "../services/empleados.service.js";
 
 export const getEmpleados = async (req, res) => {
@@ -109,6 +109,23 @@ export const getEmpleadoById = async (req, res) => {
     const [rows] = await pool.query("SELECT * FROM empleados WHERE id = ?", [id]);
 
     if (rows.length === 0) return res.status(404).json({ message: "Empleado no encontrado" });
+    const empleado = rows[0];
+    const fotoUrl = empleado.foto
+      ? `${req.protocol}://${req.get("host")}/uploads/fotosEmpleados/${empleado.foto}`
+      : `${req.protocol}://${req.get("host")}/plantillas/placeholder.png`;
+
+    res.json({
+      id: empleado.id,
+      num_trab: empleado.num_trab,
+      nom_trab: empleado.nom_trab,
+      puesto: empleado.puesto,
+      rfc: empleado.rfc,
+      num_imss: empleado.num_imss,
+      nom_depto: empleado.nom_depto,
+      vencimiento_contrato: empleado.vencimiento_contrato,
+      estado_qr: empleado.estado_qr,
+      fotoUrl, 
+    });
 
     res.json(rows[0]);
   } catch (err) {

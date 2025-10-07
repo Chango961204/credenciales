@@ -32,22 +32,20 @@ export async function generarCredencialFiles(empleado) {
     }
 
     if (fotoImg) {
-        // Ajusta coordenadas/tamaño según tu plantilla
         ctx.drawImage(fotoImg, 20, 400, 200, 250);
     }
 
-    // --- TEXTO ---
-    ctx.fillStyle = "#2B4C8C";
+    ctx.fillStyle = "#000000ff";
     ctx.textAlign = "left";
 
-    ctx.font = "bold 22px Arial";
+    ctx.font = "bold 30px Arial";
     ctx.fillText(empleado.nom_trab || "Sin nombre", 280, 500);
 
-    ctx.font = "bold 36px Arial";
-    ctx.fillText(empleado.num_trab || "N/A", 430, 730);
+    ctx.font = "bold 33px Arial";
+    ctx.fillText(empleado.num_trab || "Sin numero de empleado", 430, 730);
 
-    ctx.font = "bold 20px Arial";
-    ctx.fillText(empleado.puesto || "Sin cargo", 400, 820);
+    ctx.font = "bold 28px Arial";
+    ctx.fillText(empleado.puesto || "Sin cargo", 350, 880);
 
     const frenteDataUrl = canvas.toDataURL("image/png");
 
@@ -59,9 +57,11 @@ export async function generarCredencialFiles(empleado) {
     ctxReverso.drawImage(reversoImg, 0, 0);
 
     const qrPayload = JSON.stringify({
+        id: empleado.id,
         num_trab: empleado.num_trab,
         nom_trab: empleado.nom_trab,
         puesto: empleado.puesto,
+        
     });
 
     const qrDataUrl = await QRCode.toDataURL(qrPayload, {
@@ -70,7 +70,7 @@ export async function generarCredencialFiles(empleado) {
     });
 
     const qrImg = await loadImage(qrDataUrl);
-    ctxReverso.drawImage(qrImg, 450, 500, 280, 280);
+    ctxReverso.drawImage(qrImg, 430, 500, 380, 380);
 
     ctxReverso.fillStyle = "#000309ff";
     ctxReverso.textAlign = "center";
@@ -86,7 +86,7 @@ export async function generarCredencialFiles(empleado) {
         });
     }
 
-    ctxReverso.fillText(`VENCE: ${fechaVenc}`, reversoImg.width / 2.5, 1555);
+    ctxReverso.fillText(`Vigencia: ${fechaVenc}`, reversoImg.width / 2.3, 1562);
 
     const reversoDataUrl = canvasReverso.toDataURL("image/png");
 

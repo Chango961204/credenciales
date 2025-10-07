@@ -31,7 +31,6 @@ export const uploadFotoEmpleado = async (req, res) => {
 
     fs.unlinkSync(req.file.path); // eliminar archivo temporal
 
-    // ✅ Guardar nombre en la BD en la columna correcta
     await pool.query("UPDATE empleados SET foto_path = ? WHERE id = ?", [
       finalFilename,
       empleadoId,

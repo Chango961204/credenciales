@@ -1,6 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { generarCredencialFiles } from "../services/credenciales.service.js";
+import fs from "fs";
 import Empleado from "../models/Empleados.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,5 +29,7 @@ export const generarCredencial = async (req, res) => {
       message: "Error generando credencial", 
       detail: err.message 
     });
-  }
+  }  
 };
+
+
