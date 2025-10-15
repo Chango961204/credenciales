@@ -1,14 +1,15 @@
 import QRCode from "qrcode";
-import pool from "../config/db.js";
+import Empleado from "../models/Empleados.js";
 
 export const postGenerarQr = async (req, res) => {
   try {
     const { id } = req.params;
-    const [rows] = await pool.query("SELECT * FROM empleados WHERE id = ?", [id]);
 
-    if (rows.length === 0) return res.status(404).json({ message: "Empleado no encontrado" });
+    const empleado = await Empleado.findByPk(id);
 
-    const empleado = rows[0];
+    if (!empleado) {
+      return res.status(404).json({ message: "Empleado no encontrado" });
+    }
 
     const qrPayload = {
       id: empleado.id,
@@ -20,7 +21,11 @@ export const postGenerarQr = async (req, res) => {
 
     const qrCode = await QRCode.toDataURL(JSON.stringify(qrPayload));
 
-    res.json({ message: "QR generado", empleado, qrCode });
+    res.json({
+      message: "QR generado correctamente",
+      empleado,
+      qrCode,
+    });
   } catch (err) {
     console.error("Error postGenerarQr:", err);
     res.status(500).json({ message: "Error al generar QR" });

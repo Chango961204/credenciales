@@ -2,7 +2,7 @@ import sharp from "sharp";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import pool from "../config/db.js";
+import Empleado from "../models/Empleados.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,25 +23,27 @@ export const uploadFotoEmpleado = async (req, res) => {
     const finalFilename = `${empleadoId}.png`;
     const finalPath = path.join(uploadDir, finalFilename);
 
-    // Convertir la imagen a PNG
+    // Redimensionar la imagen y guardarla
     await sharp(req.file.path)
       .resize(500, 500, { fit: "cover" })
       .png()
       .toFile(finalPath);
 
-    fs.unlinkSync(req.file.path); // eliminar archivo temporal
+    // Eliminar el archivo temporal subido
+    fs.unlinkSync(req.file.path);
 
-    await pool.query("UPDATE empleados SET foto_path = ? WHERE id = ?", [
-      finalFilename,
-      empleadoId,
-    ]);
+    // 🔹 Actualizar el registro usando el modelo Sequelize
+    await Empleado.update(
+      { foto_path: finalFilename },
+      { where: { id: empleadoId } }
+    );
 
     res.json({
       message: "Foto subida correctamente",
       filename: finalFilename,
     });
   } catch (error) {
-    console.error("❌ Error en uploadFotoEmpleado:", error);
+    console.error("Error en uploadFotoEmpleado:", error);
     res.status(500).json({ error: "Error interno al subir foto" });
   }
 };
@@ -49,23 +51,24 @@ export const uploadFotoEmpleado = async (req, res) => {
 export const getEmpleadoFoto = async (req, res) => {
   try {
     const { id } = req.params;
-    const [rows] = await pool.query(
-      "SELECT foto_path FROM empleados WHERE id = ?",
-      [id]
-    );
 
-    if (rows.length === 0 || !rows[0].foto_path) {
+    // 🔹 Obtener empleado por su ID, solo el campo foto_path
+    const empleado = await Empleado.findByPk(id, {
+      attributes: ["foto_path"],
+    });
+
+    if (!empleado || !empleado.foto_path) {
       return res.status(404).send("Foto no encontrada");
     }
 
     const filePath = path.join(
       __dirname,
       "../uploads/fotosEmpleados",
-      rows[0].foto_path
+      empleado.foto_path
     );
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).send("Archivo de foto no encontrado en servidor");
+      return res.status(404).send("Archivo de foto no encontrado en el servidor");
     }
 
     res.sendFile(filePath);

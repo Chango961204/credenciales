@@ -58,7 +58,6 @@ export default function CredencialGenerator({ empleadoId }) {
       );
       w.document.close();
 
-      // Revocar objectURL pasado 30s si hicimos uno
       if (src.startsWith("data:")) {
         setTimeout(() => URL.revokeObjectURL(finalUrl), 30000);
       }
@@ -138,7 +137,6 @@ export default function CredencialGenerator({ empleadoId }) {
     }
   };
 
-  // --- Imprimir ambos lados ---
   const handlePrintDoubleSided = async () => {
     if (!imgs?.frente || !imgs?.reverso) {
       alert("Genera primero ambas imágenes (frente y reverso)");

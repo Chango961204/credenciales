@@ -6,11 +6,10 @@ export const importarExcel = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
   
-  // CAMBIO IMPORTANTE: retornar res.data en lugar de res
   const res = await axios.post(`${API_URL}/importar`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return res.data; // <-- Esto estaba faltando
+  return res.data; 
 };
 
 export const obtenerEmpleados = async (page = 1, limit = 10) => {

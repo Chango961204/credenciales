@@ -7,7 +7,6 @@ import sharp from "sharp";
 
 const PRINTER_NAME = "Zebra ZXP Series 3 USB Card Printer";
 
-// Guardar PNG temporal desde base64
 async function savePngTemp(base64Image, fileName = "temp_print.png") {
   const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
   const tempPath = path.join(process.cwd(), fileName);
@@ -15,11 +14,10 @@ async function savePngTemp(base64Image, fileName = "temp_print.png") {
   return tempPath;
 }
 
-// 🆕 Rotar imagen 90° usando Sharp (más confiable que rotar el PDF)
 async function rotateImageVertical(inputPath, outputPath) {
   try {
     await sharp(inputPath)
-      .rotate(90) // Rotar 90° en sentido horario
+      .rotate(90) 
       .toFile(outputPath);
     return outputPath;
   } catch (error) {
@@ -28,7 +26,6 @@ async function rotateImageVertical(inputPath, outputPath) {
   }
 }
 
-// Crear PDF simple SIN rotación (la imagen ya viene rotada)
 function createSimplePdf(imagePath, pdfPath, widthPts = 243, heightPts = 153) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
@@ -48,11 +45,9 @@ function createSimplePdf(imagePath, pdfPath, widthPts = 243, heightPts = 153) {
         const stream = fs.createWriteStream(pdfPath);
         doc.pipe(stream);
 
-        // Página 1: FRENTE (ya viene rotado)
         doc.addPage({ size: [widthPts, heightPts], margin: 0 });
         doc.image(frentePath, 0, 0, { width: widthPts, height: heightPts });
 
-        // Página 2: REVERSO (ya viene rotado)
         doc.addPage({ size: [widthPts, heightPts], margin: 0 });
         doc.image(reversoPath, 0, 0, { width: widthPts, height: heightPts });
 
@@ -76,7 +71,6 @@ function createSimplePdf(imagePath, pdfPath, widthPts = 243, heightPts = 153) {
   });
 }
 
-// 🆕 Crear PDF con frente y reverso YA ROTADOS
 async function createDoubleSidedPdf(frentePath, reversoPath, pdfPath, widthPts = 243, heightPts = 153) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
@@ -88,11 +82,9 @@ async function createDoubleSidedPdf(frentePath, reversoPath, pdfPath, widthPts =
     const stream = fs.createWriteStream(pdfPath);
     doc.pipe(stream);
 
-    // Página 1: FRENTE (ya viene rotado)
     doc.addPage({ size: [widthPts, heightPts], margin: 0 });
     doc.image(frentePath, 0, 0, { width: widthPts, height: heightPts });
 
-    // Página 2: REVERSO (ya viene rotado)
     doc.addPage({ size: [widthPts, heightPts], margin: 0 });
     doc.image(reversoPath, 0, 0, { width: widthPts, height: heightPts });
 
@@ -106,18 +98,15 @@ async function createDoubleSidedPdf(frentePath, reversoPath, pdfPath, widthPts =
 export async function printDoubleSidedCard(frenteBase64, reversoBase64, options = {}) {
   const printerName = options.printerName || PRINTER_NAME;
 
-  // 1️⃣ Guardar imágenes originales
   const frenteOriginal = await savePngTemp(frenteBase64, `temp_frente_orig_${Date.now()}.png`);
   const reversoOriginal = await savePngTemp(reversoBase64, `temp_reverso_orig_${Date.now()}.png`);
 
-  // 2️⃣ Rotar imágenes 90° para orientación vertical
   const frenteRotated = path.join(process.cwd(), `temp_frente_rotated_${Date.now()}.png`);
   const reversoRotated = path.join(process.cwd(), `temp_reverso_rotated_${Date.now()}.png`);
 
   await rotateImageVertical(frenteOriginal, frenteRotated);
   await rotateImageVertical(reversoOriginal, reversoRotated);
 
-  // 3️⃣ Crear PDF con las imágenes rotadas
   const pdfPath = path.join(process.cwd(), `temp_card_${Date.now()}.pdf`);
   await createDoubleSidedPdf(frenteRotated, reversoRotated, pdfPath);
 
@@ -132,7 +121,6 @@ export async function printDoubleSidedCard(frenteBase64, reversoBase64, options 
     console.error("❌ Error enviando a la impresora:", err);
     throw err;
   } finally {
-    // 4️⃣ Limpiar todos los archivos temporales
     try { fs.unlinkSync(frenteOriginal); } catch (e) { }
     try { fs.unlinkSync(reversoOriginal); } catch (e) { }
     try { fs.unlinkSync(frenteRotated); } catch (e) { }
@@ -144,14 +132,11 @@ export async function printDoubleSidedCard(frenteBase64, reversoBase64, options 
 export async function printImageAsPdf(base64Image, options = {}) {
   const printerName = options.printerName || PRINTER_NAME;
 
-  // 1️⃣ Guardar imagen original
   const pngOriginal = await savePngTemp(base64Image, `temp_print_orig_${Date.now()}.png`);
 
-  // 2️⃣ Rotar 90° para orientación vertical
   const pngRotated = path.join(process.cwd(), `temp_print_rotated_${Date.now()}.png`);
   await rotateImageVertical(pngOriginal, pngRotated);
 
-  // 3️⃣ Crear PDF simple sin rotación adicional
   const pdfPath = pngRotated.replace(/\.png$/i, ".pdf");
   await createSimplePdf(pngRotated, pdfPath);
 
