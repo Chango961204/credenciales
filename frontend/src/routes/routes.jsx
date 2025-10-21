@@ -4,6 +4,8 @@ import ImportarEmpleados from "../pages/ImportarEmpleados";
 import HomePage from "../pages/HomePage";
 import RegistrarEmpleado from "../pages/RegistrarEmpleado";
 import BuscarEmpleadosPage from "../pages/BuscarEmpleadosPage";
+import CredencialPage from "../pages/CredencialPage";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -19,7 +21,7 @@ function AppRoutes() {
 
       <Route path="buscar-empleado" element={<BuscarEmpleadosPage />} />
 
-      
+      <Route path="/credencial/:id" element={<CredencialPage />} />
 
 
     </Routes>

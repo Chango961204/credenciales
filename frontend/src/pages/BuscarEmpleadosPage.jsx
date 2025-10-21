@@ -44,24 +44,20 @@ export default function BuscarEmpleadosPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
       <h2 className="text-3xl font-extrabold mb-6 text-gray-800 tracking-tight">
         🔍 Buscar Empleados
       </h2>
 
-      {/* Formulario */}
       <div className="bg-white shadow-md rounded-xl p-5 mb-6 transition hover:shadow-lg">
         <BuscarForm onSearch={handleSearch} />
       </div>
 
-      {/* Mensajes de error */}
       {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
           <strong className="font-semibold">Error: </strong> {error}
         </div>
       )}
 
-      {/* Loading */}
       {loading && (
         <div className="flex items-center gap-2 text-gray-600 mb-4">
           <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -69,17 +65,16 @@ export default function BuscarEmpleadosPage() {
         </div>
       )}
 
-      {/* Resultados */}
-      {resultados.length > 0 && (
+      {Array.isArray(resultados) && resultados.length > 0 ? (
         <div className="space-y-4">
           <h3 className="text-xl font-semibold text-green-600 mb-3">
             {resultados.length} empleado(s) encontrado(s)
           </h3>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {resultados.map((emp) => (
+            {resultados.map((emp, index) => (
               <EmpleadoCard
-                key={emp.id}
+                key={emp.id || index}
                 emp={emp}
                 qrEmpleadoId={qrEmpleadoId}
                 qrData={qrData}
@@ -95,6 +90,12 @@ export default function BuscarEmpleadosPage() {
             ))}
           </div>
         </div>
+      ) : (
+        !loading && (
+          <p className="text-center text-gray-500 mt-6">
+            No se encontraron empleados.
+          </p>
+        )
       )}
     </div>
   );

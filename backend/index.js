@@ -8,6 +8,7 @@ import sequelize from "./config/database.js";
 import impresionRoutes from "./routes/impresion.routes.js";
 
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -29,6 +30,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/empleados", empleadosRoutes);
 
 app.use("/api/impresion", impresionRoutes);
+
 
 
 

@@ -24,9 +24,8 @@ const parseDateSafely = (dateValue) => {
   return null;
 };
 
-/* ============================================================
-   🔹 GUARDAR EMPLEADO (desde Excel o import)
-   ============================================================ */
+   // GUARDAR EMPLEADO (desde Excel o import)
+
 export const saveEmpleado = async (row) => {
   const empleado = mapRowToEmpleado(row);
   console.log("Guardando empleado:", empleado);
@@ -53,9 +52,7 @@ export const saveEmpleado = async (row) => {
   });
 };
 
-/* ============================================================
-   🔹 GUARDAR EMPLEADO MANUALMENTE (desde formulario)
-   ============================================================ */
+  // GUARDAR EMPLEADO MANUALMENTE (desde formulario)
 export const saveEmpleadoManual = async (data) => {
   const {
     num_trab,
@@ -94,9 +91,7 @@ export const saveEmpleadoManual = async (data) => {
   });
 };
 
-/* ============================================================
-   🔹 PAGINACIÓN
-   ============================================================ */
+   //PAGINACIÓN
 export const obtenerEmpleadosPaginados = async (page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
 
@@ -109,16 +104,12 @@ export const obtenerEmpleadosPaginados = async (page = 1, limit = 10) => {
   return { data: rows, total: count };
 };
 
-/* ============================================================
-   🔹 ELIMINAR EMPLEADO
-   ============================================================ */
+  // ELIMINAR EMPLEADO
 export const eliminarEmpleado = async (id) => {
   await Empleado.destroy({ where: { id } });
 };
 
-/* ============================================================
-   🔹 BUSCAR EMPLEADOS
-   ============================================================ */
+   //BUSCAR EMPLEADOS
 export const buscarEmpleados = async ({ num_trab, nombre }) => {
   if (num_trab) {
     return await Empleado.findAll({
@@ -140,9 +131,7 @@ export const buscarEmpleados = async ({ num_trab, nombre }) => {
   return [];
 };
 
-/* ============================================================
-   🔹 ACTUALIZAR EMPLEADO
-   ============================================================ */
+   //ACTUALIZAR EMPLEADO
 export const actualizarEmpleado = async (id, data) => {
   const allowed = [
     "num_trab",
