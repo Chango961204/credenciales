@@ -21,7 +21,7 @@ function AppRoutes() {
 
       <Route path="buscar-empleado" element={<BuscarEmpleadosPage />} />
 
-      <Route path="/credencial/:id" element={<CredencialPage />} />
+      <Route path="/credencial/:token" element={<CredencialPage />} />
 
 
     </Routes>

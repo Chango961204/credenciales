@@ -3,6 +3,8 @@ import { createCanvas, loadImage } from "canvas";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import jwt from "jsonwebtoken";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -106,7 +108,21 @@ export async function generarCredencialFiles(empleado) {
 
   ctxReverso.drawImage(reversoImg, 0, 0);
 
-  const frontUrl = `http://localhost:5173/credencial/${empleado.id}`;
+  function crearUrlConToken(empleado) { 
+    const token = jwt.sign(
+      { id: empleado.id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "30d" }
+    );
+
+    const frontUrl = `${process.env.FRONT_URL}/credencial/${token}`;
+    return { token, frontUrl };
+  }
+
+  const { frontUrl } = crearUrlConToken(empleado);
+
+
+  //const frontUrl = `http://localhost:5173/credencial/${empleado.id}`;
   //const frontUrl = `https://6811da40ffb5.ngrok-free.app/credencial/${empleado.id}`;
 
   const qrDataUrl = await QRCode.toDataURL(frontUrl, {

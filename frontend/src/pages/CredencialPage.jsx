@@ -3,25 +3,29 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const CredencialPage = () => {
-  const { id } = useParams();
+  const { token } = useParams(); 
   const [empleado, setEmpleado] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [imagenError, setImagenError] = useState(false); // 🔹 Nuevo estado
+
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchEmpleado = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/empleados/${id}`);
+        const res = await axios.get(`${API_URL}/api/empleados/token/${token}`);
         setEmpleado(res.data);
-
       } catch (error) {
         console.error("Error cargando empleado:", error);
+        setError(error.response?.data?.msg || "Error cargando informacion");
       } finally {
         setLoading(false);
       }
     };
+
     fetchEmpleado();
-  }, [id]);
+  }, [token, API_URL]);
 
   if (loading)
     return (
@@ -29,6 +33,13 @@ const CredencialPage = () => {
         <p className="text-lg text-gray-600 font-semibold">
           Cargando credencial...
         </p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <p className="text-lg text-red-600 font-semibold">{error}</p>
       </div>
     );
 
@@ -42,19 +53,24 @@ const CredencialPage = () => {
     );
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white shadow-2xl rounded-2xl w-96 p-4 text-center border-t-4 border-green-600">
+        {/* FOTO */}
         <div className="border-4 border-gray-300 rounded-lg overflow-hidden mb-3">
-          <img
-            src={empleado.fotoUrl}
-            alt={empleado.nom_trab}
-            className="w-full h-80 object-cover bg-gray-100"
-            onError={(e) => (e.target.src = "/no-photo.png")}
-          />
-
+          {!imagenError ? (
+            <img
+              src={empleado.fotoUrl}
+              alt={empleado.nom_trab}
+              className="w-full h-80 object-cover bg-gray-100"
+              onError={() => setImagenError(true)} 
+            />
+          ) : (
+            <div className="w-full h-80 bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-400 text-6xl"></span>
+            </div>
+          )}
         </div>
 
-        {/* DATOS */}
         <h2 className="text-xl font-bold text-gray-800 uppercase mb-2">
           {empleado.nom_trab}
         </h2>

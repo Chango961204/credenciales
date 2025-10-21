@@ -133,7 +133,6 @@ export const getEmpleadoById = async (req, res) => {
       estado_qr: empleado.estado_qr,
       fotoUrl,
     });
-    console
   } catch (err) {
     console.error("Error getEmpleadoById:", err);
     res.status(500).json({ message: err.message });
