@@ -13,7 +13,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// 📌 Filtro para aceptar solo imágenes
 const fileFilter = (req, file, cb) => {
   const allowed = ["image/jpeg", "image/png", "image/webp"];
   if (allowed.includes(file.mimetype)) {
@@ -23,7 +22,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// ✅ Exportar middleware listo
 export const uploadFoto = multer({
   storage,
   fileFilter,

@@ -110,13 +110,13 @@ export async function printDoubleSidedCard(frenteBase64, reversoBase64, options 
   const pdfPath = path.join(process.cwd(), `temp_card_${Date.now()}.pdf`);
   await createDoubleSidedPdf(frenteRotated, reversoRotated, pdfPath);
 
-  console.log("🧾 Archivos creados:", { frenteRotated, reversoRotated, pdfPath });
-  console.log("🖨️ Usando impresora:", printerName);
+  console.log(" Archivos creados:", { frenteRotated, reversoRotated, pdfPath });
+  console.log(" Usando impresora:", printerName);
 
   try {
-    console.log("🖨️ Enviando PDF doble cara a impresora:", printerName);
+    console.log(" Enviando PDF doble cara a impresora:", printerName);
     await printer.print(pdfPath, { printer: printerName });
-    console.log("✅ Trabajo de impresión doble cara enviado correctamente.");
+    console.log(" Trabajo de impresión doble cara enviado correctamente.");
   } catch (err) {
     console.error("❌ Error enviando a la impresora:", err);
     throw err;
@@ -140,15 +140,15 @@ export async function printImageAsPdf(base64Image, options = {}) {
   const pdfPath = pngRotated.replace(/\.png$/i, ".pdf");
   await createSimplePdf(pngRotated, pdfPath);
 
-  console.log("🧾 Archivos creados:", { pngRotated, pdfPath });
-  console.log("🖨️ Usando impresora:", printerName);
+  console.log(" Archivos creados:", { pngRotated, pdfPath });
+  console.log(" Usando impresora:", printerName);
 
   try {
-    console.log("🖨️ Enviando PDF a impresora:", printerName);
+    console.log(" Enviando PDF a impresora:", printerName);
     await printer.print(pdfPath, { printer: printerName });
-    console.log("✅ Trabajo enviado correctamente a la impresora.");
+    console.log(" Trabajo enviado correctamente a la impresora.");
   } catch (err) {
-    console.error("❌ Error enviando a la impresora:", err);
+    console.error(" Error enviando a la impresora:", err);
     throw err;
   } finally {
     try { fs.unlinkSync(pngOriginal); } catch (e) { }
