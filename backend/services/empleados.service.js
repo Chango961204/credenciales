@@ -71,15 +71,40 @@ export const saveEmpleadoManual = async (data) => {
     vencimiento_contrato,
   } = data;
 
-  if (!num_trab || !nom_trab) return;
+  if (!num_trab || !nom_trab) {
+    throw new Error("El número de trabajador y el nombre son obligatorios");
+  }
 
+  const duplicado = await Empleado.findOne({
+    where: {
+      [Op.or]: [
+        { num_trab },
+        { rfc },
+        { num_imss },
+      ],
+    },
+  });
+
+  if (duplicado) {
+    let camposDuplicados = [];
+
+    if (duplicado.num_trab === num_trab) camposDuplicados.push("Número de trabajador");
+    if (duplicado.rfc === rfc) camposDuplicados.push("RFC");
+    if (duplicado.num_imss === num_imss) camposDuplicados.push("Número IMSS");
+
+    throw new Error(
+      `Los siguientes campos ya están registrados: ${camposDuplicados.join(", ")}`
+    );
+  }
+
+  // ✅ Crear empleado si no hay duplicados
   await Empleado.create({
     num_trab,
     rfc,
     nom_trab,
     num_imss,
     sexo,
-    fecha_ing: parseExcelDate(fecha_ing),
+    fecha_ing,
     num_depto,
     nom_depto,
     categoria,
@@ -87,10 +112,9 @@ export const saveEmpleadoManual = async (data) => {
     sind,
     conf,
     nomina,
-    vencimiento_contrato: parseExcelDate(vencimiento_contrato),
+    vencimiento_contrato,
   });
 };
-
    //PAGINACIÓN
 export const obtenerEmpleadosPaginados = async (page = 1, limit = 10) => {
   const offset = (page - 1) * limit;

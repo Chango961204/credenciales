@@ -15,7 +15,7 @@ const Empleado = sequelize.define(
       unique: true,
     },
     rfc: {
-      type: DataTypes.STRING(150),
+      type: DataTypes.STRING(15),
       allowNull: true,
     },
     nom_trab: {
@@ -23,7 +23,7 @@ const Empleado = sequelize.define(
       allowNull: false,
     },
     num_imss: {
-      type: DataTypes.STRING(150),
+      type: DataTypes.STRING(15),
     },
     sexo: {
       type: DataTypes.ENUM("M", "F"),

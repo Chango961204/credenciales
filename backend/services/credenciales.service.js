@@ -95,7 +95,7 @@ export async function generarCredencialFiles(empleado) {
   ctx.fillStyle = "#000000ff";
   ctx.textAlign = "left";
 
-  textoCordenadas(ctx, empleado.nom_trab || "Sin nombre", 295, 500, 450, 30);
+  textoCordenadas(ctx, empleado.nom_trab || "Sin nombre", 295, 500, 40, 30);
   textoCordenadas(ctx, empleado.num_trab || "Sin número", 430, 730, 400, 43);
   textoCordenadas(ctx, empleado.puesto || "Sin cargo", 50, 860, 500, 28);
 
@@ -120,6 +120,7 @@ export async function generarCredencialFiles(empleado) {
   }
 
   const { frontUrl } = crearUrlConToken(empleado);
+  
 
 
   //const frontUrl = `http://localhost:5173/credencial/${empleado.id}`;

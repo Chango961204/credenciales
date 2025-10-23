@@ -13,6 +13,7 @@ lerna-debug.log*
 
 # Environment files
 .env
+.env.production
 /backend/.env
 /frontend/.env
 

@@ -24,14 +24,38 @@ export const getEmpleados = async (req, res) => {
   }
 };
 
+
 export const registrarEmpleado = async (req, res) => {
   try {
     await saveEmpleadoManual(req.body);
     res.json({ message: "Empleado registrado correctamente" });
   } catch (error) {
-    res.status(500).json({ message: "Error al registrar empleado", error: error.message });
+    console.error("Error al registrar empleado:", error);
+
+    if (error.code === "ER_DUP_ENTRY" && error.sqlMessage) {
+      let campo = "";
+      if (error.sqlMessage.includes("num_imss")) campo = "Número IMSS";
+      else if (error.sqlMessage.includes("rfc")) campo = "RFC";
+      else if (error.sqlMessage.includes("num_trab")) campo = "Número de trabajador";
+
+      return res.status(400).json({
+        message: campo
+          ? `El ${campo} ya está registrado en el sistema`
+          : "Ya existe un registro con uno de los datos únicos",
+      });
+    }
+
+    if (error.customMessage) {
+      return res.status(400).json({ message: error.customMessage });
+    }
+
+    res.status(400).json({
+      message: error.message || "Error al registrar empleado",
+    });
   }
 };
+
+
 
 export const getBuscarEmpleados = async (req, res) => {
   try {
