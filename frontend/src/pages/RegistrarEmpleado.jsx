@@ -21,6 +21,9 @@ export default function RegistrarEmpleado() {
 
   const [alerta, setAlerta] = useState({ tipo: "", mensaje: "" });
 
+  // ✅ Usa la URL dinámica del backend
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "num_trab" || name === "num_depto") {
@@ -37,8 +40,10 @@ export default function RegistrarEmpleado() {
     setAlerta({ tipo: "", mensaje: "" });
 
     try {
-      const res = await axios.post("http://localhost:4000/api/empleados", form);
-      setAlerta({ tipo: "success", mensaje: res.data.message });
+      const res = await axios.post(`${API_URL}/empleados`, form);
+      setAlerta({ tipo: "success", mensaje: res.data.message || "Empleado registrado correctamente" });
+
+      // Limpiar formulario
       setForm({
         num_trab: "",
         rfc: "",
@@ -56,13 +61,13 @@ export default function RegistrarEmpleado() {
         vencimiento_contrato: "",
       });
     } catch (error) {
+      console.error("❌ Error al registrar empleado:", error);
       const msg =
         error.response?.data?.message ||
         "Error al registrar empleado. Intenta nuevamente.";
       setAlerta({ tipo: "error", mensaje: msg });
     }
   };
-
 
   const fields = [
     { name: "num_trab", label: "Número de empleado", type: "number" },
@@ -87,10 +92,9 @@ export default function RegistrarEmpleado() {
 
         {alerta.mensaje && (
           <div
-            className={`text-center mb-6 py-3 px-4 rounded-xl text-white font-medium transition-all ${alerta.tipo === "success"
-                ? "bg-green-500"
-                : "bg-red-500"
-              }`}
+            className={`text-center mb-6 py-3 px-4 rounded-xl text-white font-medium transition-all ${
+              alerta.tipo === "success" ? "bg-green-500" : "bg-red-500"
+            }`}
           >
             {alerta.mensaje}
           </div>
@@ -113,7 +117,6 @@ export default function RegistrarEmpleado() {
             </div>
           ))}
 
-          {/* Selects */}
           <div className="flex flex-col">
             <label className="text-sm font-semibold text-slate-700 mb-1">Sexo</label>
             <select
@@ -159,7 +162,6 @@ export default function RegistrarEmpleado() {
             </select>
           </div>
 
-          {/* Botón */}
           <div className="md:col-span-2 flex justify-center mt-8">
             <button
               type="submit"

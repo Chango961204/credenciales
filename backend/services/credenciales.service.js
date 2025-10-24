@@ -92,7 +92,7 @@ export async function generarCredencialFiles(empleado) {
     for (const p of posibles) {
       try {
         if (fs.existsSync(p)) {
-          console.log("  ✓ Foto encontrada:", p);
+          console.log("  Foto encontrada:", p);
           fotoImg = await loadImage(p);
           break;
         }

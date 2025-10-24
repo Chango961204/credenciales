@@ -12,7 +12,7 @@ export default function CredencialGenerator({ empleadoId }) {
 
     const s = val.trim();
     if (s.startsWith("data:")) return s; // base64
-    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s; // URL absoluta o relativa
+    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s; 
 
     const cleaned = s.replace(/\s+/g, "");
     if (/^[A-Za-z0-9+/=]+$/.test(cleaned)) {
@@ -75,7 +75,7 @@ export default function CredencialGenerator({ empleadoId }) {
 
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/api/empleados/${empleadoId}/credencial`);
+      const res = await axios.get(`${API_URL}/empleados/${empleadoId}/credencial`);
       console.log("Respuesta credencial backend:", res.data);
 
       const data = res.data || {};
