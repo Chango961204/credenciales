@@ -5,11 +5,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import jwt from "jsonwebtoken";
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// === Función para ajustar texto ===
 function textoCordenadas(ctx, texto, x, y, maxWidth, fontSizeInicial, fontFamily = "Arial", bold = true) {
   const fontWeight = bold ? "bold" : "normal";
   let fontSize = fontSizeInicial;
@@ -59,102 +57,126 @@ function textoCordenadas(ctx, texto, x, y, maxWidth, fontSizeInicial, fontFamily
   ctx.fillText(linea2, x, y + fontSize + 5);
 }
 
-// === FUNCIÓN PRINCIPAL ===
 export async function generarCredencialFiles(empleado) {
-  // Plantillas base
-  const frenteTpl = path.join(__dirname, "../plantillas/FrenteCredencial.jpg");
-  const reversoTpl = path.join(__dirname, "../plantillas/ReversoCredencial.jpg");
-
-  if (!fs.existsSync(frenteTpl) || !fs.existsSync(reversoTpl)) {
-    throw new Error("Faltan las plantillas en backend/plantillas");
-  }
-
-  // === FRENTE ===
-  const frenteImg = await loadImage(frenteTpl);
-  const canvas = createCanvas(frenteImg.width, frenteImg.height);
-  const ctx = canvas.getContext("2d");
-
-  ctx.drawImage(frenteImg, 0, 0);
-
-  // Cargar foto del empleado o placeholder
-  let fotoImg;
-  const fotoPath = path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.png`);
+  const frenteTpl = path.join(__dirname, "../plantillas/frente_credencial.jpg");
+  const reversoTpl = path.join(__dirname, "../plantillas/reverso_credencial.jpg");
   const placeholder = path.join(__dirname, "../plantillas/placeholder.jpg");
 
-  if (fs.existsSync(fotoPath)) {
-    fotoImg = await loadImage(fotoPath);
-  } else if (fs.existsSync(placeholder)) {
-    fotoImg = await loadImage(placeholder);
+  console.log("⤴️ generarCredencialFiles -> comprobando plantillas...");
+  console.log("  frenteTpl:", frenteTpl);
+  console.log("  reversoTpl:", reversoTpl);
+  console.log("  placeholder:", placeholder);
+
+  if (!fs.existsSync(frenteTpl) || !fs.existsSync(reversoTpl)) {
+    throw new Error("Faltan las plantillas en backend/plantillas (frente_credencial.jpg o reverso_credencial.jpg)");
   }
 
-  if (fotoImg) {
-    ctx.drawImage(fotoImg, 20, 400, 250, 320);
-  }
+  try {
+    // FRENTE
+    const frenteImg = await loadImage(frenteTpl);
+    const canvas = createCanvas(frenteImg.width, frenteImg.height);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(frenteImg, 0, 0);
 
-  // Texto de datos
-  ctx.fillStyle = "#000000ff";
-  ctx.textAlign = "left";
+    let fotoImg = null;
+    const posibles = [];
 
-  textoCordenadas(ctx, empleado.nom_trab || "Sin nombre", 295, 500, 40, 30);
-  textoCordenadas(ctx, empleado.num_trab || "Sin número", 430, 730, 400, 43);
-  textoCordenadas(ctx, empleado.puesto || "Sin cargo", 50, 860, 500, 28);
+    if (empleado.foto_path) {
+      posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", empleado.foto_path));
+    }
 
-  const frenteDataUrl = canvas.toDataURL("image/png");
+    posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.png`));
+    posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.jpg`));
+    posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.jpeg`));
 
-  // === REVERSO ===
-  const reversoImg = await loadImage(reversoTpl);
-  const canvasReverso = createCanvas(reversoImg.width, reversoImg.height);
-  const ctxReverso = canvasReverso.getContext("2d");
+    for (const p of posibles) {
+      try {
+        if (fs.existsSync(p)) {
+          console.log("  ✓ Foto encontrada:", p);
+          fotoImg = await loadImage(p);
+          break;
+        }
+      } catch (e) {
+        console.warn("  Error comprobando foto:", p, e.message);
+      }
+    }
 
-  ctxReverso.drawImage(reversoImg, 0, 0);
+    if (!fotoImg && fs.existsSync(placeholder)) {
+      try {
+        fotoImg = await loadImage(placeholder);
+        console.log("  ✓ Usando placeholder:", placeholder);
+      } catch (e) {
+        console.warn("   Error cargando placeholder:", e.message);
+      }
+    }
 
-  function crearUrlConToken(empleado) { 
+    if (fotoImg) {
+      ctx.drawImage(fotoImg, 20, 400, 250, 320);
+    } else {
+      console.log("  ℹNo se encontró foto ni placeholder; se omitirá la foto.");
+    }
+
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "left";
+
+    textoCordenadas(ctx, empleado.nom_trab || "Sin nombre", 295, 500, 400, 25);
+    textoCordenadas(ctx, empleado.num_trab || "Sin número", 430, 730, 400, 43);
+    textoCordenadas(ctx, empleado.puesto || "Sin cargo", 50, 860, 500, 28);
+
+    const frenteDataUrl = canvas.toDataURL("image/png");
+
+    //  REVERSO 
+    const reversoImg = await loadImage(reversoTpl);
+    const canvasReverso = createCanvas(reversoImg.width, reversoImg.height);
+    const ctxReverso = canvasReverso.getContext("2d");
+    ctxReverso.drawImage(reversoImg, 0, 0);
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET no está definido en las variables de entorno");
+    }
+    if (!process.env.FRONT_URL) {
+      throw new Error("FRONT_URL no está definido en las variables de entorno");
+    }
+
     const token = jwt.sign(
       { id: empleado.id },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "30d" }
     );
+    const frontUrl = `${process.env.FRONT_URL.replace(/\/$/, "")}/credencial/${token}`;
 
-    const frontUrl = `${process.env.FRONT_URL}/credencial/${token}`;
-    return { token, frontUrl };
-  }
-
-  const { frontUrl } = crearUrlConToken(empleado);
-  
-
-
-  //const frontUrl = `http://localhost:5173/credencial/${empleado.id}`;
-  //const frontUrl = `https://6811da40ffb5.ngrok-free.app/credencial/${empleado.id}`;
-
-  const qrDataUrl = await QRCode.toDataURL(frontUrl, {
-    width: 280,
-    margin: 1,
-  });
-
-  const qrImg = await loadImage(qrDataUrl);
-  ctxReverso.drawImage(qrImg, 400, 450, 480, 480);
-
-  // Texto adicional
-  ctxReverso.fillStyle = "#000000";
-  ctxReverso.textAlign = "center";
-  ctxReverso.font = "bold 45px Arial";
-
-  let fechaVenc = "N/A";
-  if (empleado.vencimiento_contrato) {
-    const fechaObj = new Date(empleado.vencimiento_contrato);
-    fechaVenc = fechaObj.toLocaleDateString("es-MX", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    const qrDataUrl = await QRCode.toDataURL(frontUrl, {
+      width: 280,
+      margin: 1,
     });
+
+    const qrImg = await loadImage(qrDataUrl);
+    ctxReverso.drawImage(qrImg, 400, 450, 480, 480);
+
+    ctxReverso.fillStyle = "#000000";
+    ctxReverso.textAlign = "center";
+    ctxReverso.font = "bold 45px Arial";
+
+    let fechaVenc = "N/A";
+    if (empleado.vencimiento_contrato) {
+      const fechaObj = new Date(empleado.vencimiento_contrato);
+      fechaVenc = fechaObj.toLocaleDateString("es-MX", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    }
+
+    ctxReverso.fillText(`Vigencia: ${fechaVenc}`, reversoImg.width / 2, 1562);
+
+    const reversoDataUrl = canvasReverso.toDataURL("image/png");
+
+
+    return {
+      frenteDataUrl,
+      reversoDataUrl,
+    };
+  } catch (err) {
+    throw new Error(`Error generando las imágenes de la credencial: ${err.message}`);
   }
-
-  ctxReverso.fillText(`Vigencia: ${fechaVenc}`, reversoImg.width / 2, 1562);
-
-  const reversoDataUrl = canvasReverso.toDataURL("image/png");
-
-  return {
-    frenteDataUrl,
-    reversoDataUrl,
-  };
 }

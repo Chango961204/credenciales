@@ -5,18 +5,14 @@ export default function CredencialGenerator({ empleadoId }) {
   const [imgs, setImgs] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Usa automáticamente la URL del backend (local o ngrok)
   const API_URL = import.meta.env.VITE_API_URL;
 
   const normalizeSrc = (val) => {
-    if (!val) return null;
-    if (typeof val !== "string") return null;
+    if (!val || typeof val !== "string") return null;
 
     const s = val.trim();
-
-    if (s.startsWith("data:")) return s;
-
-    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s;
+    if (s.startsWith("data:")) return s; // base64
+    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s; // URL absoluta o relativa
 
     const cleaned = s.replace(/\s+/g, "");
     if (/^[A-Za-z0-9+/=]+$/.test(cleaned)) {
@@ -32,7 +28,6 @@ export default function CredencialGenerator({ empleadoId }) {
       if (!src) throw new Error("Fuente de imagen inválida");
 
       let finalUrl = src;
-
       if (src.startsWith("data:")) {
         const r = await fetch(src);
         const blob = await r.blob();
@@ -50,8 +45,10 @@ export default function CredencialGenerator({ empleadoId }) {
           <head>
             <title>Vista previa - Credencial</title>
             <style>
-              html,body{height:100%;margin:0;background:#f3f4f6;display:flex;align-items:center;justify-content:center}
-              img{max-width:95vw;max-height:95vh;box-shadow:0 8px 24px rgba(0,0,0,0.15);border-radius:8px}
+              html,body{height:100%;margin:0;background:#f3f4f6;
+              display:flex;align-items:center;justify-content:center}
+              img{max-width:95vw;max-height:95vh;
+              box-shadow:0 8px 24px rgba(0,0,0,0.15);border-radius:8px}
             </style>
           </head>
           <body>
@@ -78,24 +75,27 @@ export default function CredencialGenerator({ empleadoId }) {
 
     setLoading(true);
     try {
-      // ✅ Compatible con local o ngrok
       const res = await axios.get(`${API_URL}/api/empleados/${empleadoId}/credencial`);
       console.log("Respuesta credencial backend:", res.data);
 
       const data = res.data || {};
-      const candidates = {
-        frente: data.frenteUrl ?? data.frente ?? data.frenteData ?? data.frenteBase64,
-        reverso: data.reversoUrl ?? data.reverso ?? data.reversoData ?? data.reversoBase64,
-      };
 
-      const frenteNorm = normalizeSrc(candidates.frente);
-      const reversoNorm = normalizeSrc(candidates.reverso);
+      const frente =
+        data.frenteUrl || data.frenteDataUrl || data.frente || data.frenteBase64;
+      const reverso =
+        data.reversoUrl || data.reversoDataUrl || data.reverso || data.reversoBase64;
 
-      setImgs({ frente: frenteNorm, reverso: reversoNorm });
+      const frenteNorm = normalizeSrc(frente);
+      const reversoNorm = normalizeSrc(reverso);
 
-      if (!frenteNorm && !reversoNorm) {
-        alert("El servidor no devolvió imágenes válidas. Revisa la consola (res.data).");
+      if (!frenteNorm || !reversoNorm) {
+        throw new Error("El servidor no devolvió las imágenes de la credencial");
       }
+
+      // ✅ Guardar imágenes en estado
+      setImgs({ frente: frenteNorm, reverso: reversoNorm });
+      console.log("✅ Credencial generada correctamente");
+
     } catch (err) {
       console.error("Error generando credencial:", err);
       alert("Error generando credencial: " + (err?.response?.data?.message || err.message));
@@ -104,6 +104,7 @@ export default function CredencialGenerator({ empleadoId }) {
     }
   };
 
+  // ✅ Enviar ambas imágenes a impresión
   const handlePrintDoubleSided = async () => {
     if (!imgs?.frente || !imgs?.reverso) {
       alert("Genera primero ambas imágenes (frente y reverso)");
@@ -111,7 +112,7 @@ export default function CredencialGenerator({ empleadoId }) {
     }
 
     try {
-      const res = await axios.post(`${API_URL}/api/impresion`, {
+      await axios.post(`${API_URL}/api/impresion`, {
         frente: imgs.frente,
         reverso: imgs.reverso,
       });
