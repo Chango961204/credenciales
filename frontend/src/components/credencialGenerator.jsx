@@ -112,7 +112,7 @@ export default function CredencialGenerator({ empleadoId }) {
     }
 
     try {
-      await axios.post(`${API_URL}/api/impresion`, {
+      await axios.post(`${API_URL}/impresion`, {
         frente: imgs.frente,
         reverso: imgs.reverso,
       });
