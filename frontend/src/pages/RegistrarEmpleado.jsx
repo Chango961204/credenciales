@@ -126,14 +126,14 @@ export default function RegistrarEmpleado() {
               required
               className="px-4 py-2 border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
-              <option value="">Selecciona sexo</option>
+              <option value="" selected disabled >Seleccionar...</option>
               <option value="M">Hombre</option>
               <option value="F">Mujer</option>
             </select>
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-slate-700 mb-1">Sindicato</label>
+            <label className="text-sm font-semibold text-slate-700 mb-1">¿Sindicalizado?</label>
             <select
               name="sind"
               value={form.sind}
@@ -141,14 +141,14 @@ export default function RegistrarEmpleado() {
               required
               className="px-4 py-2 border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
-              <option value="">¿Sindicalizado?</option>
+              <option value="" selected disabled>Seleccionar...</option>
               <option value="1">Sí</option>
               <option value="0">No</option>
             </select>
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-slate-700 mb-1">Confianza</label>
+            <label className="text-sm font-semibold text-slate-700 mb-1">¿Confianza?</label>
             <select
               name="conf"
               value={form.conf}
@@ -156,7 +156,7 @@ export default function RegistrarEmpleado() {
               required
               className="px-4 py-2 border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
-              <option value="">¿Confianza?</option>
+              <option value=""selected disabled>¿Confianza?</option>
               <option value="1">Sí</option>
               <option value="0">No</option>
             </select>

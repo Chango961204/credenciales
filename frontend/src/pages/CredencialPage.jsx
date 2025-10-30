@@ -14,7 +14,7 @@ const CredencialPage = () => {
   useEffect(() => {
     const fetchEmpleado = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/empleados/token/${token}`);
+        const res = await axios.get(`${API_URL}/empleados/token/${token}`);
         setEmpleado(res.data);
       } catch (error) {
         console.error("Error cargando empleado:", error);

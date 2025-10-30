@@ -18,7 +18,7 @@ export const obtenerEmpleados = async (page = 1, limit = 10) => {
     headers: { "Cache-Control": "no-cache" },
   });
   return res.data;
-};
+}
 
 export const actualizarEstadoEmpleado = async (id, estado) => {
   const res = await axios.patch(`${API_URL}/empleados/${id}/estado`, { estado_qr: estado });

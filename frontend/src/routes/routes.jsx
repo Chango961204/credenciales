@@ -20,7 +20,7 @@ function AppRoutes() {
       {/* Rutas públicas */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      {/*  <Route path="/register" element={<RegisterPage />} /> */}
       <Route path="/credencial/:token" element={<CredencialPage />} />
 
       {/* Rutas protegidas - requieren autenticación */}
@@ -60,7 +60,7 @@ function AppRoutes() {
         }
       />
 
-      {/* Rutas solo para admin (ejemplo) */}
+      {/* Rutas solo para admin */}
       <Route
         path="/admin"
         element={
@@ -71,6 +71,16 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
+
+      <Route
+        path="/register"
+        element={
+          <PrivateRoute allowedRoles={["admin"]}>
+            <RegisterPage />
+          </PrivateRoute>
+        }
+      />
+
 
       {/* Página no encontrada */}
       <Route path="*" element={<Navigate to="/" replace />} />

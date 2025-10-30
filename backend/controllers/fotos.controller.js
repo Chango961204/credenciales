@@ -58,7 +58,8 @@ export const getEmpleadoFoto = async (req, res) => {
     });
 
     if (!empleado || !empleado.foto_path) {
-      return res.status(404).send("Foto no encontrada");
+      const defaultFoto = path.join(__dirname, "../uploads/no-foto.jpg");
+      return res.sendFile(defaultFoto);
     }
 
     const filePath = path.join(

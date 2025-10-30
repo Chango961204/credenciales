@@ -7,6 +7,7 @@ import "./scheduler.js";
 import sequelize from "./config/database.js";
 import impresionRoutes from "./routes/impresion.routes.js";
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/user.routes.js";
 
 
 
@@ -39,6 +40,8 @@ app.use("/api/empleados", empleadosRoutes);
 app.use("/api/impresion", impresionRoutes);
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/users", userRoutes)
 
 
 
