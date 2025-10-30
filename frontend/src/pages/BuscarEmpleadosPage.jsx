@@ -2,6 +2,7 @@ import { useState } from "react";
 import BuscarForm from "../components/BuscarForm";
 import EmpleadoCard from "../components/EmpleadoCard";
 import useEmpleados from "../../hooks/useEmpleados";
+import { Search } from "lucide-react";
 
 export default function BuscarEmpleadosPage() {
   const {
@@ -45,7 +46,7 @@ export default function BuscarEmpleadosPage() {
   return (
     <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
       <h2 className="text-3xl font-extrabold mb-6 text-gray-800 tracking-tight">
-        🔍 Buscar Empleados
+        <Search className="text-blue-600 w-10 h-10 mb-1 group-hover:scale-110 transition-transform" /> Buscar Empleados
       </h2>
 
       <div className="bg-white shadow-md rounded-xl p-5 mb-6 transition hover:shadow-lg">

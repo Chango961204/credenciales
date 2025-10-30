@@ -6,6 +6,7 @@ import {
 } from "../services/empleadosApi";
 import EmpleadosTable from "../components/EmpleadosTable";
 import { useNavigate } from "react-router-dom";
+import { Users, FilePlus2, Search } from "lucide-react";
 
 function EmpleadosPage() {
   const [empleados, setEmpleados] = useState([]);
@@ -115,24 +116,23 @@ function EmpleadosPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
-          👨‍💼 Gestión de Empleados
+          <Users className="text-blue-700 w-12 h-12 mb-1 group-hover:scale-110 transition-transform" /> Gestión de Empleados
         </h1>
         <button
           onClick={handleImportClick}
-          className="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md 
-                     hover:bg-green-700 transition transform hover:scale-105"
+          className="px-5 py-2 bg-white-600 text-black font-semibold rounded-lg shadow-md 
+                     hover:bg-white-700 transition transform hover:scale-105"
         >
-          📥 Importar Excel
+          <FilePlus2 className="text-green-700 w-6 h-6 mb-1 group-hover:scale-110 transition-transform" /> Importar Excel
         </button>
       </div>
 
       {/* Buscador */}
       <div className="bg-white p-5 rounded-lg shadow-md mb-6">
         <h4 className="text-lg font-semibold mb-3 text-gray-700">
-          🔍 Buscar Empleados
+          <Search className="text-blue-600 w-9 h-9 mb-1 group-hover:scale-110 transition-transform" />Buscar Empleados
         </h4>
         <div className="flex flex-wrap gap-3 items-center">
           <input
@@ -154,11 +154,10 @@ function EmpleadosPage() {
           <button
             onClick={handleBuscar}
             disabled={loading}
-            className={`px-4 py-2 rounded-lg text-white font-medium transition ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 hover:scale-105"
-            }`}
+            className={`px-4 py-2 rounded-lg text-white font-medium transition ${loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 hover:scale-105"
+              }`}
           >
             {loading ? "Buscando..." : "Buscar"}
           </button>
@@ -196,11 +195,10 @@ function EmpleadosPage() {
           <button
             onClick={() => fetchEmpleados(page - 1)}
             disabled={page <= 1}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
-              page <= 1
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium transition ${page <= 1
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
+              }`}
           >
             Anterior
           </button>
@@ -210,11 +208,10 @@ function EmpleadosPage() {
           <button
             onClick={() => fetchEmpleados(page + 1)}
             disabled={page >= Math.ceil(total / limit)}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
-              page >= Math.ceil(total / limit)
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium transition ${page >= Math.ceil(total / limit)
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
+              }`}
           >
             Siguiente
           </button>

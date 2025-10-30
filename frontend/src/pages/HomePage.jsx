@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Users, UserPlus, Search, Upload, UserCog } from "lucide-react"; 
 
 function HomePage() {
   const { isAuthenticated, user } = useAuth();
@@ -8,12 +9,10 @@ function HomePage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4">
       {isAuthenticated ? (
         <div className="max-w-5xl w-full text-center space-y-8">
-          {/* Título principal */}
           <h1 className="text-5xl font-bold text-gray-900">
             Sistema de Credenciales PMZ
           </h1>
 
-          {/* Tarjeta de bienvenida */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-xl p-8 text-white">
             <h2 className="text-3xl font-bold mb-2">
               ¡Bienvenido de nuevo, {user?.name}!
@@ -26,16 +25,13 @@ function HomePage() {
             </p>
           </div>
 
-          {/* 🔹 Opciones generales */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
             {/* Ver empleados */}
             <Link
               to="/empleados"
               className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
             >
-              <div className="text-blue-600 text-5xl mb-4 group-hover:scale-110 transition-transform">
-                👥
-              </div>
+              <Users className="text-blue-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-xl font-bold text-gray-800 mb-2">
                 Ver Empleados
               </h3>
@@ -49,9 +45,7 @@ function HomePage() {
               to="/registrar-empleados"
               className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
             >
-              <div className="text-green-600 text-5xl mb-4 group-hover:scale-110 transition-transform">
-                ➕
-              </div>
+              <UserPlus className="text-green-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-xl font-bold text-gray-800 mb-2">
                 Registrar Empleado
               </h3>
@@ -65,9 +59,7 @@ function HomePage() {
               to="/buscar-empleado"
               className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
             >
-              <div className="text-purple-600 text-5xl mb-4 group-hover:scale-110 transition-transform">
-                🔍
-              </div>
+              <Search className="text-purple-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-xl font-bold text-gray-800 mb-2">
                 Buscar Empleado
               </h3>
@@ -81,9 +73,7 @@ function HomePage() {
               to="/importar-empleados"
               className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
             >
-              <div className="text-orange-600 text-5xl mb-4 group-hover:scale-110 transition-transform">
-                📂
-              </div>
+              <Upload className="text-orange-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-xl font-bold text-gray-800 mb-2">
                 Importar Empleados
               </h3>
@@ -92,15 +82,13 @@ function HomePage() {
               </p>
             </Link>
 
-            {/* 🔐 Solo visible para administradores */}
+            {/* Registrar usuario (solo admin) */}
             {user?.role === "admin" && (
               <Link
                 to="/register"
                 className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
               >
-                <div className="text-red-600 text-5xl mb-4 group-hover:scale-110 transition-transform">
-                  🧑‍💻
-                </div>
+                <UserCog className="text-red-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
                 <h3 className="text-xl font-bold text-gray-800 mb-2">
                   Registrar Usuario
                 </h3>
@@ -112,7 +100,6 @@ function HomePage() {
           </div>
         </div>
       ) : (
-        // Si no está logueado
         <div className="text-center max-w-md w-full">
           <h1 className="text-5xl font-bold text-gray-900 mb-8">
             Sistema de Credenciales PMZ
