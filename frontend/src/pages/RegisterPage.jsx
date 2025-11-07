@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 export default function RegistrarUsuario() {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
     role: "user",
@@ -24,14 +24,14 @@ export default function RegistrarUsuario() {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/register`,
+        `${import.meta.env.VITE_API_URL}/auth/register`,
         formData,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
       setMessage("Usuario creado correctamente ");
-      setFormData({ name: "", email: "", password: "", role: "user" });
+      setFormData({ username: "", email: "", password: "", role: "user" });
     } catch (err) {
       setError(err.response?.data?.message || "Error al registrar el usuario");
     }
