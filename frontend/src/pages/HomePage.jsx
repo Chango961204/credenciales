@@ -1,125 +1,142 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Users, UserPlus, Search, Upload, UserCog } from "lucide-react"; 
+import { Users, UserPlus, Search, Upload, UserCog, History } from "lucide-react";
 
-function HomePage() {
-  const { isAuthenticated, user } = useAuth();
-
+function ActionCard({ to, Icon, title, desc, gradient = "from-indigo-500 to-violet-600" }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4">
-      {isAuthenticated ? (
-        <div className="max-w-5xl w-full text-center space-y-8">
-          <h1 className="text-5xl font-bold text-gray-900">
-            Sistema de Credenciales PMZ
-          </h1>
-
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-xl p-8 text-white">
-            <h2 className="text-3xl font-bold mb-2">
-              ¡Bienvenido de nuevo, {user?.name}!
-            </h2>
-            <p className="text-blue-100">
-              Rol:{" "}
-              <span className="font-semibold">
-                {user?.role === "admin" ? "Administrador" : "Usuario"}
-              </span>
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-            {/* Ver empleados */}
-            <Link
-              to="/empleados"
-              className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
-            >
-              <Users className="text-blue-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Ver Empleados
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Consulta la lista completa de empleados registrados
-              </p>
-            </Link>
-
-            {/* Registrar empleado */}
-            <Link
-              to="/registrar-empleados"
-              className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
-            >
-              <UserPlus className="text-green-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Registrar Empleado
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Agrega nuevos empleados al sistema
-              </p>
-            </Link>
-
-            {/* Buscar empleado */}
-            <Link
-              to="/buscar-empleado"
-              className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
-            >
-              <Search className="text-purple-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Buscar Empleado
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Encuentra empleados por diferentes criterios
-              </p>
-            </Link>
-
-            {/* Importar empleados */}
-            <Link
-              to="/importar-empleados"
-              className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
-            >
-              <Upload className="text-orange-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Importar Empleados
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Carga empleados desde archivos Excel
-              </p>
-            </Link>
-
-            {/* Registrar usuario (solo admin) */}
-            {user?.role === "admin" && (
-              <Link
-                to="/register"
-                className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 p-6"
-              >
-                <UserCog className="text-red-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                  Registrar Usuario
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Crea nuevos usuarios con acceso al sistema
-                </p>
-              </Link>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="text-center max-w-md w-full">
-          <h1 className="text-5xl font-bold text-gray-900 mb-8">
-            Sistema de Credenciales PMZ
-          </h1>
-          <p className="text-gray-600 mb-10 text-lg">
-            Comienza ahora para acceder a todas las funcionalidades del sistema
-          </p>
-
-          <div className="space-y-4">
-            <Link
-              to="/login"
-              className="block w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl hover:from-blue-700 hover:to-indigo-800 transition duration-200 font-semibold text-center shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              Iniciar Sesión
-            </Link>
-          </div>
-        </div>
-      )}
-    </div>
+    <Link
+      to={to}
+      className={`group relative rounded-2xl p-[1px] bg-gradient-to-br ${gradient}
+                  shadow-[0_10px_30px_-12px_rgba(2,6,23,0.25)]
+                  hover:shadow-[0_18px_40px_-12px_rgba(2,6,23,0.35)]
+                  transition-all`}
+    >
+      <div className="h-full w-full rounded-2xl bg-white/80 backdrop-blur-xl p-6 ring-1 ring-slate-200">
+        <Icon className="w-12 h-12 mb-4 opacity-90 group-hover:scale-110 transition-transform" />
+        <h3 className="text-xl font-bold text-slate-900 mb-1">{title}</h3>
+        <p className="text-slate-600 text-sm">{desc}</p>
+      </div>
+    </Link>
   );
 }
 
-export default HomePage;
+export default function HomePage() {
+  const { isAuthenticated, user } = useAuth();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-white">
+      <div className="mx-auto max-w-6xl px-4 py-12">
+        {/* Título */}
+        <header className="text-center mb-10">
+          <h1 className="text-5xl font-extrabold tracking-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600">
+              Sistema de Credenciales PMZ
+            </span>
+          </h1>
+        </header>
+
+        {isAuthenticated ? (
+          <>
+            <section className="relative mb-10">
+              <div
+                className="rounded-3xl p-8 md:p-10 backdrop-blur-xl bg-white/70 ring-1 ring-slate-200
+                           shadow-[0_20px_60px_-20px_rgba(2,6,23,0.25)]"
+              >
+                <h2 className="text-3xl font-bold text-slate-900">
+                  ¡Bienvenido de nuevo {user?.name}!
+                </h2>
+                <div className="mt-3 inline-flex items-center gap-2">
+                  <span className="text-slate-600">Rol:</span>
+                  <span
+                    className={`px-3 py-1 text-sm font-semibold rounded-full
+                                ${user?.role === "admin"
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-indigo-100 text-indigo-700"}`}
+                  >
+                    {user?.role === "admin" ? "Administrador" : "Usuario"}
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            {/* Acciones */}
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <ActionCard
+                to="/empleados"
+                Icon={Users}
+                title="Ver Empleados"
+                desc="Consulta la lista completa de empleados"
+                gradient="from-sky-500 to-blue-600"
+              />
+
+              <ActionCard
+                to="/registrar-empleados"
+                Icon={UserPlus}
+                title="Registrar Empleado"
+                desc="Agrega nuevos empleados al sistema"
+                gradient="from-emerald-500 to-teal-600"
+              />
+
+              <ActionCard
+                to="/buscar-empleado"
+                Icon={Search}
+                title="Buscar Empleado"
+                desc="Encuentra empleados por diferentes criterios"
+                gradient="from-violet-500 to-fuchsia-600"
+              />
+
+              <ActionCard
+                to="/importar-empleados"
+                Icon={Upload}
+                title="Importar Empleados"
+                desc="Carga empleados desde archivos Excel"
+                gradient="from-amber-500 to-orange-600"
+              />
+
+              {/* Solo admin */}
+              {user?.role === "admin" && (
+                <>
+                  <ActionCard
+                    to="/register"
+                    Icon={UserCog}
+                    title="Registrar Usuario"
+                    desc="Crea nuevos usuarios con acceso"
+                    gradient="from-rose-500 to-red-600"
+                  />
+
+                  <ActionCard
+                    to="/auditorias"
+                    Icon={History}
+                    title="Auditorías"
+                    desc="Consulta acciones y cambios del sistema"
+                    gradient="from-teal-500 to-cyan-600"
+                  />
+                </>
+              )}
+            </section>
+          </>
+        ) : (
+          /* Estado no autenticado */
+          <section className="max-w-md mx-auto text-center">
+            <div className="rounded-3xl p-8 backdrop-blur-xl bg-white/70 ring-1 ring-slate-200 shadow-md">
+              <h2 className="text-3xl font-bold text-slate-900 mb-3">
+                Bienvenido
+              </h2>
+              <p className="text-slate-600 mb-6">
+                Comienza ahora para acceder a todas las funcionalidades del sistema
+              </p>
+              <Link
+                to="/login"
+                className="inline-block w-full px-6 py-4 rounded-2xl font-semibold text-white
+                           bg-gradient-to-r from-indigo-600 to-violet-600
+                           shadow hover:shadow-lg active:scale-[0.99] transition"
+              >
+                Iniciar Sesión
+              </Link>
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}

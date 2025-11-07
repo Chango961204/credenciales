@@ -8,6 +8,9 @@ import sequelize from "./config/database.js";
 import impresionRoutes from "./routes/impresion.routes.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/user.routes.js";
+import auditMiddleware from "./middlewares/auditMiddleware.js";
+import auditoriasRoutes from "./routes/auditoria.routes.js";
+
 
 
 
@@ -22,6 +25,9 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:4000', 
     'https://credenciales-front.onrender.com'],
+  methods: ['GET','POST','PUT','DELETE'],
+  allowedHeaders:['Content-Type','Authorization'],
+  credentials:true
 }));
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -32,7 +38,11 @@ app.use((req, res, next) => {
   next();
 });
 
+app.set("trust proxy", true);
+app.use(auditMiddleware);
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 // Rutas API
 app.use("/api/empleados", empleadosRoutes);
@@ -40,6 +50,10 @@ app.use("/api/empleados", empleadosRoutes);
 app.use("/api/impresion", impresionRoutes);
 
 app.use("/api/auth", authRoutes);
+
+app.use(auditMiddleware);
+
+app.use("/api/auditorias", auditoriasRoutes);
 
 app.use("/api/users", userRoutes)
 

@@ -4,7 +4,6 @@ import Empleado from "../models/Empleados.js";
 export const postGenerarQr = async (req, res) => {
   try {
     const { id } = req.params;
-
     const empleado = await Empleado.findByPk(id);
 
     if (!empleado) {
@@ -21,11 +20,16 @@ export const postGenerarQr = async (req, res) => {
 
     const qrCode = await QRCode.toDataURL(JSON.stringify(qrPayload));
 
-    res.json({
-      message: "QR generado correctamente",
-      empleado,
-      qrCode,
+    // + AUDITORIA: QR generado (payload)
+    await req.audit({
+      event: "qr_generated",
+      model: "qr",
+      modelId: String(empleado.id),
+      oldValues: null,
+      newValues: { fields: Object.keys(qrPayload) },
     });
+
+    res.json({ message: "QR generado correctamente", empleado, qrCode });
   } catch (err) {
     console.error("Error postGenerarQr:", err);
     res.status(500).json({ message: "Error al generar QR" });

@@ -9,7 +9,6 @@ import QRCode from "qrcode";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 export const generarCredencial = async (req, res) => {
   try {
     const { id } = req.params;
@@ -20,17 +19,20 @@ export const generarCredencial = async (req, res) => {
     }
 
     const empleadoData = empleado.toJSON();
-
     const result = await generarCredencialFiles(empleadoData);
 
-    console.log("✅ Resultado de generarCredencialFiles:", {
-      frenteDataUrl: !!result.frenteDataUrl,
-      reversoDataUrl: !!result.reversoDataUrl,
+    // + AUDITORIA: credencial generada (archivos)
+    await req.audit({
+      event: "credential_generated",
+      model: "credenciales",
+      modelId: String(empleado.id),
+      oldValues: null,
+      newValues: { frente: !!result.frenteDataUrl, reverso: !!result.reversoDataUrl },
     });
 
     res.json({
-      frenteUrl: result.frenteDataUrl,   
-      reversoUrl: result.reversoDataUrl, 
+      frenteUrl: result.frenteDataUrl,
+      reversoUrl: result.reversoDataUrl,
       frenteDataUrl: result.frenteDataUrl,
       reversoDataUrl: result.reversoDataUrl,
       empleado: empleadoData,
@@ -75,6 +77,15 @@ export const getCredencialByToken = async (req, res) => {
       fotoUrl,
     };
 
+    // + AUDITORIA: vista de credencial por token (lectura sensible)
+    await req.audit({
+      event: "credential_view",
+      model: "credenciales",
+      modelId: String(empleado.id),
+      oldValues: null,
+      newValues: { tokenView: true },
+    });
+
     return res.json(empleadoSafe);
   } catch (err) {
     console.error("⚠️ Token inválido:", err);
@@ -98,10 +109,15 @@ export const generarQrEmpleado = async (req, res) => {
     );
 
     const qrUrl = `${process.env.FRONT_URL}/credencial/${token}`;
+    const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 2 });
 
-    const qrDataUrl = await QRCode.toDataURL(qrUrl, {
-      width: 300,
-      margin: 2,
+    // + AUDITORIA: QR generado
+    await req.audit({
+      event: "qr_generated",
+      model: "credenciales",
+      modelId: String(empleado.id),
+      oldValues: null,
+      newValues: { qrUrl },
     });
 
     res.json({

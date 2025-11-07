@@ -4,6 +4,15 @@ export const register = async (req, res) => {
   console.log("Register request body:", req.body);
   try {
     const { user, token } = await authService.register(req.body);
+
+    await req.audit({
+      event: "register",
+      model: "auth",
+      modelId: String(user.id),
+      oldValues: null,
+      newValues: { id: user.id, email: user.email, role: user.role },
+    });
+
     res.status(201).json({
       success: true,
       message: "Usuario registrado exitosamente",
@@ -35,6 +44,15 @@ export const login = async (req, res) => {
     }
 
     const { user, token } = await authService.login(email, password);
+
+    // + AUDITORIA: login
+    await req.audit({
+      event: "login",
+      model: "auth",
+      modelId: String(user.id),
+      oldValues: null,
+      newValues: { userId: user.id, email: user.email },
+    });
 
     res.json({
       success: true,
@@ -71,7 +89,17 @@ export const getMe = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    // Aquí puedes agregar lógica adicional como blacklist de tokens si lo necesitas
+    // + AUDITORIA: logout
+    if (req.user?.id) {
+      await req.audit({
+        event: "logout",
+        model: "auth",
+        modelId: String(req.user.id),
+        oldValues: { userId: req.user.id },
+        newValues: null,
+      });
+    }
+
     res.json({
       success: true,
       message: "Logout exitoso",
@@ -100,6 +128,15 @@ export const changePassword = async (req, res) => {
       oldPassword,
       newPassword
     );
+
+    // + AUDITORIA: cambio de contraseña (sin datos sensibles)
+    await req.audit({
+      event: "password_changed",
+      model: "auth",
+      modelId: String(req.user.id),
+      oldValues: null,
+      newValues: { userId: req.user.id, changedAt: new Date().toISOString() },
+    });
 
     res.json({
       success: true,

@@ -6,8 +6,19 @@ export const uploadEmpleados = async (req, res) => {
       return res.status(400).json({ message: "No se subió ningún archivo" });
     }
 
-    await importarDesdeExcel(req.file.path);
-    res.json({ message: "Empleados importados correctamente" });
+    // Ideal: que el servicio devuelva métricas { inserted, updated, failed, sampleIds }
+    const result = await importarDesdeExcel(req.file.path);
+
+    // + AUDITORIA: resumen de importación
+    await req.audit({
+      event: "bulk_import",
+      model: "empleados",
+      modelId: null,
+      oldValues: null,
+      newValues: result || { file: req.file.originalname || req.file.path },
+    });
+
+    res.json({ message: "Empleados importados correctamente", ...result });
   } catch (error) {
     res.status(500).json({ message: "Error al importar empleados", error: error.message });
   }

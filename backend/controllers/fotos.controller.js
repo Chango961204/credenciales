@@ -15,33 +15,29 @@ export const uploadFotoEmpleado = async (req, res) => {
 
     const empleadoId = req.params.id;
     const uploadDir = path.join(__dirname, "../uploads/fotosEmpleados");
-
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
     const finalFilename = `${empleadoId}.png`;
     const finalPath = path.join(uploadDir, finalFilename);
 
-    // Redimensionar la imagen y guardarla
-    await sharp(req.file.path)
-      .resize(500, 500, { fit: "cover" })
-      .png()
-      .toFile(finalPath);
-
-    // Eliminar el archivo temporal subido
+    await sharp(req.file.path).resize(500, 500, { fit: "cover" }).png().toFile(finalPath);
     fs.unlinkSync(req.file.path);
 
-    // 🔹 Actualizar el registro usando el modelo Sequelize
-    await Empleado.update(
-      { foto_path: finalFilename },
-      { where: { id: empleadoId } }
-    );
+    const emp = await Empleado.findByPk(empleadoId);
+    const before = { foto_path: emp?.foto_path || null };
 
-    res.json({
-      message: "Foto subida correctamente",
-      filename: finalFilename,
+    await Empleado.update({ foto_path: finalFilename }, { where: { id: empleadoId } });
+
+    // + AUDITORIA: cambio de foto
+    await req.audit({
+      event: "updated",
+      model: "empleados",
+      modelId: String(empleadoId),
+      oldValues: before,
+      newValues: { foto_path: finalFilename },
     });
+
+    res.json({ message: "Foto subida correctamente", filename: finalFilename });
   } catch (error) {
     console.error("Error en uploadFotoEmpleado:", error);
     res.status(500).json({ error: "Error interno al subir foto" });
@@ -51,23 +47,14 @@ export const uploadFotoEmpleado = async (req, res) => {
 export const getEmpleadoFoto = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // 🔹 Obtener empleado por su ID, solo el campo foto_path
-    const empleado = await Empleado.findByPk(id, {
-      attributes: ["foto_path"],
-    });
+    const empleado = await Empleado.findByPk(id, { attributes: ["foto_path"] });
 
     if (!empleado || !empleado.foto_path) {
       const defaultFoto = path.join(__dirname, "../uploads/no-foto.jpg");
       return res.sendFile(defaultFoto);
     }
 
-    const filePath = path.join(
-      __dirname,
-      "../uploads/fotosEmpleados",
-      empleado.foto_path
-    );
-
+    const filePath = path.join(__dirname, "../uploads/fotosEmpleados", empleado.foto_path);
     if (!fs.existsSync(filePath)) {
       return res.status(404).send("Archivo de foto no encontrado en el servidor");
     }

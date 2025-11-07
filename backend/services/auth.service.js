@@ -46,16 +46,23 @@ class AuthService {
   async verifyToken(token) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findByPk(decoded.userId, {
-      attributes: { exclude: ["password"] },
+    const id = decoded.userId || decoded.id;  // soporta ambos
+    const user = await User.findByPk(id, {
+      attributes: ["id", "email", "username", "role", "is_active"],
     });
 
     if (!user || !user.is_active) {
       throw new Error("Usuario no encontrado o inactivo");
     }
 
-    return user;
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,  
+      role: user.role,
+    };
   }
+
   async getUserById(userId) {
     const user = await User.findByPk(userId, {
       attributes: { exclude: ["password"] },

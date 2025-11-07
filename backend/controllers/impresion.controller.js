@@ -8,7 +8,17 @@ export const enviarImpresion = async (req, res) => {
     const printers = await listWindowsPrinters();
     console.log("Impresoras detectadas (debug):", printers);
 
-    await printImageAsPdf(imageBase64, { printerName: "Zebra ZXP Series 3" }); 
+    await printImageAsPdf(imageBase64, { printerName: "Zebra ZXP Series 3" });
+
+    // + AUDITORIA: impresión
+    await req.audit({
+      event: "print",
+      model: "impresion",
+      modelId: null,
+      oldValues: null,
+      newValues: { filename: filename || null, size: imageBase64.length },
+    });
+
     res.json({ message: "Trabajo de impresión enviado correctamente" });
   } catch (err) {
     console.error("Error en enviarImpresion:", err);

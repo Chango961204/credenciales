@@ -12,6 +12,7 @@ import EmpleadosPage from "../pages/EmpleadosPage";
 import ImportarEmpleados from "../pages/ImportarEmpleados";
 import RegistrarEmpleado from "../pages/RegistrarEmpleado";
 import BuscarEmpleadosPage from "../pages/BuscarEmpleadosPage";
+import AuditoriasPage from "../pages/AuditoriasPage";
 
 
 function AppRoutes() {
@@ -77,6 +78,14 @@ function AppRoutes() {
         element={
           <PrivateRoute allowedRoles={["admin"]}>
             <RegisterPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/auditorias"
+        element={
+          <PrivateRoute allowedRoles={["admin"]}>
+            <AuditoriasPage />
           </PrivateRoute>
         }
       />
