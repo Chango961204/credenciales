@@ -81,29 +81,62 @@ export const actualizarEmpleado = async (req, res) => {
     const { id } = req.params;
     const payload = req.body;
 
+    // Validación básica numérica (si viene num_trab y no es vacío)
     if (payload.num_trab && isNaN(Number(payload.num_trab))) {
-      return res.status(400).json({ message: "num_trab debe ser numérico" });
+      return res
+        .status(400)
+        .json({ message: "num_trab debe ser numérico" });
     }
 
     const empleado = await Empleado.findByPk(id);
-    if (!empleado) return res.status(404).json({ message: "Empleado no encontrado" });
+    if (!empleado) {
+      return res
+        .status(404)
+        .json({ message: "Empleado no encontrado" });
+    }
 
-    const before = empleado.get({ plain: true });
-    await empleado.update(payload);
-    const after = empleado.get({ plain: true });
+    // 🧹 Limpiamos el payload: saltamos campos vacíos ("")
+    const updates = {};
 
-    await req.audit({
-      event: "updated",
-      model: "empleados",
-      modelId: String(empleado.id),
-      oldValues: before,
-      newValues: after,
+    for (const [key, value] of Object.entries(payload)) {
+      // Si es string vacío, no lo mandamos al update
+      if (value === "" || typeof value === "undefined") continue;
+
+      // Normalizar valores según tipo de campo
+      if (["num_trab", "num_depto"].includes(key)) {
+        updates[key] = Number(value);
+      } else if (["fecha_ing", "vencimiento_contrato"].includes(key)) {
+        // Aceptamos null o fecha válida; si viene string tipo "2025-01-31", se lo pasamos tal cual
+        updates[key] = value ? value : null;
+      } else if (key === "estado_qr") {
+        // Sólo aceptar valores válidos del enum
+        if (value === "activo" || value === "inactivo") {
+          updates[key] = value;
+        }
+      } else {
+        updates[key] = value;
+      }
+    }
+
+    // Si no hay cambios válidos, respondemos sin tocar la BD
+    if (Object.keys(updates).length === 0) {
+      return res.json({
+        message: "No hay cambios para aplicar",
+        empleado,
+      });
+    }
+
+    await empleado.update(updates);
+
+    res.json({
+      message: "Empleado actualizado correctamente",
+      empleado,
     });
-
-    res.json({ message: "Empleado actualizado correctamente", empleado });
   } catch (err) {
     console.error("Error actualizarEmpleado:", err);
-    res.status(500).json({ message: err.message });
+    res
+      .status(500)
+      .json({ message: "Error al actualizar empleado", error: err.message });
   }
 };
 

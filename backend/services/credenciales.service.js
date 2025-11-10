@@ -8,7 +8,16 @@ import jwt from "jsonwebtoken";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function textoCordenadas(ctx, texto, x, y, maxWidth, fontSizeInicial, fontFamily = "Arial", bold = true) {
+function textoCordenadas(
+  ctx,
+  texto,
+  x,
+  y,
+  maxWidth,
+  fontSizeInicial,
+  fontFamily = "Arial",
+  bold = true
+) {
   const fontWeight = bold ? "bold" : "normal";
   let fontSize = fontSizeInicial;
   const minFontSize = 20;
@@ -21,7 +30,11 @@ function textoCordenadas(ctx, texto, x, y, maxWidth, fontSizeInicial, fontFamily
   }
 
   const reduccionMaxima = Math.floor(fontSizeInicial * 0.2);
-  while (ctx.measureText(texto).width > maxWidth && fontSize > fontSizeInicial - reduccionMaxima && fontSize > minFontSize) {
+  while (
+    ctx.measureText(texto).width > maxWidth &&
+    fontSize > fontSizeInicial - reduccionMaxima &&
+    fontSize > minFontSize
+  ) {
     fontSize -= 1;
     ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
   }
@@ -57,6 +70,27 @@ function textoCordenadas(ctx, texto, x, y, maxWidth, fontSizeInicial, fontFamily
   ctx.fillText(linea2, x, y + fontSize + 5);
 }
 
+
+function separarApellidosNombres(nombreCompleto = "") {
+  const partes = nombreCompleto.trim().split(/\s+/);
+
+  if (partes.length === 0) {
+    return { apellidos: "", nombres: "" };
+  }
+
+  if (partes.length === 1) {
+    return { apellidos: partes[0], nombres: "" };
+  }
+
+  if (partes.length === 2) {
+    return { apellidos: partes[0], nombres: partes[1] };
+  }
+
+  const apellidos = partes.slice(0, 2).join(" ");
+  const nombres = partes.slice(2).join(" ");
+  return { apellidos, nombres };
+}
+
 export async function generarCredencialFiles(empleado) {
   const frenteTpl = path.join(__dirname, "../plantillas/frente_credencial.jpg");
   const reversoTpl = path.join(__dirname, "../plantillas/reverso_credencial.jpg");
@@ -68,11 +102,12 @@ export async function generarCredencialFiles(empleado) {
   console.log("  placeholder:", placeholder);
 
   if (!fs.existsSync(frenteTpl) || !fs.existsSync(reversoTpl)) {
-    throw new Error("Faltan las plantillas en backend/plantillas (frente_credencial.jpg o reverso_credencial.jpg)");
+    throw new Error(
+      "Faltan las plantillas en backend/plantillas (frente_credencial.jpg o reverso_credencial.jpg)"
+    );
   }
 
   try {
-    // FRENTE
     const frenteImg = await loadImage(frenteTpl);
     const canvas = createCanvas(frenteImg.width, frenteImg.height);
     const ctx = canvas.getContext("2d");
@@ -82,7 +117,9 @@ export async function generarCredencialFiles(empleado) {
     const posibles = [];
 
     if (empleado.foto_path) {
-      posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", empleado.foto_path));
+      posibles.push(
+        path.join(__dirname, "../uploads/fotosEmpleados", empleado.foto_path)
+      );
     }
 
     posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.png`));
@@ -113,19 +150,32 @@ export async function generarCredencialFiles(empleado) {
     if (fotoImg) {
       ctx.drawImage(fotoImg, 20, 400, 250, 320);
     } else {
-      console.log("  ℹNo se encontró foto ni placeholder; se omitirá la foto.");
+      console.log("  ℹ No se encontró foto ni placeholder; se omitirá la foto.");
     }
 
     ctx.fillStyle = "#000000";
     ctx.textAlign = "left";
 
-    textoCordenadas(ctx, empleado.nom_trab || "Sin nombre", 295, 500, 400, 25);
-    textoCordenadas(ctx, empleado.num_trab || "Sin número", 430, 730, 400, 43);
-    textoCordenadas(ctx, empleado.puesto || "Sin cargo", 50, 860, 500, 28);
+    const fullName = (empleado.nom_trab || "Sin nombre").toString().toUpperCase();
+    const { apellidos, nombres } = separarApellidosNombres(fullName);
 
+    textoCordenadas(ctx, apellidos || "SIN APELLIDO", 300, 500, 400, 25, "Arial", true);
+
+    if (nombres) {
+      textoCordenadas(ctx, nombres, 300, 540, 400, 25, "Arial", true);
+    }
+
+    textoCordenadas(ctx, empleado.num_trab || "Sin número", 430, 730, 400, 43);
+
+    ctx.textAlign = "center";  
+
+    const cargo = (empleado.puesto || "SIN CARGO").toUpperCase();
+    const centerX = frenteImg.width / 2; 
+    textoCordenadas(ctx, cargo, centerX, 860, 600, 28, "Arial", true);
+    /*     textoCordenadas(ctx, empleado.puesto || "Sin cargo", 50, 860, 500, 28);
+     */
     const frenteDataUrl = canvas.toDataURL("image/png");
 
-    //  REVERSO 
     const reversoImg = await loadImage(reversoTpl);
     const canvasReverso = createCanvas(reversoImg.width, reversoImg.height);
     const ctxReverso = canvasReverso.getContext("2d");
@@ -143,6 +193,7 @@ export async function generarCredencialFiles(empleado) {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "30d" }
     );
+
     const frontUrl = `${process.env.FRONT_URL.replace(/\/$/, "")}/credencial/${token}`;
 
     const qrDataUrl = await QRCode.toDataURL(frontUrl, {
@@ -171,12 +222,13 @@ export async function generarCredencialFiles(empleado) {
 
     const reversoDataUrl = canvasReverso.toDataURL("image/png");
 
-
     return {
       frenteDataUrl,
       reversoDataUrl,
     };
   } catch (err) {
-    throw new Error(`Error generando las imágenes de la credencial: ${err.message}`);
+    throw new Error(
+      `Error generando las imágenes de la credencial: ${err.message}`
+    );
   }
 }
