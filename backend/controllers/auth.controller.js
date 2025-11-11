@@ -1,3 +1,4 @@
+// backend/controllers/auth.controller.js
 import authService from "../services/auth.service.js";
 
 export const register = async (req, res) => {
@@ -5,13 +6,21 @@ export const register = async (req, res) => {
   try {
     const { user, token } = await authService.register(req.body);
 
-    await req.audit({
-      event: "register",
-      model: "auth",
-      modelId: String(user.id),
-      oldValues: null,
-      newValues: { id: user.id, email: user.email, role: user.role },
-    });
+    // Auditoría: registro de usuario (lo hace un admin)
+    if (req.audit) {
+      await req.audit({
+        event: "register",
+        model: "auth",
+        modelId: String(user.id),
+        oldValues: null,
+        newValues: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        },
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -20,7 +29,8 @@ export const register = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        // el front usa `name`, lo mapeamos desde username
+        name: user.username,
         role: user.role,
       },
     });
@@ -45,14 +55,19 @@ export const login = async (req, res) => {
 
     const { user, token } = await authService.login(email, password);
 
-    // + AUDITORIA: login
-    await req.audit({
-      event: "login",
-      model: "auth",
-      modelId: String(user.id),
-      oldValues: null,
-      newValues: { userId: user.id, email: user.email },
-    });
+    // Auditoría: login
+    if (req.audit) {
+      await req.audit({
+        event: "login",
+        model: "auth",
+        modelId: String(user.id),
+        oldValues: null,
+        newValues: {
+          userId: user.id,
+          email: user.email,
+        },
+      });
+    }
 
     res.json({
       success: true,
@@ -61,7 +76,7 @@ export const login = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.username, // mapeo a name para el front
         role: user.role,
       },
     });
@@ -75,9 +90,17 @@ export const login = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
+    // req.user viene de authMiddleware.verifyToken
+    // y suele tener { id, email, username, role }
+    const u = req.user || {};
     res.json({
       success: true,
-      user: req.user,
+      user: {
+        id: u.id,
+        email: u.email,
+        name: u.username || u.name, // el front sigue usando `name`
+        role: u.role,
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -89,8 +112,8 @@ export const getMe = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    // + AUDITORIA: logout
-    if (req.user?.id) {
+    // Auditoría: logout
+    if (req.user?.id && req.audit) {
       await req.audit({
         event: "logout",
         model: "auth",
@@ -129,14 +152,19 @@ export const changePassword = async (req, res) => {
       newPassword
     );
 
-    // + AUDITORIA: cambio de contraseña (sin datos sensibles)
-    await req.audit({
-      event: "password_changed",
-      model: "auth",
-      modelId: String(req.user.id),
-      oldValues: null,
-      newValues: { userId: req.user.id, changedAt: new Date().toISOString() },
-    });
+    // Auditoría: cambio de contraseña
+    if (req.audit) {
+      await req.audit({
+        event: "password_changed",
+        model: "auth",
+        modelId: String(req.user.id),
+        oldValues: null,
+        newValues: {
+          userId: req.user.id,
+          changedAt: new Date().toISOString(),
+        },
+      });
+    }
 
     res.json({
       success: true,
