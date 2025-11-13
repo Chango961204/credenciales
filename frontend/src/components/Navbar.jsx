@@ -9,12 +9,15 @@ function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
 
+  const hideNavbar = /^\/credencial\/[^/]+$/.test(location.pathname);
+  if (hideNavbar) return null;
+
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  // Links base (autenticado)
+  // Links(autenticado)
   const mainLinks = [
     { to: "/", label: "Credenciales" },
     { to: "/empleados", label: "Empleados" },
@@ -23,7 +26,7 @@ function Navbar() {
     { to: "/buscar-empleado", label: "Buscar" },
   ];
 
-  // Extras solo admin
+  //  solo admin
   const adminLinks = [
     { to: "/register", label: "Usuarios" },
     { to: "/auditorias", label: "Auditorías" },
@@ -42,7 +45,6 @@ function Navbar() {
     <nav className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 ring-1 ring-slate-200 shadow-[0_10px_30px_-12px_rgba(2,6,23,0.15)]">
       <div className="mx-auto max-w-7xl px-4">
         <div className="h-16 flex items-center justify-between">
-          {/* Brand */}
           <Link
             to="/"
             className="text-lg font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600"
@@ -50,17 +52,15 @@ function Navbar() {
             PMZ · Credenciales
           </Link>
 
-          {/* Desktop menu */}
           <ul className="hidden md:flex items-center gap-6">
             {links.map((link) => (
               <li key={link.to}>
                 <Link
                   to={link.to}
-                  className={`relative px-1 py-2 text-sm font-semibold transition-colors ${
-                    isActive(link.to)
+                  className={`relative px-1 py-2 text-sm font-semibold transition-colors ${isActive(link.to)
                       ? "text-indigo-700"
                       : "text-slate-600 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   {link.label}
                   <span
@@ -72,7 +72,6 @@ function Navbar() {
             ))}
           </ul>
 
-          {/* Right side */}
           <div className="hidden md:flex items-center gap-4">
             {isAuthenticated ? (
               <>
@@ -84,11 +83,10 @@ function Navbar() {
                     <p className="text-xs text-slate-500">{user?.email}</p>
                   </div>
                   <span
-                    className={`px-3 py-1 text-xs font-semibold rounded-full ring-1 ring-slate-200 ${
-                      user?.role === "admin"
+                    className={`px-3 py-1 text-xs font-semibold rounded-full ring-1 ring-slate-200 ${user?.role === "admin"
                         ? "bg-emerald-100 text-emerald-700"
                         : "bg-indigo-100 text-indigo-700"
-                    }`}
+                      }`}
                   >
                     {user?.role === "admin" ? "Administrador" : "Usuario"}
                   </span>
@@ -115,7 +113,6 @@ function Navbar() {
             )}
           </div>
 
-          {/* Mobile toggle */}
           <button
             className="md:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100"
             onClick={() => setOpen((v) => !v)}
@@ -126,7 +123,6 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {open && (
         <div className="md:hidden border-t border-slate-200 bg-white/80 backdrop-blur">
           <div className="mx-auto max-w-7xl px-4 py-3">
@@ -138,8 +134,8 @@ function Navbar() {
                     onClick={() => setOpen(false)}
                     className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold
                                 ${isActive(link.to)
-                                  ? "bg-indigo-50 text-indigo-700"
-                                  : "text-slate-700 hover:bg-slate-100"}`}
+                        ? "bg-indigo-50 text-indigo-700"
+                        : "text-slate-700 hover:bg-slate-100"}`}
                   >
                     {link.label}
                     {isActive(link.to) && (
@@ -180,11 +176,10 @@ function Navbar() {
                     <p className="text-xs text-slate-500">{user?.email}</p>
                   </div>
                   <span
-                    className={`px-2.5 py-1 text-xs font-semibold rounded-full ring-1 ring-slate-200 ${
-                      user?.role === "admin"
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-full ring-1 ring-slate-200 ${user?.role === "admin"
                         ? "bg-emerald-100 text-emerald-700"
                         : "bg-indigo-100 text-indigo-700"
-                    }`}
+                      }`}
                   >
                     {user?.role === "admin" ? "Administrador" : "Usuario"}
                   </span>

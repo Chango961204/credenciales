@@ -1,4 +1,3 @@
-// backend/services/auth.service.js
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
@@ -24,18 +23,15 @@ class AuthService {
       throw new Error("El email ya está registrado");
     }
 
-    // 👉 Aquí construimos SIEMPRE un username válido
     const finalUsername =
       (username && username.trim()) ||
-      (name && name.trim()) ||          // viene de tu formulario como "name"
-      email.split("@")[0];              // fallback: parte antes del @
+      (name && name.trim()) ||        
+      email.split("@")[0];              
 
     if (!finalUsername) {
       throw new Error("El nombre de usuario es requerido");
     }
 
-    // OJO: tu modelo User ya tiene hooks beforeCreate/beforeUpdate
-    // que hashean la contraseña, así que aquí guardamos el password "normal"
     const user = await User.create({
       username: finalUsername,
       email,
@@ -71,8 +67,8 @@ class AuthService {
   async verifyToken(token) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const id = decoded.userId || decoded.id; // soporta ambos
-    const user = await User.findByPk(id, {
+    const id = decoded.userId || decoded.id; 
+    const user = await User.findByPk(id, { 
       attributes: ["id", "email", "username", "role", "is_active"],
     });
 

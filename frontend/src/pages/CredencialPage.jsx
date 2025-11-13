@@ -3,11 +3,11 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const CredencialPage = () => {
-  const { token } = useParams(); 
+  const { token } = useParams();
   const [empleado, setEmpleado] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [imagenError, setImagenError] = useState(false); // 🔹 Nuevo estado
+  const [imagenError, setImagenError] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -62,7 +62,7 @@ const CredencialPage = () => {
               src={empleado.fotoUrl}
               alt={empleado.nom_trab}
               className="w-full h-80 object-cover bg-gray-100"
-              onError={() => setImagenError(true)} 
+              onError={() => setImagenError(true)}
             />
           ) : (
             <div className="w-full h-80 bg-gray-200 flex items-center justify-center">

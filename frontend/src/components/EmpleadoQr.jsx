@@ -35,7 +35,7 @@ function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
   return (
     <div className="mt-6 p-6 bg-white shadow-lg rounded-xl border border-gray-200">
       <h3 className="text-xl font-bold text-gray-800 mb-4">
-        📋 QR generado para <span className="text-blue-600">{empleado.nom_trab}</span>
+        QR generado para <span className="text-blue-600">{empleado.nom_trab}</span>
       </h3>
 
       <div className="flex flex-wrap gap-8 items-center">
@@ -66,12 +66,10 @@ function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
             </span>
           </p>
 
-          {/* Toggle de estado */}
           <EstadoToggle empleado={empleado} onQrUpdate={onQrUpdate} />
         </div>
       </div>
 
-      {/* Botón cerrar */}
       <div className="mt-6 flex justify-end">
         <button
           className="px-5 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition"

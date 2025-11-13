@@ -22,8 +22,10 @@ app.use(
       "http://localhost:5173",
       "http://localhost:4000",
       "https://credenciales-front.onrender.com",
+      "http://credenciales.capitaldezacatecas.gob.mx",
+      "https://credenciales.capitaldezacatecas.gob.mx",
+
     ],
-    // 🔹 AQUÍ AÑADIMOS PATCH
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
