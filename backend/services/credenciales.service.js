@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
 function textoCordenadas(
   ctx,
   texto,
@@ -44,7 +45,7 @@ function textoCordenadas(
     return;
   }
 
-  fontSize = fontSizeInicial - 3;
+  fontSize = Math.max(minFontSize, fontSizeInicial - 3);
   ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
   const palabras = texto.split(" ");
@@ -66,25 +67,33 @@ function textoCordenadas(
 
   const linea1 = palabras.slice(0, mejorDivision).join(" ");
   const linea2 = palabras.slice(mejorDivision).join(" ");
+
   ctx.fillText(linea1, x, y - 5);
   ctx.fillText(linea2, x, y + fontSize + 5);
 }
 
+function canvasToJpegDataUrl(srcCanvas, { maxW = 1200, quality = 0.82 } = {}) {
+  if (srcCanvas.width <= maxW) {
+    return srcCanvas.toDataURL("image/jpeg", quality);
+  }
+  const scale = maxW / srcCanvas.width;
+  const dst = createCanvas(
+    Math.round(srcCanvas.width * scale),
+    Math.round(srcCanvas.height * scale)
+  );
+  const dctx = dst.getContext("2d");
+  dctx.imageSmoothingEnabled = true;
+  dctx.imageSmoothingQuality = "high";
+  dctx.drawImage(srcCanvas, 0, 0, dst.width, dst.height);
+  return dst.toDataURL("image/jpeg", quality);
+}
 
 function separarApellidosNombres(nombreCompleto = "") {
-  const partes = nombreCompleto.trim().split(/\s+/);
+  const partes = nombreCompleto.trim().split(/\s+/).filter(Boolean);
 
-  if (partes.length === 0) {
-    return { apellidos: "", nombres: "" };
-  }
-
-  if (partes.length === 1) {
-    return { apellidos: partes[0], nombres: "" };
-  }
-
-  if (partes.length === 2) {
-    return { apellidos: partes[0], nombres: partes[1] };
-  }
+  if (partes.length === 0) return { apellidos: "", nombres: "" };
+  if (partes.length === 1) return { apellidos: partes[0], nombres: "" };
+  if (partes.length === 2) return { apellidos: partes[0], nombres: partes[1] };
 
   const apellidos = partes.slice(0, 2).join(" ");
   const nombres = partes.slice(2).join(" ");
@@ -96,11 +105,6 @@ export async function generarCredencialFiles(empleado) {
   const reversoTpl = path.join(__dirname, "../plantillas/reverso_credencial.jpg");
   const placeholder = path.join(__dirname, "../plantillas/placeholder.jpg");
 
-  console.log("⤴️ generarCredencialFiles -> comprobando plantillas...");
-  console.log("  frenteTpl:", frenteTpl);
-  console.log("  reversoTpl:", reversoTpl);
-  console.log("  placeholder:", placeholder);
-
   if (!fs.existsSync(frenteTpl) || !fs.existsSync(reversoTpl)) {
     throw new Error(
       "Faltan las plantillas en backend/plantillas (frente_credencial.jpg o reverso_credencial.jpg)"
@@ -108,6 +112,7 @@ export async function generarCredencialFiles(empleado) {
   }
 
   try {
+    // ---------- FRENTE ----------
     const frenteImg = await loadImage(frenteTpl);
     const canvas = createCanvas(frenteImg.width, frenteImg.height);
     const ctx = canvas.getContext("2d");
@@ -117,11 +122,8 @@ export async function generarCredencialFiles(empleado) {
     const posibles = [];
 
     if (empleado.foto_path) {
-      posibles.push(
-        path.join(__dirname, "../uploads/fotosEmpleados", empleado.foto_path)
-      );
+      posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", empleado.foto_path));
     }
-
     posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.png`));
     posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.jpg`));
     posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.jpeg`));
@@ -129,52 +131,42 @@ export async function generarCredencialFiles(empleado) {
     for (const p of posibles) {
       try {
         if (fs.existsSync(p)) {
-          console.log("  Foto encontrada:", p);
           fotoImg = await loadImage(p);
           break;
         }
-      } catch (e) {
-        console.warn("  Error comprobando foto:", p, e.message);
+      } catch {
       }
     }
-
     if (!fotoImg && fs.existsSync(placeholder)) {
       try {
         fotoImg = await loadImage(placeholder);
-        console.log("  ✓ Usando placeholder:", placeholder);
-      } catch (e) {
-        console.warn("   Error cargando placeholder:", e.message);
+      } catch {
       }
     }
 
     if (fotoImg) {
       ctx.drawImage(fotoImg, 20, 400, 250, 320);
-    } else {
-      console.log("  ℹ No se encontró foto ni placeholder; se omitirá la foto.");
     }
 
     ctx.fillStyle = "#000000";
-    ctx.textAlign = "left";
 
+    ctx.textAlign = "left";
     const fullName = (empleado.nom_trab || "Sin nombre").toString().toUpperCase();
     const { apellidos, nombres } = separarApellidosNombres(fullName);
 
     textoCordenadas(ctx, apellidos || "SIN APELLIDO", 300, 500, 400, 25, "Arial", true);
-
     if (nombres) {
       textoCordenadas(ctx, nombres, 300, 540, 400, 25, "Arial", true);
     }
 
-    textoCordenadas(ctx, empleado.num_trab || "Sin número", 430, 730, 400, 43);
+    textoCordenadas(ctx, empleado.num_trab || "Sin número", 430, 730, 400, 43, "Arial", true);
 
-    ctx.textAlign = "center";  
-
+    ctx.textAlign = "center";
     const cargo = (empleado.puesto || "SIN CARGO").toUpperCase();
-    const centerX = frenteImg.width / 2; 
+    const centerX = frenteImg.width / 2;
     textoCordenadas(ctx, cargo, centerX, 860, 600, 28, "Arial", true);
-    /*     textoCordenadas(ctx, empleado.puesto || "Sin cargo", 50, 860, 500, 28);
-     */
-    const frenteDataUrl = canvas.toDataURL("image/png");
+
+    const frenteDataUrl = canvasToJpegDataUrl(canvas, { maxW: 1200, quality: 0.82 });
 
     const reversoImg = await loadImage(reversoTpl);
     const canvasReverso = createCanvas(reversoImg.width, reversoImg.height);
@@ -211,24 +203,23 @@ export async function generarCredencialFiles(empleado) {
     let fechaVenc = "N/A";
     if (empleado.vencimiento_contrato) {
       const fechaObj = new Date(empleado.vencimiento_contrato);
-      fechaVenc = fechaObj.toLocaleDateString("es-MX", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
+      if (!isNaN(fechaObj)) {
+        fechaVenc = fechaObj.toLocaleDateString("es-MX", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+      }
     }
-
     ctxReverso.fillText(`Vigencia: ${fechaVenc}`, reversoImg.width / 2, 1562);
 
-    const reversoDataUrl = canvasReverso.toDataURL("image/png");
+    const reversoDataUrl = canvasToJpegDataUrl(canvasReverso, { maxW: 1200, quality: 0.82 });
 
     return {
       frenteDataUrl,
       reversoDataUrl,
     };
   } catch (err) {
-    throw new Error(
-      `Error generando las imágenes de la credencial: ${err.message}`
-    );
+    throw new Error(`Error generando las imágenes de la credencial: ${err.message}`);
   }
 }
