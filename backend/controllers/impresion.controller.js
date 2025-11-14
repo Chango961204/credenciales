@@ -1,42 +1,27 @@
-import Empleado from "../models/Empleados.js";
-import { generarCredencialFiles } from "../services/credenciales.service.js";
-import { printDoubleSidedCard, listPrinters } from "../services/zebraPrint.service.js";
+import { printImageAsPdf, listWindowsPrinters } from "../services/zebraPrint.service.js";
 
-export async function imprimirCredencialPorEmpleado(req, res) {
+export const enviarImpresion = async (req, res) => {
   try {
-    const { id } = req.params;
-    const emp = await Empleado.findByPk(id);
-    if (!emp) return res.status(404).json({ message: "Empleado no encontrado" });
+    const { imageBase64, filename } = req.body;
+    if (!imageBase64) return res.status(400).json({ message: "Falta imageBase64" });
 
-    const { frenteDataUrl, reversoDataUrl } = await generarCredencialFiles(emp);
+    const printers = await listWindowsPrinters();
+    console.log("Impresoras detectadas (debug):", printers);
 
-    await printDoubleSidedCard(frenteDataUrl, reversoDataUrl, {
-      printerName: process.env.PRINTER_NAME || "Zebra ZXP Series 3 USB Card Printer",
+    await printImageAsPdf(imageBase64, { printerName: "Zebra ZXP Series 3" });
+
+    // + AUDITORIA: impresión
+    await req.audit({
+      event: "print",
+      model: "impresion",
+      modelId: null,
+      oldValues: null,
+      newValues: { filename: filename || null, size: imageBase64.length },
     });
 
-    if (req.audit) {
-      await req.audit({
-        event: "print_card",
-        model: "impresion",
-        modelId: String(emp.id),
-        oldValues: null,
-        newValues: { empleadoId: emp.id },
-      });
-    }
-
-    res.json({ success: true, message: "Enviado a imprimir" });
+    res.json({ message: "Trabajo de impresión enviado correctamente" });
   } catch (err) {
-    console.error("Error imprimirCredencialPorEmpleado:", err);
-    res.status(500).json({ message: err.message });
+    console.error("Error en enviarImpresion:", err);
+    res.status(500).json({ message: "Error al imprimir", error: String(err) });
   }
-}
-
-export async function listarImpresoras(_req, res) {
-  try {
-    const printers = await listPrinters();
-    res.json({ printers });
-  } catch (err) {
-    console.error("Error listando impresoras:", err);
-    res.status(500).json({ message: err.message });
-  }
-}
+};
