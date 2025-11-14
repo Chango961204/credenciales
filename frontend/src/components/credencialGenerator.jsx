@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { PDFDocument } from "pdf-lib";
 
 export default function CredencialGenerator({ empleadoId }) {
   const [imgs, setImgs] = useState(null);
@@ -12,7 +13,7 @@ export default function CredencialGenerator({ empleadoId }) {
 
     const s = val.trim();
     if (s.startsWith("data:")) return s; // base64
-    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s; 
+    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s;
 
     const cleaned = s.replace(/\s+/g, "");
     if (/^[A-Za-z0-9+/=]+$/.test(cleaned)) {
@@ -92,19 +93,24 @@ export default function CredencialGenerator({ empleadoId }) {
         throw new Error("El servidor no devolvió las imágenes de la credencial");
       }
 
-      // ✅ Guardar imágenes en estado
       setImgs({ frente: frenteNorm, reverso: reversoNorm });
-      console.log("✅ Credencial generada correctamente");
-
+      console.log("Credencial generada correctamente");
     } catch (err) {
       console.error("Error generando credencial:", err);
-      alert("Error generando credencial: " + (err?.response?.data?.message || err.message));
+      alert(
+        "Error generando credencial: " +
+        (err?.response?.data?.message || err.message)
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Enviar ambas imágenes a impresión
+  const fetchAsArrayBuffer = async (src) => {
+    const res = await fetch(src);
+    return await res.arrayBuffer();
+  };
+
   const handlePrintDoubleSided = async () => {
     if (!imgs?.frente || !imgs?.reverso) {
       alert("Genera primero ambas imágenes (frente y reverso)");
@@ -112,14 +118,67 @@ export default function CredencialGenerator({ empleadoId }) {
     }
 
     try {
-      await axios.post(`${API_URL}/impresion`, {
-        frente: imgs.frente,
-        reverso: imgs.reverso,
+      const pdfDoc = await PDFDocument.create();
+
+      const frenteBytes = await fetchAsArrayBuffer(imgs.frente);
+      const reversoBytes = await fetchAsArrayBuffer(imgs.reverso);
+
+      const embedImage = async (bytes, src) => {
+        if (
+          src.startsWith("data:image/png") ||
+          src.toLowerCase().endsWith(".png")
+        ) {
+          return await pdfDoc.embedPng(bytes);
+        }
+        return await pdfDoc.embedJpg(bytes);
+      };
+
+      const frenteImg = await embedImage(frenteBytes, imgs.frente);
+      const reversoImg = await embedImage(reversoBytes, imgs.reverso);
+
+      const cardWidth = 243;
+      const cardHeight = 153;
+
+      const pageWidth = cardHeight;  // 153
+      const pageHeight = cardWidth;  // 243
+
+      const pageFront = pdfDoc.addPage([pageWidth, pageHeight]);
+      pageFront.drawImage(frenteImg, {
+        x: 0,
+        y: 0,
+        width: pageWidth,
+        height: pageHeight,
       });
-      alert("Impresión doble cara enviada correctamente");
+
+      const pageBack = pdfDoc.addPage([pageWidth, pageHeight]);
+      pageBack.drawImage(reversoImg, {
+        x: 0,
+        y: 0,
+        width: pageWidth,
+        height: pageHeight,
+      });
+
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+
+      const w = window.open(url, "_blank");
+      if (!w) {
+        alert("Permite pop-ups para poder imprimir la credencial.");
+        return;
+      }
+
+      setTimeout(() => {
+        try {
+          w.focus();
+          w.print();
+        } catch (e) {
+          console.warn("No se pudo llamar automáticamente a print():", e);
+        }
+      }, 500);
     } catch (err) {
-      console.error("Error imprimiendo doble cara:", err);
-      alert("Error imprimiendo doble cara: " + (err?.response?.data?.error || err.message));
+      console.error("Error imprimiendo doble cara desde el navegador:", err);
+      alert("Error imprimiendo: " + err.message);
     }
   };
 

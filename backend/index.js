@@ -42,7 +42,6 @@ app.use((req, res, next) => {
 
 app.set("trust proxy", true);
 
-// Primer uso del middleware de auditoría
 app.use(auditMiddleware);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -52,8 +51,6 @@ app.use("/api/empleados", empleadosRoutes);
 app.use("/api/impresion", impresionRoutes);
 app.use("/api/auth", authRoutes);
 
-// (Este segundo uso de auditMiddleware es redundante, pero si así te funcionaba,
-// lo dejo para no cambiarte el comportamiento)
 app.use(auditMiddleware);
 
 app.use("/api/auditorias", auditoriasRoutes);
