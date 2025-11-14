@@ -9,16 +9,13 @@ export default function CredencialGenerator({ empleadoId }) {
 
   const normalizeSrc = (val) => {
     if (!val || typeof val !== "string") return null;
-
     const s = val.trim();
-    if (s.startsWith("data:")) return s; // base64
-    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s; 
-
+    if (s.startsWith("data:")) return s;
+    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s;
     const cleaned = s.replace(/\s+/g, "");
     if (/^[A-Za-z0-9+/=]+$/.test(cleaned)) {
       return `data:image/png;base64,${cleaned}`;
     }
-
     return s;
   };
 
@@ -26,41 +23,28 @@ export default function CredencialGenerator({ empleadoId }) {
     try {
       const src = normalizeSrc(imgSrc);
       if (!src) throw new Error("Fuente de imagen inválida");
-
       let finalUrl = src;
       if (src.startsWith("data:")) {
         const r = await fetch(src);
         const blob = await r.blob();
         finalUrl = URL.createObjectURL(blob);
       }
-
       const w = window.open("", "_blank");
       if (!w) {
         alert("Permite popups para ver la vista previa");
         return;
       }
-
       w.document.write(`
-        <html>
-          <head>
-            <title>Vista previa - Credencial</title>
-            <style>
-              html,body{height:100%;margin:0;background:#f3f4f6;
-              display:flex;align-items:center;justify-content:center}
-              img{max-width:95vw;max-height:95vh;
-              box-shadow:0 8px 24px rgba(0,0,0,0.15);border-radius:8px}
-            </style>
-          </head>
-          <body>
-            <img src="${finalUrl}" alt="Credencial" />
-          </body>
-        </html>
+        <html><head><title>Vista previa - Credencial</title>
+          <style>
+            html,body{height:100%;margin:0;background:#f3f4f6;display:flex;align-items:center;justify-content:center}
+            img{max-width:95vw;max-height:95vh;box-shadow:0 8px 24px rgba(0,0,0,0.15);border-radius:8px}
+          </style>
+        </head>
+        <body><img src="${finalUrl}" alt="Credencial" /></body></html>
       `);
       w.document.close();
-
-      if (src.startsWith("data:")) {
-        setTimeout(() => URL.revokeObjectURL(finalUrl), 30000);
-      }
+      if (src.startsWith("data:")) setTimeout(() => URL.revokeObjectURL(finalUrl), 30000);
     } catch (err) {
       console.error("Error mostrando preview:", err);
       alert("No se pudo mostrar la vista previa: " + err.message);
@@ -72,30 +56,16 @@ export default function CredencialGenerator({ empleadoId }) {
       alert("No se proporcionó el ID del empleado");
       return;
     }
-
     setLoading(true);
     try {
       const res = await axios.get(`${API_URL}/empleados/${empleadoId}/credencial`);
-      console.log("Respuesta credencial backend:", res.data);
-
       const data = res.data || {};
-
-      const frente =
-        data.frenteUrl || data.frenteDataUrl || data.frente || data.frenteBase64;
-      const reverso =
-        data.reversoUrl || data.reversoDataUrl || data.reverso || data.reversoBase64;
-
+      const frente = data.frenteUrl || data.frenteDataUrl || data.frente || data.frenteBase64;
+      const reverso = data.reversoUrl || data.reversoDataUrl || data.reverso || data.reversoBase64;
       const frenteNorm = normalizeSrc(frente);
       const reversoNorm = normalizeSrc(reverso);
-
-      if (!frenteNorm || !reversoNorm) {
-        throw new Error("El servidor no devolvió las imágenes de la credencial");
-      }
-
-      // ✅ Guardar imágenes en estado
+      if (!frenteNorm || !reversoNorm) throw new Error("El servidor no devolvió las imágenes");
       setImgs({ frente: frenteNorm, reverso: reversoNorm });
-      console.log("✅ Credencial generada correctamente");
-
     } catch (err) {
       console.error("Error generando credencial:", err);
       alert("Error generando credencial: " + (err?.response?.data?.message || err.message));
@@ -104,22 +74,17 @@ export default function CredencialGenerator({ empleadoId }) {
     }
   };
 
-  // ✅ Enviar ambas imágenes a impresión
   const handlePrintDoubleSided = async () => {
-    if (!imgs?.frente || !imgs?.reverso) {
-      alert("Genera primero ambas imágenes (frente y reverso)");
+    if (!empleadoId) {
+      alert("No se proporcionó el ID del empleado");
       return;
     }
-
     try {
-      await axios.post(`${API_URL}/impresion`, {
-        frente: imgs.frente,
-        reverso: imgs.reverso,
-      });
+      await axios.post(`${API_URL}/impresion/empleado/${empleadoId}`);
       alert("Impresión doble cara enviada correctamente");
     } catch (err) {
       console.error("Error imprimiendo doble cara:", err);
-      alert("Error imprimiendo doble cara: " + (err?.response?.data?.error || err.message));
+      alert("Error imprimiendo doble cara: " + (err?.response?.data?.message || err?.response?.data?.error || err.message));
     }
   };
 
@@ -173,7 +138,7 @@ export default function CredencialGenerator({ empleadoId }) {
               onClick={handlePrintDoubleSided}
               className="px-6 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700"
             >
-              Imprimir ambos lados
+              Imprimir ambos lados (servidor)
             </button>
           </div>
         </>

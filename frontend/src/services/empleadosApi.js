@@ -51,7 +51,7 @@ export const uploadFotoEmpleado = async (id, file) => {
 };
 
 export const getFotoEmpleado = (id) =>
-  `${import.meta.env.VITE_API_URL}/empleados/${id}`;
+  `${import.meta.env.VITE_API_URL}/empleados/${id}/foto`;
 
 export const getEmpleadoById = async (id) => {
   const res = await api.get(`/empleados/${id}`);
