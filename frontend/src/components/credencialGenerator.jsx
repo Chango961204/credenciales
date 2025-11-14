@@ -11,9 +11,9 @@ export default function CredencialGenerator({ empleadoId }) {
   const normalizeSrc = (val) => {
     if (!val || typeof val !== "string") return null;
 
-    const s = val.trim();
+ /*    const s = val.trim();
     if (s.startsWith("data:")) return s; // base64
-    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s;
+    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s; */
 
     const cleaned = s.replace(/\s+/g, "");
     if (/^[A-Za-z0-9+/=]+$/.test(cleaned)) { 
