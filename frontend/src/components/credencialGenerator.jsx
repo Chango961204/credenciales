@@ -16,7 +16,7 @@ export default function CredencialGenerator({ empleadoId }) {
     if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s;
 
     const cleaned = s.replace(/\s+/g, "");
-    if (/^[A-Za-z0-9+/=]+$/.test(cleaned)) {
+    if (/^[A-Za-z0-9+/=]+$/.test(cleaned)) { 
       return `data:image/png;base64,${cleaned}`;
     }
 
