@@ -21,7 +21,6 @@ export const generarCredencial = async (req, res) => {
     const empleadoData = empleado.toJSON();
     const result = await generarCredencialFiles(empleadoData);
 
-    // + AUDITORIA: credencial generada (archivos)
     await req.audit({
       event: "credential_generated",
       model: "credenciales",
@@ -62,7 +61,8 @@ export const getCredencialByToken = async (req, res) => {
     if (empleado.foto_path) {
       const fotoPath = path.join(__dirname, `../uploads/fotosEmpleados/${empleado.foto_path}`);
       if (fs.existsSync(fotoPath)) {
-        fotoUrl = `${process.env.API_URL}/api/empleados/${empleado.id}/foto`;
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        fotoUrl = `${baseUrl}/api/empleados/${empleado.id}/foto`;
       }
     }
 
@@ -77,7 +77,6 @@ export const getCredencialByToken = async (req, res) => {
       fotoUrl,
     };
 
-    // + AUDITORIA: vista de credencial por token (lectura sensible)
     await req.audit({
       event: "credential_view",
       model: "credenciales",
@@ -92,6 +91,7 @@ export const getCredencialByToken = async (req, res) => {
     return res.status(401).json({ msg: "Token inválido o expirado" });
   }
 };
+
 
 export const generarQrEmpleado = async (req, res) => {
   try {
@@ -111,7 +111,6 @@ export const generarQrEmpleado = async (req, res) => {
     const qrUrl = `${process.env.FRONT_URL}/credencial/${token}`;
     const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 2 });
 
-    // + AUDITORIA: QR generado
     await req.audit({
       event: "qr_generated",
       model: "credenciales",

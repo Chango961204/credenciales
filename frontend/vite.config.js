@@ -9,8 +9,8 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
-    host: true, // permite acceder desde tu red o ngrok
-    allowedHosts: ["6811da40ffb5.ngrok-free.app"], // dominio generado por ngrok
-    port: 5173, // mismo puerto donde corre tu app
+    host: true, 
+    allowedHosts: ["6811da40ffb5.ngrok-free.app"], 
+    port: 5173, 
   },
 });
