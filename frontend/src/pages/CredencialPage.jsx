@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -15,6 +15,7 @@ const CredencialPage = () => {
     const fetchEmpleado = async () => {
       try {
         const res = await axios.get(`${API_URL}/empleados/token/${token}`);
+        console.log("Empleado data:", res.data); //prueba
         setEmpleado(res.data);
       } catch (error) {
         console.error("Error cargando empleado:", error);
@@ -26,6 +27,14 @@ const CredencialPage = () => {
 
     fetchEmpleado();
   }, [token, API_URL]);
+
+  //prueba
+  useEffect(() => {
+    if (empleado) {
+      console.log("Empleado cargado:", empleado);
+      console.log("Foto URL:", empleado.fotoUrl);
+    }
+  }, [empleado]);
 
   if (loading)
     return (
