@@ -10,7 +10,7 @@ export default defineConfig({
   ],
   server: {
     host: true, 
-    allowedHosts: ["6811da40ffb5.ngrok-free.app"], 
+    allowedHosts: ["credenciales.capitaldezacatecas.gob.mx","6811da40ffb5.ngrok-free.app"], 
     port: 5173, 
   },
 });
