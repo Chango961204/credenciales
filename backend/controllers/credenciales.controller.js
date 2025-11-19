@@ -55,11 +55,18 @@ export const getCredencialByToken = async (req, res) => {
     const empleadoId = payload.id;
 
     const empleado = await Empleado.findByPk(empleadoId);
-    if (!empleado) return res.status(404).json({ msg: "Empleado no encontrado" });
+    if (!empleado) {
+      return res.status(404).json({ msg: "Empleado no encontrado" });
+    }
 
     let fotoUrl = null;
+
     if (empleado.foto_path) {
-      const fotoPath = path.join(__dirname, `../uploads/fotosEmpleados/${empleado.foto_path}`);
+      const fotoPath = path.join(
+        __dirname,
+        `../uploads/fotosEmpleados/${empleado.foto_path}`
+      );
+
       if (fs.existsSync(fotoPath)) {
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         fotoUrl = `${baseUrl}/api/empleados/${empleado.id}/foto`;
@@ -90,10 +97,11 @@ export const getCredencialByToken = async (req, res) => {
 
     return res.json(empleadoSafe);
   } catch (err) {
-    console.error("⚠️ Token inválido:", err);
+    console.error(" Token inválido:", err);
     return res.status(401).json({ msg: "Token inválido o expirado" });
   }
 };
+
 
 
 export const generarQrEmpleado = async (req, res) => {
