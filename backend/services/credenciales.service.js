@@ -8,9 +8,7 @@ import jwt from "jsonwebtoken";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/**
- * Dibuja texto en coordenadas con ajuste de tamaño y salto de línea
- */
+
 function textoCordenadas(
   ctx,
   texto,
@@ -77,9 +75,7 @@ function textoCordenadas(
   ctx.fillText(linea2, x, y + fontSize + 5);
 }
 
-/**
- * Reescala el canvas si es muy grande y lo convierte a DataURL JPEG
- */
+
 function canvasToJpegDataUrl(srcCanvas, { maxW = 1200, quality = 0.82 } = {}) {
   if (srcCanvas.width <= maxW) {
     return srcCanvas.toDataURL("image/jpeg", quality);
@@ -96,12 +92,7 @@ function canvasToJpegDataUrl(srcCanvas, { maxW = 1200, quality = 0.82 } = {}) {
   return dst.toDataURL("image/jpeg", quality);
 }
 
-/**
- * Separa apellidos y nombres asumiendo:
- * - 1 palabra  -> apellido
- * - 2 palabras -> apellido + nombre
- * - 3+        -> 2 apellidos + resto como nombres
- */
+
 function separarApellidosNombres(nombreCompleto = "") {
   const partes = nombreCompleto.trim().split(/\s+/).filter(Boolean);
 
@@ -114,26 +105,18 @@ function separarApellidosNombres(nombreCompleto = "") {
   return { apellidos, nombres };
 }
 
-/**
- * Formatea la fecha de vigencia evitando problemas de zona horaria.
- * Acepta:
- *  - "YYYY-MM-DD"
- *  - "YYYY-MM-DDTHH:mm:ss.sssZ"
- * y devuelve "DD/MM/YYYY".
- */
+
 function formatearFechaVigencia(value) {
   if (!value) return "N/A";
 
   const str = String(value);
 
-  // "2025-12-04" o "2025-12-04T00:00:00.000Z"
   const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (match) {
     const [, y, m, d] = match;
     return `${d}/${m}/${y}`;
   }
 
-  // Fallback: si viene en otro formato, intentamos con Date pero en UTC
   const d = new Date(str);
   if (!isNaN(d)) {
     return d.toLocaleDateString("es-MX", {
@@ -147,9 +130,7 @@ function formatearFechaVigencia(value) {
   return str;
 }
 
-/**
- * Genera las imágenes (frente y reverso) de la credencial para un empleado
- */
+
 export async function generarCredencialFiles(empleado) {
   const frenteTpl = path.join(__dirname, "../plantillas/frente_credencial.jpg");
   const reversoTpl = path.join(__dirname, "../plantillas/reverso_credencial.jpg");
@@ -186,7 +167,6 @@ export async function generarCredencialFiles(empleado) {
           break;
         }
       } catch {
-        // ignorar error y probar siguiente ruta
       }
     }
     if (!fotoImg && fs.existsSync(placeholder)) {
@@ -198,7 +178,6 @@ export async function generarCredencialFiles(empleado) {
     }
 
     if (fotoImg) {
-      // Ajusta estas coordenadas/tamaño según tu plantilla
       ctx.drawImage(fotoImg, 30, 415, 250, 250);
     }
 
@@ -265,7 +244,6 @@ export async function generarCredencialFiles(empleado) {
     ctxReverso.textAlign = "center";
     ctxReverso.font = "bold 45px Arial";
 
-    // ✅ Aquí usamos el formateo seguro sin timezone
     const fechaVenc = formatearFechaVigencia(empleado.vencimiento_contrato);
     ctxReverso.fillText(`Vigencia: ${fechaVenc}`, reversoImg.width / 2, 1562);
 

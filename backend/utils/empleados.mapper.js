@@ -1,7 +1,10 @@
 const normalizeKeys = (obj) => {
   const normalizedObj = {};
   for (const [key, value] of Object.entries(obj)) {
-    const normalizedKey = key.toLowerCase().replace(/\s+/g, '_');
+    const normalizedKey = key
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "_"); 
     normalizedObj[normalizedKey] = value;
   }
   return normalizedObj;
@@ -10,39 +13,70 @@ const normalizeKeys = (obj) => {
 export const mapRowToEmpleado = (row) => {
   const normalizedRow = normalizeKeys(row);
 
-  console.log("=== DEBUG MAPPER ===");
-  console.log("Claves normalizadas:", Object.keys(normalizedRow));
-  console.log("Raw values:", Object.values(normalizedRow));
+  let numDepto = null;
 
-  // Debug específico para vencimiento
-  console.log("Vencimiento debug:");
-  console.log("vencimiento_de_contrato:", normalizedRow.vencimiento_de_contrato);
-  console.log("Tipo:", typeof normalizedRow.vencimiento_de_contrato);
-  console.log("Es null:", normalizedRow.vencimiento_de_contrato === null);
-  console.log("Es undefined:", normalizedRow.vencimiento_de_contrato === undefined);
-  console.log("Es string vacío:", normalizedRow.vencimiento_de_contrato === "");
+  if (normalizedRow.num_depto !== undefined && normalizedRow.num_depto !== "") {
+    numDepto = normalizedRow.num_depto;
+  }
+  else if (
+    normalizedRow.nom_depto !== undefined &&
+    normalizedRow.nom_depto !== "" &&
+    (typeof normalizedRow.nom_depto === "number" ||
+      /^[0-9]+$/.test(String(normalizedRow.nom_depto)))
+  ) {
+    numDepto = Number(normalizedRow.nom_depto);
+  }
 
-  console.log("=== FIN DEBUG ===");
+  let nomDepto = null;
 
+  if (
+    normalizedRow.nom_depto !== undefined &&
+    normalizedRow.nom_depto !== "" &&
+    !(
+      typeof normalizedRow.nom_depto === "number" ||
+      /^[0-9]+$/.test(String(normalizedRow.nom_depto))
+    )
+  ) {
+    nomDepto = normalizedRow.nom_depto;
+  }
 
+  const emptyKeys = Object.keys(normalizedRow).filter((k) =>
+    k.startsWith("__empty")
+  );
+  for (const k of emptyKeys) {
+    const val = normalizedRow[k];
+    if (val !== undefined && val !== null && val !== "") {
+      nomDepto = val;
+      break;
+    }
+  }
 
   return {
-    num_trab: normalizedRow.num_trab || null,
-    rfc: normalizedRow.rfc || null,
-    nom_trab: normalizedRow.nom_trab || null,
-    num_imss: normalizedRow.num_imss || null,
-    sexo: normalizedRow.sexo || null,
-    fecha_ing: normalizedRow.fecha_ing || null,
+    num_trab: normalizedRow.num_trab ?? null,
+    rfc: normalizedRow.rfc ?? null,
+    nom_trab: normalizedRow.nom_trab ?? null,
+    num_imss: normalizedRow.num_imss ?? null,
+    sexo: normalizedRow.sexo ?? null,
+    fecha_ing: normalizedRow.fecha_ing ?? null, // se parsea en el service
 
-    num_depto: normalizedRow.nom_depto || null,
+    num_depto: numDepto,
+    nom_depto: nomDepto,
 
-    nom_depto: normalizedRow.__empty || null,
+    categoria: normalizedRow.categoria ?? null,
+    puesto: normalizedRow.puesto ?? null,
 
-    categoria: normalizedRow.categoria || null,
-    puesto: normalizedRow.puesto || null,
-    sind: normalizedRow.sind || null,
-    conf: normalizedRow.conf || null,
-    nomina: normalizedRow.nomina || null,
-    vencimiento_contrato: normalizedRow.vencimiento_de_contrato || null,
+    sind:
+      normalizedRow.sind === "" || normalizedRow.sind == null
+        ? null
+        : Number(normalizedRow.sind),
+    conf:
+      normalizedRow.conf === "" || normalizedRow.conf == null
+        ? null
+        : Number(normalizedRow.conf),
+
+    nomina: normalizedRow.nomina ?? null,
+
+    vencimiento_contrato:
+      normalizedRow.vencimiento_de_contrato ?? null,
   };
 };

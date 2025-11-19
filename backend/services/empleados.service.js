@@ -5,26 +5,35 @@ import { parseExcelDate } from "../utils/date.util.js";
 import { mapRowToEmpleado } from "../utils/empleados.mapper.js";
 
 const parseDateSafely = (dateValue) => {
-  if (!dateValue) return null;
+  if (dateValue === null || dateValue === undefined || dateValue === "") {
+    return null;
+  }
+
+  if (dateValue instanceof Date) {
+    return dateValue.toISOString().slice(0, 10); // "YYYY-MM-DD"
+  }
 
   if (typeof dateValue === "number") {
-    return parseExcelDate(dateValue);
+    return parseExcelDate(dateValue); // tu helper actual
   }
 
   if (typeof dateValue === "string") {
-    const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-    const match = dateValue.match(dateRegex);
+    let match = dateValue.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
     if (match) {
       const [, day, month, year] = match;
       return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
     }
+
+    match = dateValue.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (match) {
+      const [, year, month, day] = match;
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    }
   }
 
-  console.warn("No se pudo parsear la fecha:", dateValue);
+  console.warn("No se pudo parsear la fecha:", dateValue, typeof dateValue);
   return null;
 };
-
-   // GUARDAR EMPLEADO (desde Excel o import)
 
 export const saveEmpleado = async (row) => {
   const empleado = mapRowToEmpleado(row);
@@ -34,25 +43,38 @@ export const saveEmpleado = async (row) => {
 
   await Empleado.upsert({
     num_trab: empleado.num_trab,
-    rfc: empleado.rfc || null,
+    rfc: empleado.rfc ?? null,
     nom_trab: empleado.nom_trab,
-    num_imss: empleado.num_imss || null,
-    sexo: empleado.sexo || null,
-    fecha_ing: empleado.fecha_ing ? parseDateSafely(empleado.fecha_ing) : null,
-    num_depto: empleado.num_depto || null,
-    nom_depto: empleado.nom_depto || null,
-    categoria: empleado.categoria || null,
-    puesto: empleado.puesto || null,
-    sind: empleado.sind || null,
-    conf: empleado.conf || null,
-    nomina: empleado.nomina || null,
+    num_imss: empleado.num_imss ?? null,
+    sexo: empleado.sexo ?? null,
+
+    fecha_ing: empleado.fecha_ing
+      ? parseDateSafely(empleado.fecha_ing)
+      : null,
+
+    num_depto: empleado.num_depto ?? null,
+    nom_depto: empleado.nom_depto ?? null,
+
+    categoria: empleado.categoria ?? null,
+    puesto: empleado.puesto ?? null,
+
+    sind:
+      empleado.sind === "" || empleado.sind == null
+        ? null
+        : Number(empleado.sind),
+    conf:
+      empleado.conf === "" || empleado.conf == null
+        ? null
+        : Number(empleado.conf),
+
+    nomina: empleado.nomina ?? null,
+
     vencimiento_contrato: empleado.vencimiento_contrato
       ? parseDateSafely(empleado.vencimiento_contrato)
       : null,
   });
 };
 
-  // GUARDAR EMPLEADO MANUALMENTE (desde formulario)
 export const saveEmpleadoManual = async (data) => {
   const {
     num_trab,
@@ -77,34 +99,31 @@ export const saveEmpleadoManual = async (data) => {
 
   const duplicado = await Empleado.findOne({
     where: {
-      [Op.or]: [
-        { num_trab },
-        { rfc },
-        { num_imss },
-      ],
+      [Op.or]: [{ num_trab }, { rfc }, { num_imss }],
     },
   });
 
   if (duplicado) {
     let camposDuplicados = [];
 
-    if (duplicado.num_trab === num_trab) camposDuplicados.push("Número de trabajador");
+    if (duplicado.num_trab === num_trab)
+      camposDuplicados.push("Número de trabajador");
     if (duplicado.rfc === rfc) camposDuplicados.push("RFC");
-    if (duplicado.num_imss === num_imss) camposDuplicados.push("Número IMSS");
+    if (duplicado.num_imss === num_imss)
+      camposDuplicados.push("Número IMSS");
 
     throw new Error(
       `Los siguientes campos ya están registrados: ${camposDuplicados.join(", ")}`
     );
   }
 
-  // ✅ Crear empleado si no hay duplicados
   await Empleado.create({
     num_trab,
     rfc,
     nom_trab,
     num_imss,
     sexo,
-    fecha_ing,
+    fecha_ing, 
     num_depto,
     nom_depto,
     categoria,
@@ -115,7 +134,7 @@ export const saveEmpleadoManual = async (data) => {
     vencimiento_contrato,
   });
 };
-   //PAGINACIÓN
+
 export const obtenerEmpleadosPaginados = async (page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
 
@@ -128,12 +147,10 @@ export const obtenerEmpleadosPaginados = async (page = 1, limit = 10) => {
   return { data: rows, total: count };
 };
 
-  // ELIMINAR EMPLEADO
 export const eliminarEmpleado = async (id) => {
   await Empleado.destroy({ where: { id } });
 };
 
-   //BUSCAR EMPLEADOS
 export const buscarEmpleados = async ({ num_trab, nombre }) => {
   if (num_trab) {
     return await Empleado.findAll({
@@ -155,7 +172,6 @@ export const buscarEmpleados = async ({ num_trab, nombre }) => {
   return [];
 };
 
-   //ACTUALIZAR EMPLEADO
 export const actualizarEmpleado = async (id, data) => {
   const allowed = [
     "num_trab",
@@ -179,7 +195,7 @@ export const actualizarEmpleado = async (id, data) => {
   for (const key of allowed) {
     if (data[key] !== undefined) {
       if (["fecha_ing", "vencimiento_contrato"].includes(key)) {
-        updates[key] = parseExcelDate(data[key]);
+        updates[key] = parseDateSafely(data[key]);
       } else {
         updates[key] = data[key];
       }
@@ -191,10 +207,11 @@ export const actualizarEmpleado = async (id, data) => {
 
   await empleado.update(updates);
 
-  // Si se actualizó la fecha de vencimiento, recalculamos el estado
-  if (data.vencimiento_contrato) {
+  if (updates.vencimiento_contrato) {
     const fechaVenc = dayjs(updates.vencimiento_contrato);
-    const estado_qr = fechaVenc.isBefore(dayjs(), "day") ? "inactivo" : "activo";
+    const estado_qr = fechaVenc.isBefore(dayjs(), "day")
+      ? "inactivo"
+      : "activo";
     await empleado.update({ estado_qr });
   }
 
