@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -15,7 +15,7 @@ const CredencialPage = () => {
     const fetchEmpleado = async () => {
       try {
         const res = await axios.get(`${API_URL}/empleados/token/${token}`);
-        console.log("Empleado data:", res.data); //prueba
+        console.log("Empleado data:", res.data);
         setEmpleado(res.data);
       } catch (error) {
         console.error("Error cargando empleado:", error);
@@ -28,13 +28,28 @@ const CredencialPage = () => {
     fetchEmpleado();
   }, [token, API_URL]);
 
-  //prueba
+  // Logs para ver qué llega
   useEffect(() => {
     if (empleado) {
       console.log("Empleado cargado:", empleado);
-      console.log("Foto URL:", empleado.fotoUrl);
+      console.log("Foto URL cruda:", empleado.fotoUrl);
     }
   }, [empleado]);
+
+  const normalizeFotoUrl = (url) => {
+    if (!url) return null;
+    const raw = url.trim();
+
+    if (/^https?:\/\//i.test(raw) || raw.startsWith("data:")) {
+      return raw;
+    }
+
+    if (/^[a-z0-9.-]+\/.+/i.test(raw)) {
+      return `${window.location.protocol}//${raw}`;
+    }
+
+    return `${window.location.origin.replace(/\/$/, "")}/${raw.replace(/^\/+/, "")}`;
+  };
 
   if (loading)
     return (
@@ -61,21 +76,25 @@ const CredencialPage = () => {
       </div>
     );
 
+  const fotoSrc = normalizeFotoUrl(empleado.fotoUrl);
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white shadow-2xl rounded-2xl w-96 p-4 text-center border-t-4 border-green-600">
         {/* FOTO */}
         <div className="border-4 border-gray-300 rounded-lg overflow-hidden mb-3">
-          {!imagenError ? (
+          {!imagenError && fotoSrc ? (
             <img
-              src={empleado.fotoUrl}
+              src={fotoSrc}
               alt={empleado.nom_trab}
               className="w-full h-80 object-cover bg-gray-100"
               onError={() => setImagenError(true)}
             />
           ) : (
             <div className="w-full h-80 bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-400 text-6xl"></span>
+              <span className="text-gray-400 text-sm">
+                Foto no disponible
+              </span>
             </div>
           )}
         </div>
