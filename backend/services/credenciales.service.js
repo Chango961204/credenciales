@@ -8,7 +8,9 @@ import jwt from "jsonwebtoken";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
+/**
+ * Dibuja texto en coordenadas con ajuste de tamaño y salto de línea
+ */
 function textoCordenadas(
   ctx,
   texto,
@@ -25,11 +27,13 @@ function textoCordenadas(
 
   ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
+  // Si cabe con el tamaño inicial, lo pintamos
   if (ctx.measureText(texto).width <= maxWidth) {
     ctx.fillText(texto, x, y);
     return;
   }
 
+  // Reducimos hasta 20% del tamaño o hasta minFontSize
   const reduccionMaxima = Math.floor(fontSizeInicial * 0.2);
   while (
     ctx.measureText(texto).width > maxWidth &&
@@ -45,6 +49,7 @@ function textoCordenadas(
     return;
   }
 
+  // Último ajuste: dos líneas lo más equilibradas posible
   fontSize = Math.max(minFontSize, fontSizeInicial - 3);
   ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
@@ -72,6 +77,9 @@ function textoCordenadas(
   ctx.fillText(linea2, x, y + fontSize + 5);
 }
 
+/**
+ * Reescala el canvas si es muy grande y lo convierte a DataURL JPEG
+ */
 function canvasToJpegDataUrl(srcCanvas, { maxW = 1200, quality = 0.82 } = {}) {
   if (srcCanvas.width <= maxW) {
     return srcCanvas.toDataURL("image/jpeg", quality);
@@ -88,6 +96,12 @@ function canvasToJpegDataUrl(srcCanvas, { maxW = 1200, quality = 0.82 } = {}) {
   return dst.toDataURL("image/jpeg", quality);
 }
 
+/**
+ * Separa apellidos y nombres asumiendo:
+ * - 1 palabra  -> apellido
+ * - 2 palabras -> apellido + nombre
+ * - 3+        -> 2 apellidos + resto como nombres
+ */
 function separarApellidosNombres(nombreCompleto = "") {
   const partes = nombreCompleto.trim().split(/\s+/).filter(Boolean);
 
@@ -100,6 +114,42 @@ function separarApellidosNombres(nombreCompleto = "") {
   return { apellidos, nombres };
 }
 
+/**
+ * Formatea la fecha de vigencia evitando problemas de zona horaria.
+ * Acepta:
+ *  - "YYYY-MM-DD"
+ *  - "YYYY-MM-DDTHH:mm:ss.sssZ"
+ * y devuelve "DD/MM/YYYY".
+ */
+function formatearFechaVigencia(value) {
+  if (!value) return "N/A";
+
+  const str = String(value);
+
+  // "2025-12-04" o "2025-12-04T00:00:00.000Z"
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const [, y, m, d] = match;
+    return `${d}/${m}/${y}`;
+  }
+
+  // Fallback: si viene en otro formato, intentamos con Date pero en UTC
+  const d = new Date(str);
+  if (!isNaN(d)) {
+    return d.toLocaleDateString("es-MX", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  }
+
+  return str;
+}
+
+/**
+ * Genera las imágenes (frente y reverso) de la credencial para un empleado
+ */
 export async function generarCredencialFiles(empleado) {
   const frenteTpl = path.join(__dirname, "../plantillas/frente_credencial.jpg");
   const reversoTpl = path.join(__dirname, "../plantillas/reverso_credencial.jpg");
@@ -118,6 +168,7 @@ export async function generarCredencialFiles(empleado) {
     const ctx = canvas.getContext("2d");
     ctx.drawImage(frenteImg, 0, 0);
 
+    // Foto del empleado
     let fotoImg = null;
     const posibles = [];
 
@@ -135,22 +186,25 @@ export async function generarCredencialFiles(empleado) {
           break;
         }
       } catch {
+        // ignorar error y probar siguiente ruta
       }
     }
     if (!fotoImg && fs.existsSync(placeholder)) {
       try {
         fotoImg = await loadImage(placeholder);
       } catch {
+        // ignorar si incluso el placeholder falla
       }
     }
 
     if (fotoImg) {
+      // Ajusta estas coordenadas/tamaño según tu plantilla
       ctx.drawImage(fotoImg, 30, 415, 250, 250);
     }
 
     ctx.fillStyle = "#000000";
-
     ctx.textAlign = "left";
+
     const fullName = (empleado.nom_trab || "Sin nombre").toString().toUpperCase();
     const { apellidos, nombres } = separarApellidosNombres(fullName);
 
@@ -159,7 +213,16 @@ export async function generarCredencialFiles(empleado) {
       textoCordenadas(ctx, nombres, 330, 540, 400, 25, "Arial", true);
     }
 
-    textoCordenadas(ctx, empleado.num_trab || "Sin número", 430, 730, 400, 43, "Arial", true);
+    textoCordenadas(
+      ctx,
+      empleado.num_trab || "Sin número",
+      430,
+      730,
+      400,
+      43,
+      "Arial",
+      true
+    );
 
     ctx.textAlign = "center";
     const cargo = (empleado.puesto || "SIN CARGO").toUpperCase();
@@ -168,6 +231,7 @@ export async function generarCredencialFiles(empleado) {
 
     const frenteDataUrl = canvasToJpegDataUrl(canvas, { maxW: 1200, quality: 0.82 });
 
+    // ---------- REVERSO ----------
     const reversoImg = await loadImage(reversoTpl);
     const canvasReverso = createCanvas(reversoImg.width, reversoImg.height);
     const ctxReverso = canvasReverso.getContext("2d");
@@ -194,26 +258,21 @@ export async function generarCredencialFiles(empleado) {
     });
 
     const qrImg = await loadImage(qrDataUrl);
+    // Ajusta coordenadas/tamaño del QR según tu plantilla
     ctxReverso.drawImage(qrImg, 400, 450, 480, 480);
 
     ctxReverso.fillStyle = "#000000";
     ctxReverso.textAlign = "center";
     ctxReverso.font = "bold 45px Arial";
 
-    let fechaVenc = "N/A";
-    if (empleado.vencimiento_contrato) {
-      const fechaObj = new Date(empleado.vencimiento_contrato);
-      if (!isNaN(fechaObj)) {
-        fechaVenc = fechaObj.toLocaleDateString("es-MX", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
-      }
-    }
+    // ✅ Aquí usamos el formateo seguro sin timezone
+    const fechaVenc = formatearFechaVigencia(empleado.vencimiento_contrato);
     ctxReverso.fillText(`Vigencia: ${fechaVenc}`, reversoImg.width / 2, 1562);
 
-    const reversoDataUrl = canvasToJpegDataUrl(canvasReverso, { maxW: 1200, quality: 0.82 });
+    const reversoDataUrl = canvasToJpegDataUrl(canvasReverso, {
+      maxW: 1200,
+      quality: 0.82,
+    });
 
     return {
       frenteDataUrl,

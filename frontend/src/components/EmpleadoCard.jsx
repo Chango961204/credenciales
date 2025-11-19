@@ -10,18 +10,20 @@ function formatDate(value) {
     return value;
   }
 
-  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const [, y, m, d] = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    return `${d}/${m}/${y}`;
-  }
-
   if (typeof value === "string") {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      const [, y, m, d] = match;
+      return `${d}/${m}/${y}`;
+    }
+
     const d = new Date(value);
     if (!isNaN(d)) {
       return d.toLocaleDateString("es-MX", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
+        timeZone: "UTC",
       });
     }
     return value;
@@ -32,11 +34,13 @@ function formatDate(value) {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
+      timeZone: "UTC",
     });
   }
 
   return String(value);
 }
+
 
 export default function EmpleadoCard({
   emp,

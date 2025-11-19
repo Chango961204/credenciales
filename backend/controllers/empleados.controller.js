@@ -56,7 +56,7 @@ export const registrarEmpleado = async (req, res) => {
     }
 
     if (!data.estado_qr) {
-      data.estado_qr = "activo"; 
+      data.estado_qr = "activo";
     }
 
     const empleado = await Empleado.create(data);
@@ -257,11 +257,11 @@ export const getEmpleadoById = async (req, res) => {
 
     const fotoUrl = empleado.foto_path
       ? `${req.protocol}://${req.get(
-          "host"
-        )}/uploads/fotosEmpleados/${empleado.foto_path}`
+        "host"
+      )}/uploads/fotosEmpleados/${empleado.foto_path}`
       : `${req.protocol}://${req.get(
-          "host"
-        )}/plantillas/placeholder.png`;
+        "host"
+      )}/plantillas/placeholder.png`;
 
     res.json({
       id: empleado.id,

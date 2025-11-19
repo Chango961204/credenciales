@@ -6,10 +6,9 @@ export const uploadEmpleados = async (req, res) => {
       return res.status(400).json({ message: "No se subió ningún archivo" });
     }
 
-    // Ideal: que el servicio devuelva métricas { inserted, updated, failed, sampleIds }
     const result = await importarDesdeExcel(req.file.path);
 
-    // + AUDITORIA: resumen de importación
+    // AUDITORIA: 
     await req.audit({
       event: "bulk_import",
       model: "empleados",

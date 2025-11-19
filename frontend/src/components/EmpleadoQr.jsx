@@ -1,17 +1,40 @@
 import { QRCodeCanvas } from "qrcode.react";
 import EstadoToggle from "./EstadoToggle";
 
-function formatDate(date) {
-  if (!date) return "N/A";
-  if (typeof date !== "string") return String(date);
+function formatDate(value) {
+  if (!value) return "N/A";
 
-  // Acepta "2025-12-04T00:00:00.000Z" o "2025-12-04"
-  const soloFecha = date.split("T")[0];        // "2025-12-04"
-  const [year, month, day] = soloFecha.split("-");
-  if (!year || !month || !day) return date;
+  if (typeof value === "string") {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      const [, y, m, d] = match;
+      return `${d}/${m}/${y}`;
+    }
 
-  return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+    const d = new Date(value);
+    if (!isNaN(d)) {
+      return d.toLocaleDateString("es-MX", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "UTC",
+      });
+    }
+    return value;
+  }
+
+  if (value instanceof Date && !isNaN(value)) {
+    return value.toLocaleDateString("es-MX", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  }
+
+  return String(value);
 }
+
 
 
 function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
