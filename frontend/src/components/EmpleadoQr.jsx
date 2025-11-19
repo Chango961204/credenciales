@@ -3,18 +3,16 @@ import EstadoToggle from "./EstadoToggle";
 
 function formatDate(date) {
   if (!date) return "N/A";
-  try {
-    const d = new Date(date);
-    if (isNaN(d)) return date;
-    return d.toLocaleDateString("es-MX", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  } catch {
-    return date;
-  }
+  if (typeof date !== "string") return String(date);
+
+  // Acepta "2025-12-04T00:00:00.000Z" o "2025-12-04"
+  const soloFecha = date.split("T")[0];        // "2025-12-04"
+  const [year, month, day] = soloFecha.split("-");
+  if (!year || !month || !day) return date;
+
+  return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
 }
+
 
 function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
   if (!empleado) return null;
@@ -34,15 +32,15 @@ function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
 
   return (
     <div className="mt-6 p-6 bg-white shadow-lg rounded-xl border border-gray-200">
-      <h3 className="text-xl font-bold text-gray-800 mb-4">
+     {/*  <h3 className="text-xl font-bold text-gray-800 mb-4">
         QR generado para <span className="text-blue-600">{empleado.nom_trab}</span>
-      </h3>
+      </h3> */}
 
       <div className="flex flex-wrap gap-8 items-center">
         {/* QR Code */}
-        <div className="flex justify-center">
+        {/* <div className="flex justify-center">
           <QRCodeCanvas value={qrValue} size={180} includeMargin={true} />
-        </div>
+        </div> */}
 
         {/* Datos */}
         <div className="text-sm space-y-2 text-gray-700">

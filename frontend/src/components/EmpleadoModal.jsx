@@ -11,13 +11,16 @@ function EmpleadoModal({ empleado, form, setForm, onClose, onSave }) {
         </h3>
 
         <div className="grid grid-cols-2 gap-4">
+
+          <p>Nombre</p>
           <input
             className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={form.nom_trab}
             onChange={(e) => setForm({ ...form, nom_trab: e.target.value })}
             placeholder="Nombre"
           />
-          <input
+
+          {/* <input
             className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={form.num_imss || ""}
             onChange={(e) => setForm({ ...form, num_imss: e.target.value })}
@@ -28,29 +31,36 @@ function EmpleadoModal({ empleado, form, setForm, onClose, onSave }) {
             value={form.rfc || ""}
             onChange={(e) => setForm({ ...form, rfc: e.target.value })}
             placeholder="RFC"
-          />
+          /> */}
+
+          <p>Departamento</p>
           <input
             className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={form.nom_depto || ""}
             onChange={(e) => setForm({ ...form, nom_depto: e.target.value })}
             placeholder="Departamento"
           />
+
+          <p>Puesto</p>
           <input
             className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={form.puesto || ""}
             onChange={(e) => setForm({ ...form, puesto: e.target.value })}
             placeholder="Puesto"
           />
+
+          <p>Vencimiento de Contrato</p>
           <input
             type="date"
             className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={form.vencimiento_contrato || ""}
+            value={form.vencimiento_contrato || ""}   // aquí ya es "2025-10-30"
             onChange={(e) => {
-              const value = e.target.value === "" ? null : e.target.value;
+              const value = e.target.value === "" ? null : e.target.value; // "2025-10-30"
               setForm({ ...form, vencimiento_contrato: value });
             }}
             placeholder="Opcional"
           />
+
         </div>
 
         <div className="mt-6 flex justify-end gap-3">

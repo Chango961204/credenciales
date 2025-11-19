@@ -29,12 +29,12 @@ const CredencialPage = () => {
   }, [token, API_URL]);
 
   // Logs para ver qué llega
-  useEffect(() => {
+ /*  useEffect(() => {
     if (empleado) {
       console.log("Empleado cargado:", empleado);
       console.log("Foto URL cruda:", empleado.fotoUrl);
     }
-  }, [empleado]);
+  }, [empleado]); */
 
   const normalizeFotoUrl = (url) => {
     if (!url) return null;

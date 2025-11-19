@@ -145,7 +145,7 @@ export async function generarCredencialFiles(empleado) {
     }
 
     if (fotoImg) {
-      ctx.drawImage(fotoImg, 20, 400, 250, 320);
+      ctx.drawImage(fotoImg, 30, 415, 250, 250);
     }
 
     ctx.fillStyle = "#000000";
@@ -154,9 +154,9 @@ export async function generarCredencialFiles(empleado) {
     const fullName = (empleado.nom_trab || "Sin nombre").toString().toUpperCase();
     const { apellidos, nombres } = separarApellidosNombres(fullName);
 
-    textoCordenadas(ctx, apellidos || "SIN APELLIDO", 300, 500, 400, 25, "Arial", true);
+    textoCordenadas(ctx, apellidos || "SIN APELLIDO", 330, 500, 400, 25, "Arial", true);
     if (nombres) {
-      textoCordenadas(ctx, nombres, 300, 540, 400, 25, "Arial", true);
+      textoCordenadas(ctx, nombres, 330, 540, 400, 25, "Arial", true);
     }
 
     textoCordenadas(ctx, empleado.num_trab || "Sin número", 430, 730, 400, 43, "Arial", true);

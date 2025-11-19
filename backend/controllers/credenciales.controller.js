@@ -71,8 +71,8 @@ export const getCredencialByToken = async (req, res) => {
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         fotoUrl = `${baseUrl}/api/empleados/${empleado.id}/foto`;
 
-        console.log("baseUrl:", baseUrl);
-        console.log("foto enviada al front:", fotoUrl);
+/*         console.log("baseUrl:", baseUrl);
+        console.log("foto enviada al front:", fotoUrl); */
       }
     }
 

@@ -106,7 +106,7 @@ export default function EmpleadoCard({
             className="px-5 py-2.5 rounded-lg bg-green-600 text-white font-medium shadow hover:bg-green-700 transition"
             onClick={() => onGenerate(emp.id)}
           >
-            Generar QR
+            Informacion del Empleado
           </button>
           <button
             className="px-5 py-2.5 rounded-lg bg-yellow-500 text-white font-medium shadow hover:bg-yellow-600 transition"
