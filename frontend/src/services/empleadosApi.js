@@ -1,5 +1,4 @@
-// src/services/empleadosApi.js
-import { api } from "./authService"; // usa el instance con Bearer
+import { api } from "./authService"; 
 
 export const importarExcel = async (file) => {
   const formData = new FormData();
