@@ -25,13 +25,11 @@ function textoCordenadas(
 
   ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
-  // Si cabe con el tamaño inicial, lo pintamos
   if (ctx.measureText(texto).width <= maxWidth) {
     ctx.fillText(texto, x, y);
     return;
   }
 
-  // Reducimos hasta 20% del tamaño o hasta minFontSize
   const reduccionMaxima = Math.floor(fontSizeInicial * 0.2);
   while (
     ctx.measureText(texto).width > maxWidth &&
@@ -47,7 +45,6 @@ function textoCordenadas(
     return;
   }
 
-  // Último ajuste: dos líneas lo más equilibradas posible
   fontSize = Math.max(minFontSize, fontSizeInicial - 3);
   ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
@@ -173,7 +170,6 @@ export async function generarCredencialFiles(empleado) {
       try {
         fotoImg = await loadImage(placeholder);
       } catch {
-        // ignorar si incluso el placeholder falla
       }
     }
 
@@ -237,7 +233,7 @@ export async function generarCredencialFiles(empleado) {
     });
 
     const qrImg = await loadImage(qrDataUrl);
-    // Ajusta coordenadas/tamaño del QR según tu plantilla
+    // Ajusta coordenadas/tamaño del QR 
     ctxReverso.drawImage(qrImg, 400, 450, 480, 480);
 
     ctxReverso.fillStyle = "#000000";

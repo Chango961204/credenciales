@@ -19,7 +19,7 @@ const FotoEmpleadoUploader = ({ empleado }) => {
     try {
       await uploadFotoEmpleado(empleado.id, selectedFile);
       setPreviewUrl(URL.createObjectURL(selectedFile));
-      alert("Foto subida correctamente");
+      alert("Foto cargada correctamente");
     } catch (err) {
       console.error("Error subiendo la foto:", err);
       alert("Error al subir foto");

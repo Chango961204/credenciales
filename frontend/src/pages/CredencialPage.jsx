@@ -28,14 +28,6 @@ const CredencialPage = () => {
     fetchEmpleado();
   }, [token, API_URL]);
 
-  // Logs para ver qué llega
- /*  useEffect(() => {
-    if (empleado) {
-      console.log("Empleado cargado:", empleado);
-      console.log("Foto URL cruda:", empleado.fotoUrl);
-    }
-  }, [empleado]); */
-
   const normalizeFotoUrl = (url) => {
     if (!url) return null;
     const raw = url.trim();
@@ -48,7 +40,30 @@ const CredencialPage = () => {
       return `${window.location.protocol}//${raw}`;
     }
 
-    return `${window.location.origin.replace(/\/$/, "")}/${raw.replace(/^\/+/, "")}`;
+    return `${window.location.origin.replace(/\/$/, "")}/${raw.replace(
+      /^\/+/,
+      ""
+    )}`;
+  };
+
+  const formatVigencia = (value) => {
+    if (!value) return "";
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [, y, m, d] = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return `${d}/${m}/${y}`;
+    }
+
+    try {
+      const d = new Date(value);
+      if (isNaN(d)) return value;
+
+      const day = String(d.getUTCDate()).padStart(2, "0");
+      const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const year = d.getUTCFullYear();
+      return `${day}/${month}/${year}`;
+    } catch {
+      return value;
+    }
   };
 
   if (loading)
@@ -92,9 +107,7 @@ const CredencialPage = () => {
             />
           ) : (
             <div className="w-full h-80 bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-400 text-sm">
-                Foto no disponible
-              </span>
+              <span className="text-gray-400 text-sm">Foto no disponible</span>
             </div>
           )}
         </div>
@@ -121,15 +134,7 @@ const CredencialPage = () => {
 
         {empleado.vencimiento_contrato && (
           <p className="text-xs text-gray-500 mt-2">
-            Vigencia:{" "}
-            {new Date(empleado.vencimiento_contrato).toLocaleDateString(
-              "es-MX",
-              {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              }
-            )}
+            Vigencia: {formatVigencia(empleado.vencimiento_contrato)}
           </p>
         )}
       </div>
