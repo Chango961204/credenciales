@@ -174,7 +174,7 @@ export async function generarCredencialFiles(empleado) {
     }
 
     if (fotoImg) {
-      ctx.drawImage(fotoImg, 30, 415, 250, 250);
+      ctx.drawImage(fotoImg, 30, 415, 250, 300);
     }
 
     ctx.fillStyle = "#000000";

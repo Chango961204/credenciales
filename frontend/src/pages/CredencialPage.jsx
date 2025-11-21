@@ -10,13 +10,15 @@ const CredencialPage = () => {
   const [imagenError, setImagenError] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
+  
+  
 
   useEffect(() => {
     const fetchEmpleado = async () => {
       try {
         const res = await axios.get(`${API_URL}/empleados/token/${token}`);
-        console.log("Empleado data:", res.data);
-        setEmpleado(res.data);
+/*         console.log("Empleado data:", res.data);
+ */        setEmpleado(res.data);
       } catch (error) {
         console.error("Error cargando empleado:", error);
         setError(error.response?.data?.msg || "Error cargando informacion");
