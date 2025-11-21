@@ -57,9 +57,9 @@ function Navbar() {
               className="h-10 w-auto object-contain"
             />
 
-            <span className="hidden sm:inline bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
+            {/* <span className="hidden sm:inline bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
               Sistema de Credenciales PMZ
-            </span>
+            </span> */}
           </Link>
 
 
