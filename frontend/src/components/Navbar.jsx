@@ -26,12 +26,15 @@ function Navbar() {
     { to: "/importar-empleados", label: "Importar" },
     { to: "/registrar-empleados", label: "Registrar" },
     { to: "/buscar-empleado", label: "Buscar" },
+    { to: "/importar-fotos", label: "Importar Fotos" },
+
   ];
 
   // Extras solo admin
   const adminLinks = [
     { to: "/register", label: "Usuarios" },
     { to: "/auditorias", label: "Auditorías" },
+    
   ];
 
   const publicLinks = [{ to: "/", label: "Inicio" }];

@@ -56,3 +56,15 @@ export const getEmpleadoById = async (id) => {
   const res = await api.get(`/empleados/${id}`);
   return res.data;
 };
+
+export const importarFotosZip = async (zipFile, { overwrite = false, deleteSource = false } = {}) => {
+  const formData = new FormData();
+  formData.append("file", zipFile);
+  formData.append("overwrite", String(overwrite));
+  formData.append("deleteSource", String(deleteSource));
+
+
+  const res = await api.post(`/empleados/fotos/importar`, formData);
+  return res.data;
+};
+

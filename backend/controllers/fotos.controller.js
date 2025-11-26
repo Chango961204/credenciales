@@ -14,28 +14,37 @@ export const uploadFotoEmpleado = async (req, res) => {
     }
 
     const empleadoId = req.params.id;
+
+    const emp = await Empleado.findByPk(empleadoId);
+    if (!emp) return res.status(404).json({ error: "Empleado no encontrado" });
+
     const uploadDir = path.join(__dirname, "../uploads/fotosEmpleados");
     if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-    const finalFilename = `${empleadoId}.png`;
+    const finalFilename = `${Number(emp.num_trab)}.png`;
     const finalPath = path.join(uploadDir, finalFilename);
 
-    await sharp(req.file.path).resize(500, 500, { fit: "cover" }).png().toFile(finalPath);
+    await sharp(req.file.path)
+      .rotate()
+      .resize(500, 500, { fit: "cover" })
+      .png()
+      .toFile(finalPath);
+
     fs.unlinkSync(req.file.path);
 
-    const emp = await Empleado.findByPk(empleadoId);
     const before = { foto_path: emp?.foto_path || null };
 
     await Empleado.update({ foto_path: finalFilename }, { where: { id: empleadoId } });
 
-    // + AUDITORIA: cambio de foto
-    await req.audit({
-      event: "updated",
-      model: "empleados",
-      modelId: String(empleadoId),
-      oldValues: before,
-      newValues: { foto_path: finalFilename },
-    });
+    if (req.audit) {
+      await req.audit({
+        event: "updated",
+        model: "empleados",
+        modelId: String(empleadoId),
+        oldValues: before,
+        newValues: { foto_path: finalFilename },
+      });
+    }
 
     res.json({ message: "Foto subida correctamente", filename: finalFilename });
   } catch (error) {

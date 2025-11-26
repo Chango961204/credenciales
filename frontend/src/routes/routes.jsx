@@ -13,6 +13,7 @@ import ImportarEmpleados from "../pages/ImportarEmpleados";
 import RegistrarEmpleado from "../pages/RegistrarEmpleado";
 import BuscarEmpleadosPage from "../pages/BuscarEmpleadosPage";
 import AuditoriasPage from "../pages/AuditoriasPage";
+import ImportarFotosEmpleados from "../pages/ImportFotosEmpleadosPage";
 
 
 function AppRoutes() {
@@ -22,7 +23,8 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       {/*  <Route path="/register" element={<RegisterPage />} /> */}
-      <Route path="/credencial/:token" element={<CredencialPage />} />
+      <Route path="/crede
+      ncial/:token" element={<CredencialPage />} />
 
       {/* Rutas protegidas - requieren autenticación */}
       <Route
@@ -42,6 +44,16 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
+
+      <Route
+        path="/importar-fotos"
+        element={
+          <PrivateRoute>
+            <ImportarFotosEmpleados />
+          </PrivateRoute>
+        }
+      />
+
 
       <Route
         path="/registrar-empleados"

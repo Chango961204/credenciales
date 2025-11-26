@@ -15,6 +15,9 @@ import {
   generarQrEmpleado,
 } from "../controllers/credenciales.controller.js";
 
+import { syncFotosEmpleados, importarFotosZip } from "../controllers/fotosBulk.controller.js"; 
+
+
 import { uploadFotoEmpleado, getEmpleadoFoto } from "../controllers/fotos.controller.js";
 import { uploadEmpleados } from "../controllers/excel.controller.js";
 import { uploadFoto } from "../middlewares/uploadFoto.js";
@@ -22,11 +25,17 @@ import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 const uploadExcel = multer({ dest: "uploads/" });
+const uploadZip = multer({ dest: "uploads/tmp" });
 
 router.get("/token/:token", getCredencialByToken);
 
 router.get("/search", protect, getBuscarEmpleados);
 router.get("/", protect, getEmpleados);
+
+router.post("/fotos/sync", protect, syncFotosEmpleados); 
+router.post("/fotos/importar", protect, uploadZip.single("file"), importarFotosZip); 
+
+
 router.get("/:id", protect, getEmpleadoById);
 
 router.get("/:id/foto", getEmpleadoFoto);
@@ -37,8 +46,8 @@ router.patch("/:id", protect, actualizarEmpleado);
 router.patch("/:id/estado", protect, actualizarEstadoEmpleado);
 router.delete("/:id", protect, deleteEmpleado);
 
-router.get("/:id/credencial",  generarCredencial);
-router.post("/:id/generar-qr",  generarQrEmpleado);
+router.get("/:id/credencial", generarCredencial);
+router.post("/:id/generar-qr", generarQrEmpleado);
 
 router.post("/:id/foto", protect, uploadFoto.single("foto"), uploadFotoEmpleado);
 
