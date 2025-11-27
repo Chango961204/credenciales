@@ -3,6 +3,7 @@ import { AuthProvider } from "./context/AuthContext";
 import AppRoutes from "./routes/routes";
 import Navbar from "./components/Navbar";
 import "./styles/index.css";
+import Footer from "./components/Component";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           <Navbar />
           <AppRoutes />
         </div>
+        <Footer />
       </AuthProvider>
     </BrowserRouter>
   );

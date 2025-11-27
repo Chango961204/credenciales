@@ -21,18 +21,18 @@ function Navbar() {
 
   // Links base (autenticado)
   const mainLinks = [
-    { to: "/", label: "Credenciales" },
+    { to: "/", label: "Inicio" },
     { to: "/empleados", label: "Empleados" },
-    { to: "/importar-empleados", label: "Importar" },
-    { to: "/registrar-empleados", label: "Registrar" },
-    { to: "/buscar-empleado", label: "Buscar" },
+    { to: "/importar-empleados", label: "Importar Empleados" },
+    { to: "/registrar-empleados", label: "Registrar Empleado" },
+    { to: "/buscar-empleado", label: "Buscar  Empleado(s)" },
     { to: "/importar-fotos", label: "Importar Fotos" },
 
   ];
 
   // Extras solo admin
   const adminLinks = [
-    { to: "/register", label: "Usuarios" },
+    { to: "/register", label: "Registrar Usuario" },
     { to: "/auditorias", label: "Auditorías" },
     
   ];
