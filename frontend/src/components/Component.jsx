@@ -12,7 +12,7 @@ export default function Footer() {
     useEffect(() => setOpen(false), [location.pathname]);
 
     useEffect(() => {
-        const HOTZONE_PX = 10; // <- qué tan fácil se activa (8-16 recomendado)
+        const HOTZONE_PX = 10;
         let raf = 0;
 
         const onMove = (e) => {
@@ -65,7 +65,6 @@ export default function Footer() {
                         aria-hidden="true"
                     />
 
-                    {/* Tarjeta glass transparente */}
                     <div
                         className="
               relative overflow-hidden rounded-3xl p-[1px]
@@ -86,13 +85,13 @@ export default function Footer() {
 
                             <div className="relative flex items-center justify-between gap-4">
                                 <div className="leading-tight">
-                                    <p className="text-xs font-medium text-slate-700/80">
+                                    <p className="text-xs font-xs text-slate-500/90">
                                         Sistema de Credenciales PMZ
                                     </p>
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm leading-tight text-slate-300">
                                         Desarrollado por{" "}
-                                        <span className="font-extrabold bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 bg-clip-text text-transparent">
-                                            Ing. Luis Manuel López Robles
+                                        <span className="leading-tight bg-gradient-to-r from-slate-300 via-slate-300 to-slate-300 bg-clip-text text-transparent">
+                                            ISC. Luis Manuel López Robles
                                         </span>
                                     </p>
                                 </div>

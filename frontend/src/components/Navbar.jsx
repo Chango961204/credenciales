@@ -57,7 +57,7 @@ function Navbar() {
             <img
               src={logoZac}
               alt="Ayuntamiento de Zacatecas 2024-2027"
-              className="h-10 w-auto object-contain"
+              className="h-17 w-auto object-contain"
             />
 
             {/* <span className="hidden sm:inline bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">

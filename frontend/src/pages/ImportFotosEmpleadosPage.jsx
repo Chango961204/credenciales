@@ -71,7 +71,6 @@ function ImportarFotosEmpleados() {
                 </div>
 
                 <div className="rounded-3xl p-6 md:p-8 bg-white/70 backdrop-blur-xl ring-1 ring-slate-200 shadow-[0_10px_30px_-12px_rgba(2,6,23,0.15)]">
-                    {/* Archivo */}
                     <div className="mb-6">
                         <label
                             htmlFor="zipInput"
@@ -93,12 +92,10 @@ function ImportarFotosEmpleados() {
                            file:cursor-pointer cursor-pointer"
                             />
                             <p className="mt-2 text-xs text-slate-500">
-                                Tip: puedes incluir .jpg/.png. El sistema las renombra a <b>num_trab.png</b>.
                             </p>
                         </div>
                     </div>
 
-                    {/* Opciones */}
                     <div className="mb-6 grid gap-3">
                         <label className="flex items-start gap-3 rounded-2xl border ring-1 ring-slate-200 bg-white p-4 cursor-pointer">
                             <input
@@ -111,7 +108,7 @@ function ImportarFotosEmpleados() {
                             <div className="text-sm text-slate-700">
                                 <div className="font-semibold flex items-center gap-2">
                                     <RefreshCcw className="w-4 h-4" />
-                                    Reemplazar fotos existentes (overwrite)
+                                    Reemplazar fotos existentes
                                 </div>
                                 <p className="text-slate-500">
                                     Si está desactivado, <b>solo asigna fotos a empleados que aún no tienen foto</b>.
