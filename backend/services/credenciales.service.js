@@ -225,7 +225,12 @@ export async function generarCredencialFiles(empleado) {
       { expiresIn: process.env.JWT_EXPIRES_IN || "30d" }
     );
 
-    const frontUrl = `${process.env.FRONT_URL.replace(/\/$/, "")}/credencial/${token}`;
+/*     const frontUrl = `${process.env.FRONT_URL.replace(/\/$/, "")}/credencial/${token}`;
+ */
+//prueba 
+let base = (process.env.FRONT_URL || "").trim().replace(/\/+$/, "");
+if (!/^https?:\/\//i.test(base)) base = `https://${base}`;
+const frontUrl = `${base}/credencial?token=${encodeURIComponent(token)}`;
 
     const qrDataUrl = await QRCode.toDataURL(frontUrl, {
       width: 280,

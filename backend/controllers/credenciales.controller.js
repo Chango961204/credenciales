@@ -109,9 +109,17 @@ export const generarQrEmpleado = async (req, res) => {
     const { id } = req.params;
     const empleado = await Empleado.findByPk(id);
 
-    if (!empleado) {
-      return res.status(404).json({ message: "Empleado no encontrado" });
+    if (!empleado) return res.status(404).json({ message: "Empleado no encontrado" });
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: "JWT_SECRET no definido" });
     }
+
+    let base = (process.env.FRONT_URL || "").trim().replace(/\/+$/, "");
+    if (!base) return res.status(500).json({ message: "FRONT_URL no definido" });
+
+    //  si viene sin protocolo, pon https por defecto
+    if (!/^https?:\/\//i.test(base)) base = `https://${base}`;
 
     const token = jwt.sign(
       { id: empleado.id },
@@ -119,10 +127,12 @@ export const generarQrEmpleado = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || "30d" }
     );
 
-    const qrUrl = `${process.env.FRONT_URL}/credencial/${token}`;
+    //  token en query (más robusto que en path)
+    const qrUrl = `${base}/credencial?token=${encodeURIComponent(token)}`;
+
     const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 2 });
 
-    await req.audit({
+    await req.audit?.({
       event: "qr_generated",
       model: "credenciales",
       modelId: String(empleado.id),
@@ -142,10 +152,8 @@ export const generarQrEmpleado = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(" Error generando QR:", err);
-    res.status(500).json({
-      message: "Error generando QR",
-      detail: err.message,
-    });
+    console.error("Error generando QR:", err);
+    res.status(500).json({ message: "Error generando QR", detail: err.message });
   }
 };
+

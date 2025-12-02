@@ -23,8 +23,9 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       {/*  <Route path="/register" element={<RegisterPage />} /> */}
-      <Route path="/crede
-      ncial/:token" element={<CredencialPage />} />
+      
+      <Route path = "/credencial" element = {<CredencialPage />} />
+      <Route path="/credencial/:token" element={<CredencialPage />} />
 
       {/* Rutas protegidas - requieren autenticación */}
       <Route
