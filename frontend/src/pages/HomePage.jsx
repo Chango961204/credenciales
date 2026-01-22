@@ -31,7 +31,7 @@ function ActionCard({
           <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900/5 text-slate-900 group-hover:bg-slate-900/10">
             <Icon className="h-6 w-6" />
           </div>
-        {/*   <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400 group-hover:text-slate-500">
+          {/*   <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400 group-hover:text-slate-500">
             Acción rápida
           </span> */}
         </div>
@@ -43,7 +43,7 @@ function ActionCard({
 
         <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
           <span className="inline-flex items-center gap-1">
-{/*             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            {/*             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
  */}{/*             <span className="font-medium">Disponible</span>
  */}          </span>
           {/* <span className="inline-flex items-center gap-1 text-[11px] font-medium group-hover:text-slate-500">
@@ -111,8 +111,8 @@ export default function HomePage() {
                       <span className="text-xs text-slate-500">Rol actual:</span>
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-semibold ${user?.role === "admin"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-indigo-100 text-indigo-700"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-indigo-100 text-indigo-700"
                           }`}
                       >
                         {user?.role === "admin" ? "Administrador" : "Usuario"}
