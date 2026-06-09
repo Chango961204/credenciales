@@ -1,8 +1,7 @@
 import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import multer from "multer";
 import empleadosRoutes from "./routes/empleados.routes.js";
 import "./scheduler.js";
 import sequelize from "./config/database.js";
@@ -13,9 +12,6 @@ import auditMiddleware from "./middlewares/auditMiddleware.js";
 import auditoriasRoutes from "./routes/auditoria.routes.js";
 import { csrfProtect } from "./middlewares/csrfMiddleware.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 
 app.use(
@@ -25,7 +21,6 @@ app.use(
         "http://localhost:5173",
         "http://localhost:4000",
         "https://credenciales-front.onrender.com",
-        "http://credenciales.capitaldezacatecas.gob.mx",
         "https://credenciales.capitaldezacatecas.gob.mx",
       ];
 
@@ -36,15 +31,15 @@ app.use(
       }
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-XSRF-TOKEN"],
+    allowedHeaders: ["Content-Type", "X-XSRF-TOKEN"],
     credentials: true,
   })
 );
 
 app.use(cookieParser());
 
-app.use(express.json({ limit: "100mb" }));
-app.use(express.urlencoded({ extended: true, limit: "100mb" }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
@@ -55,14 +50,30 @@ app.set("trust proxy", true);
 
 app.use(auditMiddleware);
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 // Rutas API
 app.use("/api/empleados", csrfProtect, empleadosRoutes);
 app.use("/api/impresion", csrfProtect, impresionRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/auditorias", csrfProtect, auditoriasRoutes);
 app.use("/api/users", csrfProtect, userRoutes);
+
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      message: err.code === "LIMIT_FILE_SIZE" ? "Archivo demasiado grande" : err.message,
+    });
+  }
+
+  if (err) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Solicitud invalida",
+    });
+  }
+
+  next();
+});
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));

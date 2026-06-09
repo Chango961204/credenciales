@@ -71,8 +71,11 @@ export const getEmpleadoFoto = async (req, res) => {
       return res.status(404).json({ error: "No hay foto disponible" });
     }
 
-    const filePath = path.join(__dirname, "../uploads/fotosEmpleados", empleado.foto_path);
-    if (!fs.existsSync(filePath)) {
+    const fotosDir = path.resolve(__dirname, "../uploads/fotosEmpleados");
+    const filename = path.basename(String(empleado.foto_path));
+    const filePath = path.resolve(fotosDir, filename);
+
+    if (!filePath.startsWith(`${fotosDir}${path.sep}`) || !fs.existsSync(filePath)) {
       const defaultFoto = path.join(__dirname, "../plantillas/placeholder.jpg");
       if (fs.existsSync(defaultFoto)) {
         return res.sendFile(defaultFoto);
@@ -80,7 +83,7 @@ export const getEmpleadoFoto = async (req, res) => {
       return res.status(404).json({ error: "Archivo de foto no encontrado" });
     }
 
-    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Cache-Control", "private, max-age=300");
     res.sendFile(filePath);
   } catch (err) {
     console.error("Error en getEmpleadoFoto:", err);

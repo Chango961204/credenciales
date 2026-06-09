@@ -1,31 +1,35 @@
-import crypto from "crypto";
 import authService from "../services/auth.service.js";
+import { createCsrfToken, signCsrfToken } from "../utils/csrf.js";
+
+const getCookieOptions = (httpOnly) => ({
+  httpOnly,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: "/",
+});
 
 const setTokenCookie = (res, token) => {
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    path: "/",
-  });
+  const csrfToken = createCsrfToken();
 
-  res.cookie("XSRF-TOKEN", crypto.randomUUID(), {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    path: "/",
-  });
+  res.cookie("token", token, getCookieOptions(true));
+  res.cookie("XSRF-TOKEN", csrfToken, getCookieOptions(false));
+  res.cookie("XSRF-SIGNATURE", signCsrfToken(csrfToken), getCookieOptions(true));
 };
 
 const clearTokenCookie = (res) => {
-  res.clearCookie("token", { path: "/" });
-  res.clearCookie("XSRF-TOKEN", { path: "/" });
+  const options = {
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    path: "/",
+  };
+
+  res.clearCookie("token", { ...options, httpOnly: true });
+  res.clearCookie("XSRF-TOKEN", { ...options, httpOnly: false });
+  res.clearCookie("XSRF-SIGNATURE", { ...options, httpOnly: true });
 };
 
 export const register = async (req, res) => {
-  console.log("Register request body:", req.body);
   try {
     const { user, token } = await authService.register(req.body);
 
@@ -135,6 +139,16 @@ export const getMe = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
+    const token = req.cookies?.token;
+
+    if (!req.user && token) {
+      try {
+        req.user = await authService.verifyToken(token);
+      } catch {
+        req.user = null;
+      }
+    }
+
     // Auditoría: logout
     if (req.user?.id && req.audit) {
       await req.audit({
@@ -146,6 +160,7 @@ export const logout = async (req, res) => {
       });
     }
 
+    authService.revokeToken(token);
     clearTokenCookie(res);
 
     res.json({

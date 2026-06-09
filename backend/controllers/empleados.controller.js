@@ -5,20 +5,21 @@ import Empleado from "../models/Empleados.js";
 
 export const getEmpleados = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 10));
     const offset = (page - 1) * limit;
 
     const { rows: data, count: total } = await Empleado.findAndCountAll({
       offset,
-      limit: Number(limit),
+      limit,
       order: [["id", "ASC"]],
     });
 
     res.json({
       empleados: data,
       total,
-      page: Number(page),
-      limit: Number(limit),
+      page,
+      limit,
     });
   } catch (error) {
     console.error("Error getEmpleados:", error);
@@ -151,10 +152,28 @@ export const actualizarEmpleado = async (req, res) => {
     const before = empleado.get({ plain: true });
 
     const updates = {};
+    const allowedFields = new Set([
+      "num_trab",
+      "rfc",
+      "nom_trab",
+      "num_imss",
+      "sexo",
+      "fecha_ing",
+      "num_depto",
+      "nom_depto",
+      "categoria",
+      "puesto",
+      "sind",
+      "conf",
+      "nomina",
+      "vencimiento_contrato",
+      "estado_qr",
+    ]);
     const numericFields = ["num_trab", "num_depto"];
     const dateFields = ["fecha_ing", "vencimiento_contrato"];
 
     for (const [key, value] of Object.entries(payload)) {
+      if (!allowedFields.has(key)) continue;
       if (value === "" || typeof value === "undefined") continue;
 
       if (numericFields.includes(key)) {
@@ -252,13 +271,9 @@ export const getEmpleadoById = async (req, res) => {
         .json({ message: "Empleado no encontrado" });
     }
 
-    const fotoUrl = empleado.foto_path
-      ? `${req.protocol}://${req.get(
-        "host"
-      )}/uploads/fotosEmpleados/${empleado.foto_path}`
-      : `${req.protocol}://${req.get(
-        "host"
-      )}/plantillas/placeholder.png`;
+    const fotoUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/api/empleados/${empleado.id}/foto`;
 
     res.json({
       id: empleado.id,

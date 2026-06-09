@@ -26,7 +26,7 @@ const User = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: false,
       validate: {
-        len: [6, 255],
+        len: [8, 255],
       },
     },
     role: {

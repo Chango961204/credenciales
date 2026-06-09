@@ -151,7 +151,7 @@ export async function generarCredencialFiles(empleado) {
     const posibles = [];
 
     if (empleado.foto_path) {
-      posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", empleado.foto_path));
+      posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", path.basename(String(empleado.foto_path))));
     }
     posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.png`));
     posibles.push(path.join(__dirname, "../uploads/fotosEmpleados", `${empleado.id}.jpg`));
@@ -220,7 +220,7 @@ export async function generarCredencialFiles(empleado) {
     }
 
     const token = jwt.sign(
-      { id: empleado.id },
+      { id: empleado.id, purpose: "credential" },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "30d" }
     );

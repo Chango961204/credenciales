@@ -1,9 +1,10 @@
-import axios from "axios";
+import { api } from "./authService";
 
-export async function imprimirEnZebra(imageUrl) {
+export async function imprimirEnZebra(frente, reverso) {
   try {
-    const res = await axios.post("http://localhost:4000/zebra/print", {
-      imageUrl,
+    const res = await api.post("/impresion", {
+      frente,
+      reverso,
     });
     return res.data;
   } catch (err) {

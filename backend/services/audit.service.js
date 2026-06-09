@@ -16,6 +16,13 @@ import { auditSafe } from "../utils/auditSafe.js";
  */
 export async function logAudit(req, payload) {
   try {
+    const sanitizeUrl = (value) => {
+      if (!value) return null;
+      return String(value)
+        .replace(/([?&]token=)[^&]+/gi, "$1***")
+        .replace(/\/token\/[^/?#]+/gi, "/token/***");
+    };
+
     const getClientIp = (r) => {
       const fwd = r?.headers?.["x-forwarded-for"];
       let ip = Array.isArray(fwd) ? fwd[0] : (typeof fwd === "string" ? fwd.split(",")[0] : null);
@@ -28,7 +35,7 @@ export async function logAudit(req, payload) {
     const userId    = req?.user?.id ?? null;
     const username  = req?.user?.username || req?.user?.name || (userId ? null : "anonymous");
     const userEmail = req?.user?.email || null;
-    const url       = req?.originalUrl || req?.url || null;
+    const url       = sanitizeUrl(req?.originalUrl || req?.url || null);
     const ip        = getClientIp(req);
 
     await Auditoria.create({

@@ -1,6 +1,5 @@
 import User from "../models/User.js";
 import { diffObjects } from "../utils/diff.js";
-import bcrypt from "bcryptjs";
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -41,16 +40,21 @@ export const createUserByAdmin = async (req, res) => {
             return res.status(400).json({ message: "Email y contrasena son requeridos" });
         }
 
-        const existing = await User.findOne({ where: { email } });
+        if (String(password).length < 8) {
+            return res.status(400).json({ message: "La contrasena debe tener al menos 8 caracteres" });
+        }
+
+        const normalizedEmail = String(email).trim().toLowerCase();
+        const existing = await User.findOne({ where: { email: normalizedEmail } });
         if (existing) return res.status(400).json({ message: "El email ya existe" });
 
-        const username = (name || email.split("@")[0]).trim();
+        const username = (name || normalizedEmail.split("@")[0]).trim();
 
         const newUser = await User.create({
             username,
-            email,
+            email: normalizedEmail,
             password,
-            role: role || "user",
+            role: role === "admin" ? "admin" : "user",
             is_active: true,
         });
 
@@ -85,11 +89,49 @@ export const updateUser = async (req, res) => {
 
         const before = user.get({ plain: true });
 
-        const updates = { ...req.body };
-        if (updates.name) {
-            updates.username = updates.name;
-            delete updates.name;
+        const isAdmin = req.user.role === "admin";
+        const updates = {};
+
+        if (typeof req.body.name === "string" && req.body.name.trim()) {
+            updates.username = req.body.name.trim();
+        } else if (typeof req.body.username === "string" && req.body.username.trim()) {
+            updates.username = req.body.username.trim();
         }
+
+        if (typeof req.body.email === "string" && req.body.email.trim()) {
+            updates.email = req.body.email.trim().toLowerCase();
+        }
+
+        if (isAdmin) {
+            if (req.body.role !== undefined) {
+                if (!["user", "admin"].includes(req.body.role)) {
+                    return res.status(400).json({ message: "Rol invalido" });
+                }
+                updates.role = req.body.role;
+            }
+
+            if (req.body.is_active !== undefined) {
+                updates.is_active = req.body.is_active === true || req.body.is_active === "true";
+            }
+
+            if (req.body.password !== undefined) {
+                if (typeof req.body.password !== "string" || req.body.password.length < 8) {
+                    return res.status(400).json({ message: "La contrasena debe tener al menos 8 caracteres" });
+                }
+                updates.password = req.body.password;
+            }
+        } else if (
+            req.body.role !== undefined ||
+            req.body.is_active !== undefined ||
+            req.body.password !== undefined
+        ) {
+            return res.status(403).json({ message: "No autorizado para modificar campos sensibles" });
+        }
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: "No hay campos validos para actualizar" });
+        }
+
         // deja el hasheo al hook beforeUpdate del modelo
         await user.update(updates);
 

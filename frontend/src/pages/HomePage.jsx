@@ -183,7 +183,7 @@ export default function HomePage() {
               </p>
               <Link
                 to="/login"
-                className="inline-flex w-full items-center justify-center rounded-2xl bg-lineal-to-r from-indigo-600 to-violet-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg active:scale-[0.98]"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-linear-to-r from-sky-700 to-blue-700 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg active:scale-[0.98]"
               >
                 Iniciar sesión
               </Link>

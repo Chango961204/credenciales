@@ -1,3 +1,5 @@
+import { safeEqual, signCsrfToken } from "../utils/csrf.js";
+
 export const csrfProtect = (req, res, next) => {
   const safeMethods = ["GET", "HEAD", "OPTIONS"];
 
@@ -7,11 +9,18 @@ export const csrfProtect = (req, res, next) => {
 
   const headerToken = req.headers["x-xsrf-token"];
   const cookieToken = req.cookies?.["XSRF-TOKEN"];
+  const signedToken = req.cookies?.["XSRF-SIGNATURE"];
 
-  if (!headerToken || !cookieToken || headerToken !== cookieToken) {
+  if (
+    !headerToken ||
+    !cookieToken ||
+    !signedToken ||
+    !safeEqual(headerToken, cookieToken) ||
+    !safeEqual(signedToken, signCsrfToken(headerToken))
+  ) {
     return res.status(403).json({
       success: false,
-      message: "Token CSRF inválido",
+      message: "Token CSRF invalido",
     });
   }
 

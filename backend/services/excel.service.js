@@ -66,7 +66,7 @@ async function procesarFilasConLimite(rows, concurrency = 20) {
         insertados++;
       } catch (err) {
         errores++;
-        console.error("Error insertando fila:", row, err.message);
+        console.error("Error insertando fila de Excel:", err.message);
       }
     }
   };

@@ -49,7 +49,7 @@ function ImportarEmpleados() {
             </span>
           </h1>
           <p className="mt-2 text-slate-600">
-            Selecciona un archivo <b>.xlsx</b> o <b>.xls</b> para cargar la plantilla.
+            Selecciona un archivo <b>.xlsx</b> para cargar la plantilla.
           </p>
         </div>
 
@@ -66,7 +66,7 @@ function ImportarEmpleados() {
               <input
                 id="fileInput"
                 type="file"
-                accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 onChange={handleFileChange}
                 disabled={loading}
                 className="block w-full text-sm text-slate-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0
@@ -116,7 +116,7 @@ function ImportarEmpleados() {
           {!file && !loading && (
             <div className="mb-6 rounded-2xl border ring-1 ring-amber-200 bg-amber-50 p-4">
               <p className="text-sm text-amber-800">
-                Por favor, selecciona un archivo Excel (<b>.xlsx</b> o <b>.xls</b>) para continuar.
+                Por favor, selecciona un archivo Excel (<b>.xlsx</b>) para continuar.
               </p>
             </div>
           )}

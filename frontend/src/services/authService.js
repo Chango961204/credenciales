@@ -1,10 +1,31 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://credenciales.capitaldezacatecas.gob.mx/api/';
+const API_URL = import.meta.env.VITE_API_URL || 'https://credenciales.capitaldezacatecas.gob.mx/api';
+const LEGACY_AUTH_STORAGE_KEYS = [
+  "token",
+  "authToken",
+  "accessToken",
+  "refreshToken",
+  "user",
+  "authUser",
+];
+
+export const clearLegacyAuthStorage = () => {
+  if (typeof window === "undefined") return;
+
+  for (const storage of [window.localStorage, window.sessionStorage]) {
+    for (const key of LEGACY_AUTH_STORAGE_KEYS) {
+      storage.removeItem(key);
+    }
+  }
+};
+
+clearLegacyAuthStorage();
 
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
+  timeout: 15000,
 });
 
 api.interceptors.request.use(
@@ -24,6 +45,8 @@ api.interceptors.request.use(
 class AuthService {
   async login(email, password) {
     try {
+      clearLegacyAuthStorage();
+
       if (!email || !password) {
         throw new Error("Email y contraseña son requeridos");
       }
@@ -40,6 +63,8 @@ class AuthService {
 
   async register(userData) {
     try {
+      clearLegacyAuthStorage();
+
       if (!userData.email || !userData.password) {
         throw new Error("Email y contraseña son requeridos");
       }
@@ -80,6 +105,8 @@ class AuthService {
       await api.post('/auth/logout');
     } catch {
       // fallo silencioso
+    } finally {
+      clearLegacyAuthStorage();
     }
   }
 

@@ -23,8 +23,8 @@ export const buscarEmpleados = async (query) => {
 };
 
 export const generarQr = async (id) => {
-  const res = await api.get(`/empleados/${id}/credencial`);
-  return res.data;
+  const res = await api.get(`/empleados/${id}`);
+  return { empleado: res.data };
 };
 
 export const obtenerEmpleadosPaginados = async (page, limit) => {
@@ -33,7 +33,7 @@ export const obtenerEmpleadosPaginados = async (page, limit) => {
 };
 
 export const buscarEmpleadoPorNombre = async (nombre) => {
-  const res = await api.get(`/empleados/buscar`, { params: { nombre } });
+  const res = await api.get(`/empleados/search`, { params: { nombre } });
   return res.data;
 };
 

@@ -42,8 +42,8 @@ export default function RegistrarUsuario() {
     if (!formData.name || !formData.email || !formData.password) {
       return setError("Todos los campos son obligatorios");
     }
-    if (formData.password.length < 6) {
-      return setError("La contraseña debe tener al menos 6 caracteres");
+    if (formData.password.length < 8) {
+      return setError("La contraseña debe tener al menos 8 caracteres");
     }
 
     setLoading(true);
@@ -144,13 +144,13 @@ export default function RegistrarUsuario() {
                 type="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 autoComplete="new-password"
                 className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-sky-300 text-slate-800"
                 required
               />
               <p className="mt-1 text-xs text-slate-500">
-                Usa al menos 6 caracteres. Recomendado: mezcla letras, números y símbolos.
+                Usa al menos 8 caracteres. Recomendado: mezcla letras, números y símbolos.
               </p>
             </div>
 

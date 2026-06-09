@@ -1,22 +1,67 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import User from "../models/User.js";
+
+const revokedTokens = new Map();
+
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(String(token)).digest("hex");
+
+const cleanupRevokedTokens = () => {
+  const now = Date.now();
+  for (const [tokenHash, expiresAt] of revokedTokens.entries()) {
+    if (expiresAt <= now) {
+      revokedTokens.delete(tokenHash);
+    }
+  }
+};
+
+setInterval(cleanupRevokedTokens, 60 * 60 * 1000).unref();
 
 class AuthService {
   generateToken(userId) {
-    return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET no definido");
+    }
+
+    return jwt.sign({ userId, purpose: "auth", jti: crypto.randomUUID() }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+  }
+
+  revokeToken(token) {
+    if (!token) return;
+
+    const decoded = jwt.decode(token);
+    const expiresAt = decoded?.exp
+      ? decoded.exp * 1000
+      : Date.now() + 7 * 24 * 60 * 60 * 1000;
+
+    revokedTokens.set(hashToken(token), expiresAt);
+    cleanupRevokedTokens();
+  }
+
+  isTokenRevoked(token) {
+    cleanupRevokedTokens();
+    const expiresAt = revokedTokens.get(hashToken(token));
+    return Boolean(expiresAt && expiresAt > Date.now());
   }
 
   async register(userData) {
-    console.log("Registering user with data:", userData);
-
     const { name, username, email, password, role } = userData;
 
     if (!email || !password) {
       throw new Error("Email y contraseña son requeridos");
     }
 
+    if (String(password).length < 8) {
+      throw new Error("La contrasena debe tener al menos 8 caracteres");
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+
     const existingUser = await User.findOne({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -26,7 +71,7 @@ class AuthService {
     const finalUsername =
       (username && username.trim()) ||
       (name && name.trim()) ||        
-      email.split("@")[0];              
+      normalizedEmail.split("@")[0];              
 
     if (!finalUsername) {
       throw new Error("El nombre de usuario es requerido");
@@ -34,9 +79,9 @@ class AuthService {
 
     const user = await User.create({
       username: finalUsername,
-      email,
+      email: normalizedEmail,
       password,
-      role: role || "user",
+      role: role === "admin" ? "admin" : "user",
       is_active: true,
     });
 
@@ -49,8 +94,10 @@ class AuthService {
       throw new Error("Email y contraseña son requeridos");
     }
 
+    const normalizedEmail = String(email).trim().toLowerCase();
+
     const user = await User.findOne({
-      where: { email, is_active: true },
+      where: { email: normalizedEmail, is_active: true },
     });
 
     if (!user) {
@@ -69,9 +116,17 @@ class AuthService {
   }
 
   async verifyToken(token) {
+    if (this.isTokenRevoked(token)) {
+      throw new Error("Token revocado");
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const id = decoded.userId || decoded.id; 
+    if (decoded.purpose !== "auth" || !decoded.userId) {
+      throw new Error("Token de autenticacion invalido");
+    }
+
+    const id = decoded.userId; 
     const user = await User.findByPk(id, { 
       attributes: ["id", "email", "username", "role", "is_active"],
     });
@@ -105,6 +160,10 @@ class AuthService {
 
     if (!user) {
       throw new Error("Usuario no encontrado");
+    }
+
+    if (String(newPassword).length < 8) {
+      throw new Error("La nueva contrasena debe tener al menos 8 caracteres");
     }
 
     const isValidPassword = await user.comparePassword(oldPassword);

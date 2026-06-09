@@ -37,7 +37,6 @@ const parseDateSafely = (dateValue) => {
 
 export const saveEmpleado = async (row) => {
   const empleado = mapRowToEmpleado(row);
-  console.log("Guardando empleado:", empleado);
 
   if (!empleado.num_trab || !empleado.nom_trab) return;
 
