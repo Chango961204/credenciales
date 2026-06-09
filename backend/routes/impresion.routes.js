@@ -4,7 +4,7 @@ import { protect, authorize } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/printers", /* protect, authorize("admin"), */ async (req, res) => {
+router.get("/printers", protect, authorize("admin"), async (req, res) => {
   try {
     const printers = await listWindowsPrinters();
     res.json({ printers });
@@ -14,7 +14,7 @@ router.get("/printers", /* protect, authorize("admin"), */ async (req, res) => {
   }
 });
 
-router.post("/", /* protect, authorize("admin"), */ async (req, res) => {
+router.post("/", protect, authorize("admin"), async (req, res) => {
   try {
     const { frente, reverso } = req.body;
     if (!frente || !reverso) {

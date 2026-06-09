@@ -20,15 +20,12 @@ function EstadoToggle({ empleado, onQrUpdate }) {
   };
 
   return (
-    <button
-      onClick={handleToggle}
-      className={`relative inline-flex items-center h-8 w-14 rounded-full transition-colors duration-300 focus:outline-none shadow-md ${
-        estado === "activo" ? "bg-green-500" : "bg-red-500"
+    <button onClick={handleToggle} className={`relative inline-flex items-center h-8 w-14 rounded-full transition-colors duration-300 focus:outline-none shadow-md
+       ${estado === "activo" ? "bg-green-500" : "bg-red-500"
       }`}
     >
-      <span
-        className={`absolute left-1 inline-flex items-center justify-center w-6 h-6 transform rounded-full bg-white shadow transition-transform duration-300 ${
-          estado === "activo" ? "translate-x-6" : "translate-x-0"
+      <span className={`absolute left-1 inline-flex items-center justify-center w-6 h-6 transform rounded-full bg-white shadow transition-transform duration-300
+       ${estado === "activo" ? "translate-x-6" : "translate-x-0"
         }`}
       >
         {estado === "activo" ? (

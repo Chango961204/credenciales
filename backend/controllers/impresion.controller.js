@@ -10,7 +10,7 @@ export const enviarImpresion = async (req, res) => {
 
     await printImageAsPdf(imageBase64, { printerName: "Zebra ZXP Series 3" });
 
-    // + AUDITORIA: impresión
+    // AUDITORIA: impresión
     await req.audit({
       event: "print",
       model: "impresion",

@@ -20,7 +20,7 @@ export const postGenerarQr = async (req, res) => {
 
     const qrCode = await QRCode.toDataURL(JSON.stringify(qrPayload));
 
-    // + AUDITORIA: QR generado (payload)
+    // AUDITORIA: QR generado 
     await req.audit({
       event: "qr_generated",
       model: "qr",

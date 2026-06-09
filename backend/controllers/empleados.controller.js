@@ -128,10 +128,7 @@ export const getBuscarEmpleados = async (req, res) => {
   }
 };
 
-/**
- * PATCH /api/empleados/:id
- * Actualizar datos del empleado (desde el modal)
- */
+
 export const actualizarEmpleado = async (req, res) => {
   try {
     const { id } = req.params;

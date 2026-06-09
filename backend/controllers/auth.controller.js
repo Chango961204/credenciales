@@ -1,12 +1,35 @@
-// backend/controllers/auth.controller.js
+import crypto from "crypto";
 import authService from "../services/auth.service.js";
+
+const setTokenCookie = (res, token) => {
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
+  });
+
+  res.cookie("XSRF-TOKEN", crypto.randomUUID(), {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
+  });
+};
+
+const clearTokenCookie = (res) => {
+  res.clearCookie("token", { path: "/" });
+  res.clearCookie("XSRF-TOKEN", { path: "/" });
+};
 
 export const register = async (req, res) => {
   console.log("Register request body:", req.body);
   try {
     const { user, token } = await authService.register(req.body);
 
-    // Auditoría: registro de usuario (lo hace un admin)
+    // Auditoría: registro de usuario
     if (req.audit) {
       await req.audit({
         event: "register",
@@ -22,14 +45,14 @@ export const register = async (req, res) => {
       });
     }
 
+    setTokenCookie(res, token);
+
     res.status(201).json({
       success: true,
       message: "Usuario registrado exitosamente",
-      token,
       user: {
         id: user.id,
         email: user.email,
-        // el front usa `name`, lo mapeamos desde username
         name: user.username,
         role: user.role,
       },
@@ -69,14 +92,15 @@ export const login = async (req, res) => {
       });
     }
 
+    setTokenCookie(res, token);
+
     res.json({
       success: true,
       message: "Login exitoso",
-      token,
       user: {
         id: user.id,
         email: user.email,
-        name: user.username, // mapeo a name para el front
+        name: user.username,
         role: user.role,
       },
     });
@@ -90,15 +114,14 @@ export const login = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    // req.user viene de authMiddleware.verifyToken
-    // y suele tener { id, email, username, role }
+ 
     const u = req.user || {};
     res.json({
       success: true,
       user: {
         id: u.id,
         email: u.email,
-        name: u.username || u.name, // el front sigue usando `name`
+        name: u.username || u.name,
         role: u.role,
       },
     });
@@ -122,6 +145,8 @@ export const logout = async (req, res) => {
         newValues: null,
       });
     }
+
+    clearTokenCookie(res);
 
     res.json({
       success: true,

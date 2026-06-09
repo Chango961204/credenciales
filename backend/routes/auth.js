@@ -7,18 +7,18 @@ import {
   changePassword,
 } from "../controllers/auth.controller.js";
 import { authorize, protect } from "../middlewares/authMiddleware.js";
+import { csrfProtect } from "../middlewares/csrfMiddleware.js";
 
 const router = express.Router();
 
-// Rutas públicas
-//router.post("/register", register);
+// Rutas públicas (sin CSRF — aún no hay cookie)
 router.post("/login", login);
 
 // Rutas protegidas
 
-router.post("/register", protect, authorize("admin"), register);
+router.post("/register", protect, authorize("admin"), csrfProtect, register);
 router.get("/me", protect, getMe);
-router.post("/logout", protect, logout);
-router.put("/change-password", protect, changePassword);
+router.post("/logout", protect, csrfProtect, logout);
+router.put("/change-password", protect, csrfProtect, changePassword);
 
 export default router;

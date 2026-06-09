@@ -44,15 +44,15 @@ export default function BuscarEmpleadosPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-white">
       <div className="max-w-6xl mx-auto px-4 py-10">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-12 w-12 rounded-2xl grid place-items-center bg-gradient-to-br from-blue-600 to-sky-500 text-white shadow">
+          <div className="h-12 w-12 rounded-2xl grid place-items-center bg-linear-to-br from-blue-600 to-sky-500 text-white shadow">
             <Search className="w-6 h-6" />
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-sky-500">
+            <span className="bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-sky-500">
               Buscar Empleados
             </span>
           </h2>
@@ -72,11 +72,7 @@ export default function BuscarEmpleadosPage() {
 
         {/* Loading */}
         {loading && (
-          <div
-            className="flex items-center gap-2 text-slate-700 mb-4"
-            role="status"
-            aria-live="polite"
-          >
+          <div className="flex items-center gap-2 text-slate-700 mb-4" role="status" aria-live="polite">
             <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
             <span>Buscando empleados…</span>
           </div>
@@ -116,6 +112,6 @@ export default function BuscarEmpleadosPage() {
           )
         )}
       </div>
-    </div>
+    </div >
   );
 }

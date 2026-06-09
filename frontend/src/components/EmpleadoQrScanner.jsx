@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 
 export default function EmpleadoQrScanner() {
   const [empleado, setEmpleado] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchEmpleado = async (id) => {
+  const fetchEmpleado = useCallback(async (id) => {
     try {
       const res = await fetch(`/api/empleados/${id}`);
       if (!res.ok) throw new Error("Empleado no encontrado");
@@ -15,9 +15,9 @@ export default function EmpleadoQrScanner() {
     } catch (err) {
       setError(err.message);
     }
-  };
+  }, []);
 
-  const onScanSuccess = (decodedText) => {
+  const onScanSuccess = useCallback((decodedText) => {
     try {
       const parsed = JSON.parse(decodedText);
       if (parsed.id) {
@@ -25,10 +25,10 @@ export default function EmpleadoQrScanner() {
       } else {
         setError("El QR no contiene un ID válido");
       }
-    } catch (err) {
+    } catch {
       setError("Formato de QR inválido");
     }
-  };
+  }, [fetchEmpleado]);
 
   useEffect(() => {
     const scanner = new Html5QrcodeScanner("reader", {
@@ -39,8 +39,12 @@ export default function EmpleadoQrScanner() {
       console.warn("Error escaneo:", err)
     );
 
-    return () => scanner.clear();
-  }, []);
+    return () => {
+      scanner.clear().catch((clearError) => {
+        console.warn("No se pudo limpiar el scanner:", clearError);
+      });
+    };
+  }, [onScanSuccess]);
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -49,10 +53,9 @@ export default function EmpleadoQrScanner() {
         Escanear Credencial
       </h2>
 
-      <div
-        id="reader"
-        className="w-full max-w-md mx-auto border-2 border-green-400 rounded-xl shadow-md overflow-hidden"
-      ></div>
+      <div id="reader" className="w-full max-w-md mx-auto border-2 border-green-400 rounded-xl shadow-md overflow-hidden">
+
+      </div>
 
       {error && (
         <p className="text-red-500 mt-4 text-center font-medium">{error}</p>
@@ -91,13 +94,7 @@ export default function EmpleadoQrScanner() {
             </p>
             <p className="col-span-2">
               <span className="font-semibold">Estatus:</span>{" "}
-              <span
-                className={
-                  empleado.estado_qr === "activo"
-                    ? "text-green-600 font-bold"
-                    : "text-red-600 font-bold"
-                }
-              >
+              <span className={empleado.estado_qr === "activo" ? "text-green-600 font-bold" : "text-red-600 font-bold"} >
                 {empleado.estado_qr}
               </span>
             </p>
@@ -105,11 +102,7 @@ export default function EmpleadoQrScanner() {
 
           {empleado.fotoUrl && (
             <div className="flex justify-center mt-6">
-              <img
-                src={empleado.fotoUrl}
-                alt="Foto del empleado"
-                className="w-32 h-32 object-cover rounded-full border-4 border-green-500 shadow-md"
-              />
+              <img src={empleado.fotoUrl} alt="Foto del empleado" className="w-32 h-32 object-cover rounded-full border-4 border-green-500 shadow-md" />
             </div>
           )}
         </div>

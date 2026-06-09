@@ -1,5 +1,6 @@
+import { createElement } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import {
   Users,
   UserPlus,
@@ -17,23 +18,14 @@ function ActionCard({
   gradient = "from-indigo-500 to-violet-600",
 }) {
   return (
-    <Link
-      to={to}
-      aria-label={title}
-      className={`
-        group relative flex flex-col rounded-2xl bg-gradient-to-br ${gradient}
-        p-[1px] shadow-[0_10px_30px_-12px_rgba(15,23,42,0.4)]
-        transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-14px_rgba(15,23,42,0.5)]
-      `}
-    >
+    <Link to={to} aria-label={title} className={`group relative flex flex-col rounded-2xl bg-linear-to-br ${gradient} padding-1pxshadow-[0_10px_30px_-12px_rgba(15,23,42,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-14px_rgba(15,23,42,0.5)] `} >
+
       <div className="flex h-full flex-col rounded-2xl bg-white/90 p-5 ring-1 ring-slate-200 backdrop-blur-xl">
         <div className="mb-4 flex items-center justify-between gap-2">
           <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900/5 text-slate-900 group-hover:bg-slate-900/10">
-            <Icon className="h-6 w-6" />
+            {createElement(Icon, { className: "h-6 w-6", "aria-hidden": true })}
           </div>
-          {/*   <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400 group-hover:text-slate-500">
-            Acción rápida
-          </span> */}
+
         </div>
 
         <h3 className="mb-1 text-base font-semibold tracking-tight text-slate-900">
@@ -43,15 +35,7 @@ function ActionCard({
 
         <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
           <span className="inline-flex items-center gap-1">
-            {/*             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
- */}{/*             <span className="font-medium">Disponible</span>
- */}          </span>
-          {/* <span className="inline-flex items-center gap-1 text-[11px] font-medium group-hover:text-slate-500">
-            Ir a la sección
-            <span className="text-slate-400 group-hover:translate-x-0.5 transition-transform">
-              →
-            </span>
-          </span> */}
+          </span>
         </div>
       </div>
     </Link>
@@ -62,12 +46,12 @@ export default function HomePage() {
   const { isAuthenticated, user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/40 to-white">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-indigo-50/40 to-white">
       <div className="mx-auto max-w-6xl px-4 py-10 md:py-12">
         {/* Header */}
         <header className="mb-10 text-center md:mb-12">
           <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl">
-            <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-indigo-600 via-blue-600 to-blue-500 bg-clip-text text-transparent">
               Sistema de Credenciales PMZ
             </span>
           </h1>
@@ -82,10 +66,7 @@ export default function HomePage() {
           <>
             {/* Tarjeta de bienvenida */}
             <section className="relative mb-10">
-              <div
-                className="rounded-3xl bg-white/80 p-6 shadow-[0_20px_60px_-22px_rgba(15,23,42,0.4)]
-                           ring-1 ring-slate-200 backdrop-blur-xl md:p-8"
-              >
+              <div className="rounded-3xl bg-white/80 p-6 shadow-[0_20px_60px_-22px_rgba(15,23,42,0.4)] ring-1 ring-slate-200 backdrop-blur-xl md:p-8" >
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div className="text-left">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -96,8 +77,7 @@ export default function HomePage() {
                       <span className="text-indigo-600">{user?.name}</span>
                     </h2>
                     <p className="mt-2 text-sm text-slate-600">
-                      Selecciona una de los modulos para gestionar empleados,
-                      usuarios o credenciales.
+                      Selecciona una de los modulos para gestionar empleados, usuarios o credenciales.
                     </p>
                   </div>
 
@@ -203,7 +183,7 @@ export default function HomePage() {
               </p>
               <Link
                 to="/login"
-                className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg active:scale-[0.98]"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-lineal-to-r from-indigo-600 to-violet-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg active:scale-[0.98]"
               >
                 Iniciar sesión
               </Link>

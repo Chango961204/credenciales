@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { uploadFotoEmpleado, getFotoEmpleado } from "../services/empleadosApi";
 import { Camera, Upload } from "lucide-react";
 
-const FotoEmpleadoUploader = ({ empleado }) => {
+const FotoEmpleadoUploader = ({ empleado, onFotoSubida }) => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  useEffect(() => {
+    setSelectedFile(null);
+    setPreviewUrl(empleado?.id ? getFotoEmpleado(empleado.id) : "");
+  }, [empleado?.id]);
+
   if (!empleado) {
     return <p className="text-gray-500">No hay datos del empleado</p>;
   }
-
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(getFotoEmpleado(empleado.id));
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -17,8 +22,10 @@ const FotoEmpleadoUploader = ({ empleado }) => {
   const handleUpload = async () => {
     if (!selectedFile) return alert("Selecciona una foto primero");
     try {
-      await uploadFotoEmpleado(empleado.id, selectedFile);
-      setPreviewUrl(URL.createObjectURL(selectedFile));
+      const response = await uploadFotoEmpleado(empleado.id, selectedFile);
+      setPreviewUrl(`${getFotoEmpleado(empleado.id)}?t=${Date.now()}`);
+      setSelectedFile(null);
+      onFotoSubida?.(response.filename);
       alert("Foto cargada correctamente");
     } catch (err) {
       console.error("Error subiendo la foto:", err);
@@ -31,11 +38,7 @@ const FotoEmpleadoUploader = ({ empleado }) => {
       <p className="font-semibold text-gray-700 mb-2">Foto del empleado</p>
 
       {previewUrl ? (
-        <img
-          src={previewUrl}
-          alt="Foto del empleado"
-          className="w-32 h-32 object-cover rounded-lg border shadow-sm mb-3 transition-transform hover:scale-105"
-        />
+        <img src={previewUrl} alt="Foto del empleado" className="w-32 h-32 object-cover rounded-lg border shadow-sm mb-3 transition-transform hover:scale-105" />
       ) : (
         <div className="w-32 h-32 flex items-center justify-center bg-gray-100 rounded-lg mb-3 border text-gray-400">
           Sin foto
@@ -46,18 +49,10 @@ const FotoEmpleadoUploader = ({ empleado }) => {
       <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 cursor-pointer font-medium w-fit">
         <Camera size={18} />
         <span>Seleccionar foto</span>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-        />
+        <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
       </label>
 
-      <button
-        onClick={handleUpload}
-        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow"
-      >
+      <button onClick={handleUpload} className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow"> 
         <Upload size={18} />
         Subir Foto
       </button>

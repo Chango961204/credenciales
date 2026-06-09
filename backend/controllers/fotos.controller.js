@@ -56,21 +56,34 @@ export const uploadFotoEmpleado = async (req, res) => {
 export const getEmpleadoFoto = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "ID de empleado no proporcionado" });
+    }
+
     const empleado = await Empleado.findByPk(id, { attributes: ["foto_path"] });
 
     if (!empleado || !empleado.foto_path) {
-      const defaultFoto = path.join(__dirname, "../uploads/no-foto.jpg");
-      return res.sendFile(defaultFoto);
+      const defaultFoto = path.join(__dirname, "../plantillas/placeholder.jpg");
+      if (fs.existsSync(defaultFoto)) {
+        return res.sendFile(defaultFoto);
+      }
+      return res.status(404).json({ error: "No hay foto disponible" });
     }
 
     const filePath = path.join(__dirname, "../uploads/fotosEmpleados", empleado.foto_path);
     if (!fs.existsSync(filePath)) {
-      return res.status(404).send("Archivo de foto no encontrado en el servidor");
+      const defaultFoto = path.join(__dirname, "../plantillas/placeholder.jpg");
+      if (fs.existsSync(defaultFoto)) {
+        return res.sendFile(defaultFoto);
+      }
+      return res.status(404).json({ error: "Archivo de foto no encontrado" });
     }
 
+    res.setHeader("Cache-Control", "public, max-age=86400");
     res.sendFile(filePath);
   } catch (err) {
     console.error("Error en getEmpleadoFoto:", err);
-    res.status(500).send("Error interno del servidor");
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 };

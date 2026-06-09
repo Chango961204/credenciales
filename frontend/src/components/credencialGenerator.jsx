@@ -1,22 +1,20 @@
 import { useState } from "react";
-import axios from "axios";
 import { PDFDocument } from "pdf-lib";
+import { api } from "../services/authService";
 
 export default function CredencialGenerator({ empleadoId }) {
   const [imgs, setImgs] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   const normalizeSrc = (val) => {
     if (!val || typeof val !== "string") return null;
 
     const s = val.trim();
     if (s.startsWith("data:")) return s; // base64
-    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s; 
+    if (/^https?:\/\//i.test(s) || s.startsWith("/")) return s;
 
     const cleaned = s.replace(/\s+/g, "");
-    if (/^[A-Za-z0-9+/=]+$/.test(cleaned)) { 
+    if (/^[A-Za-z0-9+/=]+$/.test(cleaned)) {
       return `data:image/png;base64,${cleaned}`;
     }
 
@@ -76,8 +74,7 @@ export default function CredencialGenerator({ empleadoId }) {
 
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/empleados/${empleadoId}/credencial`);
-      console.log("Respuesta credencial backend:", res.data);
+      const res = await api.get(`/empleados/${empleadoId}/credencial`);
 
       const data = res.data || {};
 
@@ -94,7 +91,6 @@ export default function CredencialGenerator({ empleadoId }) {
       }
 
       setImgs({ frente: frenteNorm, reverso: reversoNorm });
-      console.log("Credencial generada correctamente");
     } catch (err) {
       console.error("Error generando credencial:", err);
       alert(
@@ -184,11 +180,7 @@ export default function CredencialGenerator({ empleadoId }) {
 
   return (
     <div className="flex flex-col gap-2 mt-3">
-      <button
-        onClick={handleGenerate}
-        className="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700"
-        disabled={loading}
-      >
+      <button onClick={handleGenerate} className="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700" disabled={loading}>
         {loading ? "Generando..." : "Generar credencial"}
       </button>
 
@@ -197,26 +189,23 @@ export default function CredencialGenerator({ empleadoId }) {
           <div className="mt-3 flex gap-6 justify-center">
             {["frente", "reverso"].map((lado) => (
               <div key={lado} className="flex flex-col items-center">
-                <img
-                  src={imgs[lado] || ""}
-                  alt={lado}
-                  className="w-80 h-48 object-contain rounded-lg shadow-md border"
-                />
+                <img src={imgs[lado] || ""} alt={lado} className="w-80 h-48 object-contain rounded-lg shadow-md border" />
                 <div className="mt-2 flex gap-2">
-                  <button
-                    onClick={() => openPreviewWindow(imgs[lado])}
-                    className="px-3 py-1 rounded bg-gray-200 text-sm hover:bg-gray-300"
-                  >
+                  <button onClick={() => openPreviewWindow(imgs[lado])} className="px-3 py-1 rounded bg-gray-200 text-sm hover:bg-gray-300" >
                     Visualizar
                   </button>
                   <button
                     onClick={() => {
-                      const a = document.createElement("a");
-                      a.href = imgs[lado];
-                      a.download = `credencial_${lado}.png`;
-                      document.body.appendChild(a);
-                      a.click();
-                      a.remove();
+                      if (imgs[lado]) {
+                        const a = document.createElement("a");
+                        a.href = imgs[lado];
+                        a.download = `credencial_${lado}.png`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                      } else {
+                        alert("No hay imagen disponible para descargar");
+                      }
                     }}
                     className="px-3 py-1 rounded bg-blue-600 text-white text-sm hover:bg-blue-700"
                   >
@@ -228,10 +217,7 @@ export default function CredencialGenerator({ empleadoId }) {
           </div>
 
           <div className="mt-4 flex justify-center">
-            <button
-              onClick={handlePrintDoubleSided}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700"
-            >
+            <button onClick={handlePrintDoubleSided} className="px-6 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700">
               Imprimir ambos lados
             </button>
           </div>

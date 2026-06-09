@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState } from "react";
+import { api } from "../services/authService";
 import { Loader2, UserPlus, CalendarDays, Building2, Badge } from "lucide-react";
 
 export default function RegistrarEmpleado() {
@@ -22,8 +22,6 @@ export default function RegistrarEmpleado() {
 
   const [alerta, setAlerta] = useState({ tipo: "", mensaje: "" });
   const [loading, setLoading] = useState(false);
-
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -67,10 +65,7 @@ export default function RegistrarEmpleado() {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.post(`${API_URL}/empleados`, payload, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const res = await api.post("/empleados", payload);
 
       setAlerta({ tipo: "success", mensaje: res.data?.message || "Empleado registrado correctamente" });
 
@@ -114,20 +109,19 @@ export default function RegistrarEmpleado() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-white flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-5xl rounded-3xl bg-white/70 backdrop-blur-xl ring-1 ring-slate-200 shadow-[0_20px_60px_-20px_rgba(2,6,23,0.25)] p-8">
         <h2 className="text-4xl font-extrabold text-center">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-sky-500">
+          <span className="bg-clip-text text-transparent bg-linear-to-br from-blue-600 to-sky-500">
             Registro de Empleado
           </span>
         </h2>
 
         {alerta.mensaje && (
-          <div
-            className={`mt-6 mb-6 rounded-xl p-4 text-sm font-medium ${
-              alerta.tipo === "success"
-                ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"
-                : "bg-rose-50 text-rose-800 ring-1 ring-rose-200"
+          <div className={`mt-6 mb-6 rounded-xl p-4 text-sm font-medium
+             ${alerta.tipo === "success"
+              ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"
+              : "bg-rose-50 text-rose-800 ring-1 ring-rose-200"
             }`}
           >
             {alerta.mensaje}
@@ -143,7 +137,7 @@ export default function RegistrarEmpleado() {
                 <label className="block text-sm font-semibold text-slate-800 mb-1">
                   {f.label}
                 </label>
-                <Icon className="w-4 h-4 absolute left-3 top-[42px] text-slate-400 pointer-events-none" />
+                <Icon className="w-4 h-4 absolute left-3 top:42px text-slate-400 pointer-events-none" />
                 <input
                   name={f.name}
                   type={f.type}
@@ -151,9 +145,9 @@ export default function RegistrarEmpleado() {
                   onChange={handleChange}
                   required={["rfc", "nom_trab", "num_trab"].includes(f.name)}
                   disabled={loading}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none
-                             focus:ring-2 focus:ring-sky-300 text-slate-800"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-sky-300 text-slate-800"
                 />
+
               </div>
             );
           })}
@@ -167,9 +161,8 @@ export default function RegistrarEmpleado() {
               onChange={handleChange}
               required
               disabled={loading}
-              className="w-full pl-3 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none
-                         focus:ring-2 focus:ring-sky-300 text-slate-800"
-            >
+              className="w-full pl-3 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-sky-300 text-slate-800">
+
               <option value="">Seleccionar...</option>
               <option value="M">Hombre</option>
               <option value="F">Mujer</option>
@@ -184,8 +177,7 @@ export default function RegistrarEmpleado() {
               onChange={handleChange}
               required
               disabled={loading}
-              className="w-full pl-3 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none
-                         focus:ring-2 focus:ring-sky-300 text-slate-800"
+              className="w-full pl-3 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-sky-300 text-slate-800"
             >
               <option value="">Seleccionar...</option>
               <option value="1">Sí</option>
@@ -201,8 +193,7 @@ export default function RegistrarEmpleado() {
               onChange={handleChange}
               required
               disabled={loading}
-              className="w-full pl-3 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none
-                         focus:ring-2 focus:ring-sky-300 text-slate-800"
+              className="w-full pl-3 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-sky-300 text-slate-800"
             >
               <option value="">Seleccionar...</option>
               <option value="1">Sí</option>
@@ -215,9 +206,7 @@ export default function RegistrarEmpleado() {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-semibold text-white
-                         bg-gradient-to-r from-blue-600 to-sky-600 shadow hover:shadow-lg
-                         active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-semibold text-white bg-linear-to-r from-blue-600 to-sky-600 shadow hover:shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
               Registrar Empleado

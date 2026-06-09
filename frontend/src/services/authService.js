@@ -4,61 +4,53 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://credenciales.capitaldeza
 
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
 });
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const xsrfCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("XSRF-TOKEN="));
+    if (xsrfCookie) {
+      const token = xsrfCookie.split("=")[1];
+      config.headers["X-XSRF-TOKEN"] = token;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 class AuthService {
   async login(email, password) {
     try {
-      const response = await api.post('/auth/login', { email, password });
-      
-      if (response.data.success && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (!email || !password) {
+        throw new Error("Email y contraseña son requeridos");
       }
-      
+
+      const response = await api.post("/auth/login", { email, password });
+
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Error al iniciar sesión' };
+      const errorData = error.response?.data || { message: "Error al iniciar sesión" };
+      console.error("Login error:", errorData);
+      throw errorData;
     }
   }
 
   async register(userData) {
     try {
-      const response = await api.post('/auth/register', userData);
-      
-      if (response.data.success && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (!userData.email || !userData.password) {
+        throw new Error("Email y contraseña son requeridos");
       }
-      
+
+      const response = await api.post("/auth/register", userData);
+
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Error al registrar usuario' };
+      const errorData = error.response?.data || { message: "Error al registrar usuario" };
+      console.error("Register error:", errorData);
+      throw errorData;
     }
   }
 
@@ -83,23 +75,15 @@ class AuthService {
     }
   }
 
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  async logout() {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // fallo silencioso
+    }
   }
 
-  getCurrentUser() {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  }
 
-  getToken() {
-    return localStorage.getItem('token');
-  }
-
-  isAuthenticated() {
-    return !!this.getToken();
-  }
 }
 
 export default new AuthService();

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
+import { api } from "../services/authService";
 import { User, Mail, Lock, Shield, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 
 export default function RegistrarUsuario() {
@@ -48,15 +48,14 @@ export default function RegistrarUsuario() {
 
     setLoading(true);
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/register`,
+      const res = await api.post(
+        "/auth/register",
         {
           name: formData.name,
           email: formData.email,
           password: formData.password,
           role: formData.role,
-        },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        }
       );
 
       setMessage(res.data?.message || "Usuario creado correctamente");
@@ -69,12 +68,12 @@ export default function RegistrarUsuario() {
   };
 
   return (
-    <div className="min-h-[70vh] bg-gradient-to-br from-slate-50 via-blue-50 to-white py-10 px-4">
+    <div className="min-h-[70vh] bg-linear-to-br from-slate-50 via-blue-50 to-white py-10 px-4">
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-extrabold tracking-tight">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-sky-500">
+            <span className="bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-sky-500">
               Registrar Usuario
             </span>
           </h1>
@@ -107,7 +106,7 @@ export default function RegistrarUsuario() {
             {/* Nombre */}
             <div className="relative">
               <label className="block text-sm font-semibold text-slate-800 mb-1">Nombre</label>
-              <User className="w-4 h-4 absolute left-3 top-[42px] text-slate-400 pointer-events-none" />
+              <User className="w-4 h-4 absolute left-3 top:42px text-slate-400 pointer-events-none" />
               <input
                 name="name"
                 value={formData.name}
@@ -123,7 +122,7 @@ export default function RegistrarUsuario() {
             {/* Email */}
             <div className="relative">
               <label className="block text-sm font-semibold text-slate-800 mb-1">Email</label>
-              <Mail className="w-4 h-4 absolute left-3 top-[42px] text-slate-400 pointer-events-none" />
+              <Mail className="w-4 h-4 absolute left-3 top:42px text-slate-400 pointer-events-none" />
               <input
                 name="email"
                 type="email"
@@ -131,8 +130,7 @@ export default function RegistrarUsuario() {
                 onChange={handleChange}
                 placeholder="correo@ejemplo.com"
                 autoComplete="email"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none
-                           focus:ring-2 focus:ring-sky-300 text-slate-800"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-sky-300 text-slate-800"
                 required
               />
             </div>
@@ -140,7 +138,7 @@ export default function RegistrarUsuario() {
             {/* Password */}
             <div className="relative">
               <label className="block text-sm font-semibold text-slate-800 mb-1">Contraseña</label>
-              <Lock className="w-4 h-4 absolute left-3 top-[42px] text-slate-400 pointer-events-none" />
+              <Lock className="w-4 h-4 absolute left-3 top:42px text-slate-400 pointer-events-none" />
               <input
                 name="password"
                 type="password"
@@ -148,8 +146,7 @@ export default function RegistrarUsuario() {
                 onChange={handleChange}
                 placeholder="Mínimo 6 caracteres"
                 autoComplete="new-password"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none
-                           focus:ring-2 focus:ring-sky-300 text-slate-800"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-sky-300 text-slate-800"
                 required
               />
               <p className="mt-1 text-xs text-slate-500">
@@ -160,14 +157,8 @@ export default function RegistrarUsuario() {
             {/* Rol */}
             <div className="relative">
               <label className="block text-sm font-semibold text-slate-800 mb-1">Rol</label>
-              <Shield className="w-4 h-4 absolute left-3 top-[42px] text-slate-400 pointer-events-none" />
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none
-                           focus:ring-2 focus:ring-sky-300 text-slate-800"
-              >
+              <Shield className="w-4 h-4 absolute left-3 top:42px text-slate-400 pointer-events-none" />
+              <select name="role" value={formData.role} onChange={handleChange} className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/80 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-sky-300 text-slate-800">
                 <option value="user">Usuario</option>
                 <option value="admin">Administrador</option>
               </select>
@@ -177,10 +168,8 @@ export default function RegistrarUsuario() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white
-                         bg-gradient-to-r from-blue-600 to-sky-500 shadow hover:shadow-md active:scale-[0.98]
-                         disabled:opacity-60 disabled:cursor-not-allowed"
-            >
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white bg-linear-to-r from-blue-600 to-sky-500 shadow hover:shadow-md active:scale-[0.98]  disabled:opacity-60 disabled:cursor-not-allowed" >
+
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />

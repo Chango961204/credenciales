@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+import { createElement, useCallback, useEffect, useMemo, useState } from "react";
+import { useAuth } from "../context/useAuth";
+import { api } from "../services/authService";
 import { Search, X, Eye, Filter } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -26,12 +26,13 @@ function diffObjects(oldObj = {}, newObj = {}) {
 
 const Field = ({ icon: Icon, ...props }) => (
     <div className="relative group">
-        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
+        {createElement(Icon, {
+            className: "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-600 transition-colors",
+            "aria-hidden": true,
+        })}
         <input
             {...props}
-            className={`w-full pl-9 pr-3 py-2 rounded-xl bg-white/70 ring-1 ring-slate-200
-                  outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm
-                  placeholder:text-slate-400 text-slate-800`}
+            className={`w-full pl-9 pr-3 py-2 rounded-xl bg-white/70 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm  placeholder:text-slate-400 text-slate-800`}
         />
     </div>
 );
@@ -59,8 +60,9 @@ export default function AuditoriasPage() {
         modelId: "",
         email: "",
         page: 1,
-        limit: 20, 
+        limit: 20,
     });
+    const [appliedFilters, setAppliedFilters] = useState(filters);
 
     const [data, setData] = useState([]);
     const [total, setTotal] = useState(0);
@@ -78,39 +80,34 @@ export default function AuditoriasPage() {
     useEffect(() => {
         if (!isAuthenticated) return navigate("/login");
         if (user?.role !== "admin") return navigate("/");
-    }, [isAuthenticated, user]);
+    }, [isAuthenticated, navigate, user]);
 
-    useEffect(() => {
-        fetchAudits();
-    }, [filters.page, filters.limit]);
-
-    async function fetchAudits(customPage) {
+    const fetchAudits = useCallback(async (paramsSource) => {
         try {
             setLoading(true);
             setErr("");
-            const token = localStorage.getItem("token");
             const params = {
-                model: filters.model || undefined,
-                modelId: filters.modelId || undefined,
-                email: filters.email || undefined,
-                page: customPage ?? filters.page,
-                limit: filters.limit,
+                model: paramsSource.model || undefined,
+                modelId: paramsSource.modelId || undefined,
+                email: paramsSource.email || undefined,
+                page: paramsSource.page,
+                limit: paramsSource.limit,
             };
 
-            const res = await axios.get(
-                `${import.meta.env.VITE_API_URL}/auditorias`,
-                { params, headers: { Authorization: `Bearer ${token}` } }
-            );
+            const res = await api.get("/auditorias", { params });
 
             setData(res.data?.data || []);
             setTotal(res.data?.total || 0);
-            if (customPage) setFilters((f) => ({ ...f, page: customPage }));
         } catch (e) {
             setErr(e.response?.data?.message || "No se pudieron cargar las auditorías");
         } finally {
             setLoading(false);
         }
-    }
+    }, []);
+
+    useEffect(() => {
+        fetchAudits(appliedFilters);
+    }, [appliedFilters, fetchAudits]);
 
     function onChangeFilter(e) {
         const { name, value } = e.target;
@@ -118,11 +115,19 @@ export default function AuditoriasPage() {
     }
     function onSearch(e) {
         e?.preventDefault?.();
-        fetchAudits(1);
+        const nextFilters = { ...filters, page: 1 };
+        setFilters(nextFilters);
+        setAppliedFilters(nextFilters);
     }
     function onClear() {
-        setFilters({ model: "", modelId: "", email: "", page: 1, limit: 20 });
-        fetchAudits(1);
+        const nextFilters = { model: "", modelId: "", email: "", page: 1, limit: 20 };
+        setFilters(nextFilters);
+        setAppliedFilters(nextFilters);
+    }
+    function goToPage(page) {
+        const nextFilters = { ...appliedFilters, page };
+        setFilters(nextFilters);
+        setAppliedFilters(nextFilters);
     }
     function openDetail(row) {
         setCurrent(row);
@@ -135,27 +140,21 @@ export default function AuditoriasPage() {
     }, [current]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-white">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 via-indigo-50 to-white">
             <div className="max-w-7xl mx-auto px-4 py-10">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <h1 className="text-4xl font-extrabold tracking-tight">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
+                        <span className="bg-clip-text text-transparent bg-linear-to-r from-indigo-600 to-violet-600">
                             Auditorías
                         </span>
                     </h1>
-                    <Link
-                        to="/"
-                        className="text-indigo-600/90 hover:text-indigo-700 inline-flex items-center gap-2 font-semibold"
-                    >
+                    <Link to="/" className="text-indigo-600/90 hover:text-indigo-700 inline-flex items-center gap-2 font-semibold">
                         ← Volver al inicio
                     </Link>
                 </div>
 
-                <form
-                    onSubmit={onSearch}
-                    className="mb-6 rounded-2xl backdrop-blur bg-white/60 ring-1 ring-slate-200 shadow-[0_10px_30px_-12px_rgba(2,6,23,0.15)] p-4 md:p-5"
-                >
+                <form onSubmit={onSearch} className="mb-6 rounded-2xl backdrop-blur bg-white/60 ring-1 ring-slate-200 shadow-[0_10px_30px_-12px_rgba(2,6,23,0.15)] p-4 md:p-5">
                     <div className="flex items-center gap-3 mb-3 text-slate-700">
                         <Filter className="w-4 h-4" />
                         <span className="text-sm font-semibold">Filtros rápidos</span>
@@ -185,23 +184,11 @@ export default function AuditoriasPage() {
                         />
 
                         <div className="flex gap-2">
-                            <button
-                                type="submit"
-                                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl
-                           bg-gradient-to-r from-indigo-600 to-violet-600 text-white
-                           px-4 py-2.5 font-semibold shadow hover:shadow-md
-                           transition-all active:scale-[0.99]"
-                            >
+                            <button type="submit" className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl  bg-linear-to-r from-indigo-600 to-violet-600 text-white  px-4 py-2.5 font-semibold shadow hover:shadow-md  transition-all active:scale-[0.99]" >
                                 <Search className="w-4 h-4" />
                                 Buscar
                             </button>
-                            <button
-                                type="button"
-                                onClick={onClear}
-                                className="inline-flex items-center justify-center gap-2 rounded-xl
-                           bg-slate-100 text-slate-700 px-4 py-2.5 font-semibold
-                           ring-1 ring-slate-200 hover:bg-slate-200 transition-all"
-                            >
+                            <button type="button" onClick={onClear} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 text-slate-700 px-4 py-2.5 font-semibold ring-1 ring-slate-200 hover:bg-slate-200 transition-all" >
                                 <X className="w-4 h-4" />
                                 Limpiar
                             </button>
@@ -256,10 +243,8 @@ export default function AuditoriasPage() {
                                                         ? "red"
                                                         : "indigo";
                                         return (
-                                            <tr
-                                                key={row.id}
-                                                className="hover:bg-indigo-50/40 transition-colors"
-                                            >
+                                            <tr key={row.id} className="hover:bg-indigo-50/40 transition-colors">
+
                                                 <td className="px-4 py-3 text-slate-700">
                                                     {new Date(row.createdAt).toLocaleString()}
                                                 </td>
@@ -272,13 +257,7 @@ export default function AuditoriasPage() {
                                                 <td className="px-4 py-3 text-slate-700">{row.ip || "-"}</td>
                                                 <td className="px-4 py-3">
                                                     {row.url ? (
-                                                        <a
-                                                            href={row.url}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="text-indigo-600 hover:text-indigo-700 hover:underline"
-                                                            title={row.url}
-                                                        >
+                                                        <a href={row.url} target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-700 hover:underline" title={row.url} >
                                                             {row.url.length > 36 ? row.url.slice(0, 36) + "…" : row.url}
                                                         </a>
                                                     ) : (
@@ -286,13 +265,7 @@ export default function AuditoriasPage() {
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <button
-                                                        onClick={() => openDetail(row)}
-                                                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5
-                                       bg-indigo-50 text-indigo-700 hover:bg-indigo-100
-                                       ring-1 ring-inset ring-indigo-200 transition"
-                                                        title="Ver detalle"
-                                                    >
+                                                    <button onClick={() => openDetail(row)} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5  bg-indigo-50 text-indigo-700 hover:bg-indigo-100 ring-1 ring-inset ring-indigo-200 transition" title="Ver detalle">
                                                         <Eye className="w-4 h-4" />
                                                         Ver
                                                     </button>
@@ -312,24 +285,14 @@ export default function AuditoriasPage() {
                         Total: <span className="font-semibold">{total}</span> registros
                     </p>
                     <div className="flex items-center gap-2">
-                        <button
-                            disabled={filters.page <= 1}
-                            onClick={() => fetchAudits(filters.page - 1)}
-                            className="px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700
-                         hover:bg-slate-100 disabled:opacity-50"
-                        >
+                        <button disabled={filters.page <= 1} onClick={() => goToPage(filters.page - 1)} className="px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-100 disabled:opacity-50">
                             Anterior
                         </button>
                         <span className="text-sm text-slate-600">
                             Página <b className="text-slate-800">{filters.page}</b> de{" "}
                             <b className="text-slate-800">{totalPages}</b>
                         </span>
-                        <button
-                            disabled={filters.page >= totalPages}
-                            onClick={() => fetchAudits(filters.page + 1)}
-                            className="px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700
-                         hover:bg-slate-100 disabled:opacity-50"
-                        >
+                        <button disabled={filters.page >= totalPages} onClick={() => goToPage(filters.page + 1)} className="px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-100 disabled:opacity-50">
                             Siguiente
                         </button>
                     </div>
@@ -340,11 +303,7 @@ export default function AuditoriasPage() {
             {open && current && (
                 <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm p-4">
                     <div className="relative w-full max-w-5xl rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200 p-6 animate-[fadeIn_.16s_ease]">
-                        <button
-                            onClick={() => setOpen(false)}
-                            className="absolute right-4 top-4 text-slate-500 hover:text-slate-700"
-                            title="Cerrar"
-                        >
+                        <button onClick={() => setOpen(false)} className="absolute right-4 top-4 text-slate-500 hover:text-slate-700" title="Cerrar" >  
                             <X className="w-6 h-6" />
                         </button>
 

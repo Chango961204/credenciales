@@ -48,40 +48,13 @@ export default function Footer() {
 
     return (
         <div className="fixed inset-x-0 bottom-0 z-30 pointer-events-none">
-            <div
-                ref={panelRef}
-                className={`pointer-events-auto transition-transform duration-200 ${open ? "translate-y-0" : "translate-y-[140%]"
-                    }`}
-            >
+            <div ref={panelRef} className={`pointer-events-auto transition-transform duration-200 ${open ? "translate-y-0" : "translate-y-[140%]"}`}>
                 <div className="mx-auto max-w-7xl px-4 pb-3 relative">
                     {/* Glow suave */}
-                    <div
-                        className="
-              pointer-events-none
-              absolute -inset-x-10 -top-10 h-20
-              bg-gradient-to-r from-sky-500/25 via-emerald-400/15 to-violet-500/25
-              blur-2xl opacity-80
-            "
-                        aria-hidden="true"
-                    />
-
-                    <div
-                        className="
-              relative overflow-hidden rounded-3xl p-[1px]
-              bg-gradient-to-r from-white/35 via-white/10 to-white/25
-              ring-1 ring-white/30
-              shadow-[0_-18px_45px_-28px_rgba(15,23,42,0.45)]
-              backdrop-blur-2xl
-            "
-                    >
+                    <div className="pointer-events-none absolute -inset-x-10 -top-10 h-20 bg-linear-to-r from-sky-500/25 via-emerald-400/15 to-violet-500/25 blur-2xl opacity-80" aria-hidden="true" />
+                    <div className="relative overflow-hidden rounded-3xl p-px bg-gradient from-white/35 via-white/10 to-white/25 ring-1 ring-white/30 shadow-[0_-18px_45px_-28px_rgba(15,23,42,0.45)] backdrop-blur-2xl ">
                         <div className="relative rounded-3xl px-4 py-3 bg-white/18">
-                            <div
-                                className="
-                  pointer-events-none absolute -top-10 left-10 h-24 w-40
-                  rotate-12 rounded-full bg-white/25 blur-2xl
-                "
-                                aria-hidden="true"
-                            />
+                            <div className="pointer-events-none absolute -top-10 left-10 h-24 w-40 rotate-12 rounded-full bg-white/25 blur-2xl " aria-hidden="true" />
 
                             <div className="relative flex items-center justify-between gap-4">
                                 <div className="leading-tight">
@@ -90,20 +63,15 @@ export default function Footer() {
                                     </p>
                                     <p className="text-sm leading-tight text-slate-300">
                                         Desarrollado por{" "}
-                                        <span className="leading-tight bg-gradient-to-r from-slate-300 via-slate-300 to-slate-300 bg-clip-text text-transparent">
+                                        <span className="leading-tight bg-gradient from-slate-300 via-slate-300 to-slate-300 bg-clip-text text-transparent">
                                             ISC. Luis Manuel López Robles
                                         </span>
                                     </p>
                                 </div>
-                                <img
-                                    src={logoZac}
-                                    alt="Ayuntamiento de Zacatecas 2024-2027"
-                                    className="h-10 w-auto object-contain"
-                                />
+                                <img src={logoZac} alt="Ayuntamiento de Zacatecas 2024-2027" className="h-10 w-auto object-contain" />
                             </div>
                         </div>
                     </div>
-
                     <div className="mx-auto mt-2 h-1.5 w-14 rounded-full bg-white/35 ring-1 ring-white/25 backdrop-blur-xl" />
                 </div>
             </div>

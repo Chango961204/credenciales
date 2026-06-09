@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   obtenerEmpleados,
   updateEmpleado,
@@ -23,7 +23,7 @@ function EmpleadosPage() {
 
   const navigate = useNavigate();
 
-  const fetchEmpleados = async (pageNumber = 1) => {
+  const fetchEmpleados = useCallback(async (pageNumber = 1) => {
     setLoading(true);
     setError("");
     try {
@@ -38,7 +38,7 @@ function EmpleadosPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [limit]);
 
   const handleBuscar = async () => {
     if (!numTrab.trim() && !nombreEmpleado.trim()) {
@@ -78,7 +78,7 @@ function EmpleadosPage() {
     fetchEmpleados(1);
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === "Enter") handleBuscar();
   };
 
@@ -112,10 +112,10 @@ function EmpleadosPage() {
 
   useEffect(() => {
     fetchEmpleados();
-  }, []);
+  }, [fetchEmpleados]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/40 to-white">
       <div className="mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
@@ -133,10 +133,7 @@ function EmpleadosPage() {
             </div>
           </div>
 
-          <button
-            onClick={handleImportClick}
-            className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-700 hover:shadow-lg active:scale-[0.98]"
-          >
+          <button onClick={handleImportClick} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-700 hover:shadow-lg active:scale-[0.98]">
             <FilePlus2 className="h-5 w-5" />
             Importar desde Excel
           </button>
@@ -165,31 +162,25 @@ function EmpleadosPage() {
               placeholder="Número de empleado"
               value={numTrab}
               onChange={(e) => setNumTrab(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               className="w-full max-w-xs rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
             />
             <input
               placeholder="Nombre del empleado"
               value={nombreEmpleado}
               onChange={(e) => setNombreEmpleado(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               className="w-full max-w-xs rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
             />
-            <button
-              onClick={handleBuscar}
-              disabled={loading}
-              className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition ${
-                loading
-                  ? "cursor-not-allowed bg-slate-400"
-                  : "bg-blue-600 hover:bg-blue-700 hover:shadow-md active:scale-[0.98]"
+            <button onClick={handleBuscar} disabled={loading} className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition
+             ${loading
+                ? "cursor-not-allowed bg-slate-400"
+                : "bg-blue-600 hover:bg-blue-700 hover:shadow-md active:scale-[0.98]"
               }`}
             >
               {loading ? "Buscando..." : "Buscar"}
             </button>
-            <button
-              onClick={handleLimpiarBusqueda}
-              className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-200 active:scale-[0.98]"
-            >
+            <button onClick={handleLimpiarBusqueda} className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-200 active:scale-[0.98]" >
               Ver todos
             </button>
           </div>
@@ -222,13 +213,10 @@ function EmpleadosPage() {
         {/* Paginación */}
         {!esBusqueda && (
           <div className="mt-6 flex items-center justify-center gap-3 text-sm">
-            <button
-              onClick={() => fetchEmpleados(page - 1)}
-              disabled={page <= 1}
-              className={`rounded-xl px-4 py-2 font-medium transition ${
-                page <= 1
-                  ? "cursor-not-allowed bg-slate-200 text-slate-500"
-                  : "bg-blue-600 text-white shadow-sm hover:bg-blue-700 hover:shadow-md active:scale-[0.98]"
+            <button onClick={() => fetchEmpleados(page - 1)} disabled={page <= 1} className={`rounded-xl px-4 py-2 font-medium transition 
+                ${page <= 1
+                ? "cursor-not-allowed bg-slate-200 text-slate-500"
+                : "bg-blue-600 text-white shadow-sm hover:bg-blue-700 hover:shadow-md active:scale-[0.98]"
               }`}
             >
               Anterior
@@ -240,13 +228,10 @@ function EmpleadosPage() {
                 {Math.ceil(total / limit) || 1}
               </span>
             </span>
-            <button
-              onClick={() => fetchEmpleados(page + 1)}
-              disabled={page >= Math.ceil(total / limit)}
-              className={`rounded-xl px-4 py-2 font-medium transition ${
-                page >= Math.ceil(total / limit)
-                  ? "cursor-not-allowed bg-slate-200 text-slate-500"
-                  : "bg-blue-600 text-white shadow-sm hover:bg-blue-700 hover:shadow-md active:scale-[0.98]"
+            <button onClick={() => fetchEmpleados(page + 1)} disabled={page >= Math.ceil(total / limit)} className={`rounded-xl px-4 py-2 font-medium transition 
+            ${page >= Math.ceil(total / limit)
+                ? "cursor-not-allowed bg-slate-200 text-slate-500"
+                : "bg-blue-600 text-white shadow-sm hover:bg-blue-700 hover:shadow-md active:scale-[0.98]"
               }`}
             >
               Siguiente

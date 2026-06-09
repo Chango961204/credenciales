@@ -45,6 +45,10 @@ class AuthService {
   }
 
   async login(email, password) {
+    if (!email || !password) {
+      throw new Error("Email y contraseña son requeridos");
+    }
+
     const user = await User.findOne({
       where: { email, is_active: true },
     });

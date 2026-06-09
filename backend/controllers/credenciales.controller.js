@@ -13,6 +13,10 @@ export const generarCredencial = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (!id) {
+      return res.status(400).json({ message: "ID del empleado requerido" });
+    }
+
     const empleado = await Empleado.findByPk(id);
     if (!empleado) {
       return res.status(404).json({ message: "Empleado no encontrado" });
@@ -21,13 +25,15 @@ export const generarCredencial = async (req, res) => {
     const empleadoData = empleado.toJSON();
     const result = await generarCredencialFiles(empleadoData);
 
-    await req.audit({
-      event: "credential_generated",
-      model: "credenciales",
-      modelId: String(empleado.id),
-      oldValues: null,
-      newValues: { frente: !!result.frenteDataUrl, reverso: !!result.reversoDataUrl },
-    });
+    if (req.audit) {
+      await req.audit({
+        event: "credential_generated",
+        model: "credenciales",
+        modelId: String(empleado.id),
+        oldValues: null,
+        newValues: { frente: !!result.frenteDataUrl, reverso: !!result.reversoDataUrl },
+      });
+    }
 
     res.json({
       frenteUrl: result.frenteDataUrl,
@@ -71,8 +77,6 @@ export const getCredencialByToken = async (req, res) => {
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         fotoUrl = `${baseUrl}/api/empleados/${empleado.id}/foto`;
 
-/*         console.log("baseUrl:", baseUrl);
-        console.log("foto enviada al front:", fotoUrl); */
       }
     }
 
@@ -118,7 +122,6 @@ export const generarQrEmpleado = async (req, res) => {
     let base = (process.env.FRONT_URL || "").trim().replace(/\/+$/, "");
     if (!base) return res.status(500).json({ message: "FRONT_URL no definido" });
 
-    //  si viene sin protocolo, pon https por defecto
     if (!/^https?:\/\//i.test(base)) base = `https://${base}`;
 
     const token = jwt.sign(
@@ -127,7 +130,7 @@ export const generarQrEmpleado = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || "30d" }
     );
 
-    //  token en query (más robusto que en path)
+    //  token en query 
     const qrUrl = `${base}/credencial?token=${encodeURIComponent(token)}`;
 
     const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 2 });

@@ -39,12 +39,12 @@ function ImportarEmpleados() {
   const handleCancel = () => navigate("/empleados");
 
   return (
-    <div className="min-h-[70vh] bg-gradient-to-br from-slate-50 via-indigo-50 to-white">
+    <div className="min-h-[70vh] bg-linear-to-br from-slate-50 via-indigo-50 to-white">
       <div className="max-w-2xl mx-auto px-4 py-10">
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600">
+            <span className="bg-clip-text text-transparent bg-linear-to-r from-indigo-600 to-blue-600">
               Importar Empleados
             </span>
           </h1>
@@ -57,10 +57,7 @@ function ImportarEmpleados() {
         <div className="rounded-3xl p-6 md:p-8 bg-white/70 backdrop-blur-xl ring-1 ring-slate-200 shadow-[0_10px_30px_-12px_rgba(2,6,23,0.15)]">
           {/* Drop/select zone */}
           <div className="mb-6">
-            <label
-              htmlFor="fileInput"
-              className="flex items-center gap-3 font-semibold text-slate-800 mb-3 cursor-pointer"
-            >
+            <label htmlFor="fileInput" className="flex items-center gap-3 font-semibold text-slate-800 mb-3 cursor-pointer">
               <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
               Seleccionar archivo Excel
             </label>
@@ -86,7 +83,7 @@ function ImportarEmpleados() {
           {file && (
             <div className="mb-6 rounded-2xl border ring-1 ring-emerald-200 bg-emerald-50 p-4">
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-emerald-700 mt-[2px]" />
+                <CheckCircle className="w-5 h-5 text-emerald-700 margin-top: 2px" />
                 <div className="text-sm">
                   <p className="text-emerald-800">
                     <b>Archivo seleccionado:</b> {file.name}
@@ -107,7 +104,7 @@ function ImportarEmpleados() {
           {error && (
             <div className="mb-6 rounded-2xl border ring-1 ring-rose-200 bg-rose-50 p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-rose-700 mt-[2px]" />
+                <AlertCircle className="w-5 h-5 text-rose-700 margin-top: 2px" />
                 <div className="text-sm text-rose-800">
                   <b>Error:</b> {error}
                 </div>
@@ -132,8 +129,8 @@ function ImportarEmpleados() {
               className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold text-white
                           shadow transition active:scale-[0.98]
                           ${!file || loading
-                            ? "bg-slate-300 cursor-not-allowed"
-                            : "bg-gradient-to-r from-indigo-600 to-blue-600 hover:shadow-md"}`}
+                  ? "bg-slate-300 cursor-not-allowed"
+                  : "bg-linear-to-r from-indigo-600 to-blue-600 hover:shadow-md"}`}
             >
               {loading ? (
                 <>

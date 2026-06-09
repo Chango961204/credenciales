@@ -2,7 +2,8 @@ import authService from "../services/auth.service.js";
 
 export const protect = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.replace("Bearer ", "");
+    const token =
+      req.headers.authorization?.replace("Bearer ", "") || req.cookies?.token;
 
     if (!token) {
       return res.status(401).json({

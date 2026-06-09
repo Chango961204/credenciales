@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import axios from "axios";
+import { api } from "../services/authService";
 
 const CredencialPage = () => {
   const { token: tokenParam } = useParams();
   const [searchParams] = useSearchParams();
 
-  // primero intenta /credencial/:token, si no existe usa /credencial?token=...
   const token = tokenParam || searchParams.get("token");
 
   const [empleado, setEmpleado] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imagenError, setImagenError] = useState(false);
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchEmpleado = async () => {
@@ -23,7 +20,7 @@ const CredencialPage = () => {
           setError("Token requerido");
           return;
         }
-        const res = await axios.get(`${API_URL}/empleados/token/${token}`);
+        const res = await api.get(`/empleados/token/${token}`);
         setEmpleado(res.data);
       } catch (error) {
         console.error("Error cargando empleado:", error);
@@ -39,11 +36,11 @@ const CredencialPage = () => {
     setImagenError(false);
 
     fetchEmpleado();
-  }, [token, API_URL]);
+  }, [token]);
 
   const normalizeFotoUrl = (url) => {
     if (!url) return null;
-    const raw = url.trim();
+    const raw = String(url).trim();
 
     if (/^https?:\/\//i.test(raw) || raw.startsWith("data:")) return raw;
     if (/^[a-z0-9.-]+\/.+/i.test(raw)) return `${window.location.protocol}//${raw}`;
@@ -97,12 +94,7 @@ const CredencialPage = () => {
       <div className="bg-white shadow-2xl rounded-2xl w-96 p-4 text-center border-t-4 border-green-600">
         <div className="border-4 border-gray-300 rounded-lg overflow-hidden mb-3">
           {!imagenError && fotoSrc ? (
-            <img
-              src={fotoSrc}
-              alt={empleado.nom_trab}
-              className="w-full h-80 object-cover bg-gray-100"
-              onError={() => setImagenError(true)}
-            />
+            <img src={fotoSrc} alt={empleado.nom_trab} className="w-full h-80 object-cover bg-gray-100" onError={() => setImagenError(true)} />
           ) : (
             <div className="w-full h-80 bg-gray-200 flex items-center justify-center">
               <span className="text-gray-400 text-sm">Foto no disponible</span>

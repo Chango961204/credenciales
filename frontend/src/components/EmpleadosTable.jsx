@@ -67,9 +67,9 @@ function EmpleadosTable({ empleados = [] }) {
   return (
     <div className="mt-6 rounded-2xl bg-white/70 backdrop-blur ring-1 ring-slate-200 shadow-[0_10px_30px_-12px_rgba(2,6,23,0.15)] overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-[960px] w-full text-sm">
+        <table className="min-w-240 w-full text-sm">
           <thead className="sticky top-0 z-10">
-            <tr className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+            <tr className="bg-linear-to-r from-indigo-600 to-blue-600 text-white">
               <th className="px-4 py-3 text-left font-semibold">Num Trab</th>
               <th className="px-4 py-3 text-left font-semibold">RFC</th>
               <th className="px-4 py-3 text-left font-semibold">Nombre</th>

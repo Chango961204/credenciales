@@ -9,6 +9,10 @@ const __dirname = path.dirname(__filename);
 
 export const syncFotosEmpleados = async (req, res) => {
     try {
+        if (!req.user || req.user.role !== "admin") {
+            return res.status(403).json({ message: "No tienes permisos para sincronizar fotos" });
+        }
+
         const sourceDir = path.join(__dirname, "../uploads/fotosBulk");
         const destDir = path.join(__dirname, "../uploads/fotosEmpleados");
 
@@ -32,8 +36,17 @@ export const syncFotosEmpleados = async (req, res) => {
 
 export const importarFotosZip = async (req, res) => {
     try {
+        if (!req.user || req.user.role !== "admin") {
+            return res.status(403).json({ message: "No tienes permisos para importar fotos" });
+        }
+
         if (!req.file) {
             return res.status(400).json({ message: "No se subió ningún archivo .zip" });
+        }
+
+        // Validar que sea un archivo ZIP
+        if (!req.file.mimetype.includes("zip") && !req.file.originalname.endsWith(".zip")) {
+            return res.status(400).json({ message: "El archivo debe ser un ZIP válido" });
         }
 
         const overwrite = req.body?.overwrite === true || req.body?.overwrite === "true";

@@ -5,10 +5,11 @@ import bcrypt from "bcryptjs";
 export const getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: ["id", "name", "email", "role", "is_active", "createdAt"],
+            attributes: ["id", "username", "email", "role", "is_active", "createdAt"],
         });
         res.json(users);
     } catch (error) {
+        console.error("Error getAllUsers:", error);
         res.status(500).json({ message: "Error al obtener usuarios", error: error.message });
     }
 };
@@ -20,12 +21,13 @@ export const getUserById = async (req, res) => {
         }
 
         const user = await User.findByPk(req.params.id, {
-            attributes: ["id", "name", "email", "role", "is_active", "createdAt"],
+            attributes: ["id", "username", "email", "role", "is_active", "createdAt"],
         });
 
         if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
         res.json(user);
     } catch (error) {
+        console.error("Error getUserById:", error);
         res.status(500).json({ message: "Error al obtener usuario", error: error.message });
     }
 };
@@ -35,28 +37,36 @@ export const createUserByAdmin = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
 
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email y contrasena son requeridos" });
+        }
+
         const existing = await User.findOne({ where: { email } });
         if (existing) return res.status(400).json({ message: "El email ya existe" });
 
+        const username = (name || email.split("@")[0]).trim();
+
         const newUser = await User.create({
-            username: name,
+            username,
             email,
             password,
             role: role || "user",
             is_active: true,
-            created_by: req.user?.id,
         });
 
-        await req.audit({
-            event: "created",
-            model: "User",
-            modelId: newUser.id,
-            oldValues: null,
-            newValues: { id: newUser.id, username: newUser.username, email: newUser.email, role: newUser.role, is_active: newUser.is_active },
-        });
+        if (req.audit) {
+            await req.audit({
+                event: "created",
+                model: "User",
+                modelId: String(newUser.id),
+                oldValues: null,
+                newValues: { id: newUser.id, username: newUser.username, email: newUser.email, role: newUser.role, is_active: newUser.is_active },
+            });
+        }
 
         res.status(201).json({ message: "Usuario creado con éxito", user: newUser });
     } catch (error) {
+        console.error("Error createUserByAdmin:", error);
         res.status(500).json({ message: "Error al crear usuario", error: error.message });
     }
 };
@@ -75,7 +85,6 @@ export const updateUser = async (req, res) => {
 
         const before = user.get({ plain: true });
 
-        // map name -> username (si viene del front)
         const updates = { ...req.body };
         if (updates.name) {
             updates.username = updates.name;
@@ -87,11 +96,11 @@ export const updateUser = async (req, res) => {
         const after = user.get({ plain: true });
 
         const changes = diffObjects(before, after);
-        if (Object.keys(changes).length > 0) {
+        if (Object.keys(changes).length > 0 && req.audit) {
             await req.audit({
                 event: "updated",
                 model: "User",
-                modelId: user.id,
+                modelId: String(user.id),
                 oldValues: Object.fromEntries(Object.entries(changes).map(([k, v]) => [k, v.old])),
                 newValues: Object.fromEntries(Object.entries(changes).map(([k, v]) => [k, v.new])),
             });
@@ -99,6 +108,7 @@ export const updateUser = async (req, res) => {
 
         res.json({ message: "Usuario actualizado", user });
     } catch (error) {
+        console.error("Error updateUser:", error);
         res.status(500).json({ message: "Error al actualizar usuario", error: error.message });
     }
 };
@@ -111,17 +121,19 @@ export const deleteUser = async (req, res) => {
 
         await user.destroy();
 
-        await req.audit({
-            event: "deleted",
-            model: "User",
-            modelId: String(req.params.id),
-            oldValues: { id: snapshot.id, username: snapshot.username, email: snapshot.email, role: snapshot.role },
-            newValues: null,
-        });
+        if (req.audit) {
+            await req.audit({
+                event: "deleted",
+                model: "User",
+                modelId: String(req.params.id),
+                oldValues: { id: snapshot.id, username: snapshot.username, email: snapshot.email, role: snapshot.role },
+                newValues: null,
+            });
+        }
 
         res.json({ message: "Usuario eliminado correctamente" });
     } catch (error) {
+        console.error("Error deleteUser:", error);
         res.status(500).json({ message: "Error al eliminar usuario", error: error.message });
     }
 };
-

@@ -1,4 +1,3 @@
-import { QRCodeCanvas } from "qrcode.react";
 import EstadoToggle from "./EstadoToggle";
 
 function formatDate(value) {
@@ -42,20 +41,9 @@ function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
 
   const estatus = empleado.estado_qr === "activo" ? "Activo" : "Inactivo";
 
-  const qrValue = `
-    Número: ${empleado.num_trab}
-    Nombre: ${empleado.nom_trab}
-    IMSS: ${empleado.num_imss}
-    RFC: ${empleado.rfc}
-    Departamento: ${empleado.nom_depto}
-    Puesto: ${empleado.puesto}
-    Vencimiento: ${formatDate(empleado.vencimiento_contrato)}
-    Estatus: ${estatus}
-  `;
-
   return (
     <div className="mt-6 p-6 bg-white shadow-lg rounded-xl border border-gray-200">
-     {/*  <h3 className="text-xl font-bold text-gray-800 mb-4">
+      {/*  <h3 className="text-xl font-bold text-gray-800 mb-4">
         QR generado para <span className="text-blue-600">{empleado.nom_trab}</span>
       </h3> */}
 
@@ -76,13 +64,7 @@ function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
           <p><span className="font-semibold text-gray-900">Vencimiento:</span> {formatDate(empleado.vencimiento_contrato)}</p>
           <p>
             <span className="font-semibold text-gray-900">Estatus:</span>{" "}
-            <span
-              className={
-                estatus === "Activo"
-                  ? "text-green-600 font-bold"
-                  : "text-red-600 font-bold"
-              }
-            >
+            <span className={estatus === "Activo" ? "text-green-600 font-bold" : "text-red-600 font-bold"}>
               {estatus}
             </span>
           </p>
@@ -92,8 +74,7 @@ function EmpleadoQr({ empleado, onClose, onQrUpdate }) {
       </div>
 
       <div className="mt-6 flex justify-end">
-        <button
-          className="px-5 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition"
+        <button className="px-5 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition"
           onClick={onClose}
         >
           Cerrar

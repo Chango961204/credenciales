@@ -58,7 +58,7 @@ export default function EmpleadoCard({
 
   return (
     <div className="group relative mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-xl">
-      <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-emerald-500 to-blue-500" />
+      <div className="absolute inset-y-0 left-0 w-1 bg-linear-to-b from-emerald-500 to-blue-500" />
 
       <div className="relative flex flex-col gap-4 p-5 md:flex-row md:items-start md:gap-6">
         <div className="flex-1">

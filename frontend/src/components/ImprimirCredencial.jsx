@@ -17,7 +17,7 @@ export default function ImprimirCredencial({ empleado }) {
     try {
       const response = await fetch(`${API_URL}/impresoras`);
       const data = await response.json();
-      
+
       if (data.success && data.impresoras.length > 0) {
         setImpresoras(data.impresoras);
         setImpresoraSeleccionada(data.impresoras[0].nombre);
@@ -33,16 +33,16 @@ export default function ImprimirCredencial({ empleado }) {
   const generarPreview = async () => {
     setCargando(true);
     setEstado('Generando preview...');
-    
+
     try {
       const response = await fetch(`${API_URL}/generar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(empleado)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setPreview({
           frente: data.frente,
@@ -142,12 +142,7 @@ export default function ImprimirCredencial({ empleado }) {
           Impresora Zebra ZXP Series 3
         </label>
         <div className="flex gap-2">
-          <select
-            value={impresoraSeleccionada}
-            onChange={(e) => setImpresoraSeleccionada(e.target.value)}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            disabled={cargando}
-          >
+          <select value={impresoraSeleccionada} onChange={(e) => setImpresoraSeleccionada(e.target.value)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" disabled={cargando}>
             {impresoras.length === 0 && (
               <option value="">No hay impresoras disponibles</option>
             )}
@@ -157,11 +152,7 @@ export default function ImprimirCredencial({ empleado }) {
               </option>
             ))}
           </select>
-          <button
-            onClick={cargarImpresoras}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
-            disabled={cargando}
-          >
+          <button onClick={cargarImpresoras} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors" disabled={cargando} >
             🔄 Recargar
           </button>
         </div>
@@ -180,28 +171,16 @@ export default function ImprimirCredencial({ empleado }) {
 
       {/* Botones de acción */}
       <div className="flex gap-3 mb-6">
-        <button
-          onClick={generarPreview}
-          disabled={cargando}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
+        <button onClick={generarPreview} disabled={cargando} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" >
           {cargando ? '⏳ Generando...' : '👁️ Ver Preview'}
         </button>
-        
-        <button
-          onClick={imprimirCredencial}
-          disabled={cargando || !impresoraSeleccionada}
-          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
+
+        <button onClick={imprimirCredencial} disabled={cargando || !impresoraSeleccionada} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" >
           {cargando ? '⏳ Imprimiendo...' : '🖨️ Generar e Imprimir'}
         </button>
 
         {preview.frente && (
-          <button
-            onClick={imprimirPreviewExistente}
-            disabled={cargando}
-            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
+          <button onClick={imprimirPreviewExistente} disabled={cargando} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" >
             {cargando ? '⏳ Imprimiendo...' : '🔄 Reimprimir'}
           </button>
         )}
@@ -209,13 +188,12 @@ export default function ImprimirCredencial({ empleado }) {
 
       {/* Estado */}
       {estado && (
-        <div className={`p-4 rounded-lg mb-6 ${
-          estado.includes('Error') || estado.includes('No se') 
-            ? 'bg-red-100 text-red-700 border border-red-300' 
-            : estado.includes('✓')
+        <div className={`p-4 rounded-lg mb-6 ${estado.includes('Error') || estado.includes('No se')
+          ? 'bg-red-100 text-red-700 border border-red-300'
+          : estado.includes('✓')
             ? 'bg-green-100 text-green-700 border border-green-300'
             : 'bg-blue-100 text-blue-700 border border-blue-300'
-        }`}>
+          }`}>
           <p className="font-medium">{estado}</p>
         </div>
       )}
@@ -227,19 +205,11 @@ export default function ImprimirCredencial({ empleado }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <p className="text-sm font-medium text-gray-600 mb-2">Frente</p>
-              <img 
-                src={preview.frente} 
-                alt="Frente de credencial" 
-                className="w-full border-2 border-gray-300 rounded-lg shadow-md"
-              />
+              <img src={preview.frente} alt="Frente de credencial" className="w-full border-2 border-gray-300 rounded-lg shadow-md" />
             </div>
             <div>
               <p className="text-sm font-medium text-gray-600 mb-2">Reverso</p>
-              <img 
-                src={preview.reverso} 
-                alt="Reverso de credencial" 
-                className="w-full border-2 border-gray-300 rounded-lg shadow-md"
-              />
+              <img src={preview.reverso} alt="Reverso de credencial" className="w-full border-2 border-gray-300 rounded-lg shadow-md" />
             </div>
           </div>
         </div>

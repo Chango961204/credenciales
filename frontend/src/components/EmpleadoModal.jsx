@@ -22,11 +22,7 @@ function EmpleadoModal({ empleado, form, setForm, onClose, onSave }) {
             </p>
           </div>
 
-          <button
-            onClick={onClose}
-            className="ml-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-            aria-label="Cerrar"
-          >
+          <button onClick={onClose} className="ml-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600" aria-label="Cerrar" >
             ✕
           </button>
         </div>
@@ -39,8 +35,7 @@ function EmpleadoModal({ empleado, form, setForm, onClose, onSave }) {
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">
                 Nombre completo
               </label>
-              <input
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+              <input className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
                 value={form.nom_trab}
                 onChange={(e) =>
                   setForm({ ...form, nom_trab: e.target.value })
@@ -54,8 +49,7 @@ function EmpleadoModal({ empleado, form, setForm, onClose, onSave }) {
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">
                 Departamento
               </label>
-              <input
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+              <input className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
                 value={form.nom_depto || ""}
                 onChange={(e) =>
                   setForm({ ...form, nom_depto: e.target.value })
@@ -69,8 +63,7 @@ function EmpleadoModal({ empleado, form, setForm, onClose, onSave }) {
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">
                 Puesto
               </label>
-              <input
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+              <input className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
                 value={form.puesto || ""}
                 onChange={(e) =>
                   setForm({ ...form, puesto: e.target.value })
@@ -87,9 +80,7 @@ function EmpleadoModal({ empleado, form, setForm, onClose, onSave }) {
                   (opcional)
                 </span>
               </label>
-              <input
-                type="date"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+              <input type="date" className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100"
                 value={form.vencimiento_contrato || ""}
                 onChange={(e) => {
                   const value = e.target.value === "" ? null : e.target.value;
@@ -103,14 +94,12 @@ function EmpleadoModal({ empleado, form, setForm, onClose, onSave }) {
 
         {/* Acciones */}
         <div className="flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50/60 px-6 py-4">
-          <button
-            className="rounded-xl px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+          <button className="rounded-xl px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
             onClick={onClose}
           >
             Cancelar
           </button>
-          <button
-            className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1"
+          <button className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1"
             onClick={onSave}
           >
             Guardar cambios

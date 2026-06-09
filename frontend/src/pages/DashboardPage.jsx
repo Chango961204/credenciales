@@ -1,4 +1,4 @@
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 const DashboardPage = () => {
@@ -25,10 +25,7 @@ const DashboardPage = () => {
               <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                 {user?.role}
               </span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
-              >
+              <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200" >
                 Cerrar Sesión
               </button>
             </div>
