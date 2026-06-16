@@ -1,22 +1,10 @@
 import { createElement } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import {
-  Users,
-  UserPlus,
-  Search,
-  Upload,
-  UserCog,
-  History,
-} from "lucide-react";
+import { Users, UserPlus, Search, Upload, UserCog, History, } from "lucide-react";
 
-function ActionCard({
-  to,
-  Icon,
-  title,
-  desc,
-  gradient = "from-indigo-500 to-violet-600",
-}) {
+function ActionCard({ to, Icon, title, desc, gradient = "from-indigo-500 to-violet-600", }) {
+
   return (
     <Link to={to} aria-label={title} className={`group relative flex flex-col rounded-2xl bg-linear-to-br ${gradient} padding-1pxshadow-[0_10px_30px_-12px_rgba(15,23,42,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-14px_rgba(15,23,42,0.5)] `} >
 
@@ -25,7 +13,6 @@ function ActionCard({
           <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900/5 text-slate-900 group-hover:bg-slate-900/10">
             {createElement(Icon, { className: "h-6 w-6", "aria-hidden": true })}
           </div>
-
         </div>
 
         <h3 className="mb-1 text-base font-semibold tracking-tight text-slate-900">
@@ -57,7 +44,7 @@ export default function HomePage() {
           </h1>
           {isAuthenticated && (
             <p className="mt-3 text-sm text-slate-600 md:text-base">
-              Administra empleados, usuarios y credenciales desde un solo lugar.
+              Administra empleados, usuarios y credenciales.
             </p>
           )}
         </header>
@@ -77,7 +64,7 @@ export default function HomePage() {
                       <span className="text-indigo-600">{user?.name}</span>
                     </h2>
                     <p className="mt-2 text-sm text-slate-600">
-                      Selecciona una de los modulos para gestionar empleados, usuarios o credenciales.
+                      Selecciona uno de los modulos para gestionar empleados, usuarios o credenciales.
                     </p>
                   </div>
 
@@ -115,56 +102,20 @@ export default function HomePage() {
               </div>
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                <ActionCard
-                  to="/empleados"
-                  Icon={Users}
-                  title="Ver empleados"
-                  desc="Consulta y administra el listado completo de empleados."
-                  gradient="from-sky-500 to-blue-600"
-                />
+                <ActionCard to="/empleados" Icon={Users} title="Ver empleados" desc="Consulta y administra el listado completo de empleados." gradient="from-blue-500 to-sky-600" />
 
-                <ActionCard
-                  to="/registrar-empleados"
-                  Icon={UserPlus}
-                  title="Registrar empleado"
-                  desc="Da de alta nuevos empleados en el sistema."
-                  gradient="from-emerald-500 to-teal-600"
-                />
+                <ActionCard to="/registrar-empleados" Icon={UserPlus} title="Registrar empleado" desc="Da de alta nuevos empleados en el sistema." gradient="from-emerald-500 to-teal-600" />
 
-                <ActionCard
-                  to="/buscar-empleado"
-                  Icon={Search}
-                  title="Buscar empleado"
-                  desc="Encuentra empleados por nombre o número de trabajador."
-                  gradient="from-violet-500 to-fuchsia-600"
-                />
+                <ActionCard to="/buscar-empleado" Icon={Search} title="Buscar empleado" desc="Encuentra empleados por nombre o número de trabajador." gradient="from-violet-500 to-fuchsia-600" />
 
-                <ActionCard
-                  to="/importar-empleados"
-                  Icon={Upload}
-                  title="Importar empleados"
-                  desc="Carga empleados desde un archivo Excel."
-                  gradient="from-amber-500 to-orange-600"
-                />
+                <ActionCard to="/importar-empleados" Icon={Upload} title="Importar empleados" desc="Carga empleados desde un archivo Excel." gradient="from-amber-500 to-orange-600" />
 
                 {/* Solo admin */}
                 {user?.role === "admin" && (
                   <>
-                    <ActionCard
-                      to="/register"
-                      Icon={UserCog}
-                      title="Registrar usuario"
-                      desc="Crea y gestiona usuarios con acceso al sistema."
-                      gradient="from-rose-500 to-red-600"
-                    />
+                    <ActionCard to="/register" Icon={UserCog} title="Registrar usuario" desc="Crea y gestiona usuarios con acceso al sistema." gradient="from-rose-500 to-red-600" />
 
-                    <ActionCard
-                      to="/auditorias"
-                      Icon={History}
-                      title="Auditorías"
-                      desc="Revisa el historial de acciones y cambios."
-                      gradient="from-teal-500 to-cyan-600"
-                    />
+                    <ActionCard to="/auditorias" Icon={History} title="Auditorías" desc="Revisa el historial de acciones y cambios." gradient="from-yellow-500 to-red-600" />
                   </>
                 )}
               </div>
@@ -178,13 +129,9 @@ export default function HomePage() {
                 Bienvenido
               </h2>
               <p className="mb-6 text-sm text-slate-600">
-                Inicia sesión para acceder al panel de administración de
-                credenciales del PMZ.
+                Inicia sesión para acceder a las funciones del sistema credenciales PMZ.
               </p>
-              <Link
-                to="/login"
-                className="inline-flex w-full items-center justify-center rounded-2xl bg-linear-to-r from-sky-700 to-blue-700 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg active:scale-[0.98]"
-              >
+              <Link to="/login" className="inline-flex w-full items-center justify-center rounded-2xl bg-linear-to-r from-sky-700 to-blue-700 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg active:scale-[0.98]">
                 Iniciar sesión
               </Link>
             </div>

@@ -40,7 +40,7 @@ async function syncEstadosPorVencimiento() {
 (async () => {
   try {
     await sequelize.authenticate();
-    console.log("[scheduler] Conectado a la base de datos correctamente ✅");
+    console.log("[scheduler] Conectado a la base de datos correctamente ");
 
     await syncEstadosPorVencimiento();
   } catch (error) {
