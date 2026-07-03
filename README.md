@@ -3,9 +3,11 @@ Backend(api)
 -Express
 -BD (mysql)
 
+---
+cd backend
 npm install
 npm run dev
-
+---
 
 
 Frontend(web)
@@ -13,6 +15,9 @@ Frontend(web)
 -Vite
 -TailwindCSS
 
+---
+cd frontend
 npm install
 npm run dev
+---
 

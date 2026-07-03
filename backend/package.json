@@ -1,11 +1,11 @@
 {
   "name": "credenciales",
   "version": "1.0.0",
-  "main": "./backend/index.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node --env-file=./backend/.env ./backend/index.js",
-    "dev": "nodemon --env-file=./backend/.env ./backend/index.js",
+    "start": "node --env-file=.env index.js",
+    "dev": "nodemon --env-file=.env index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
