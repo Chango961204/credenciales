@@ -3,7 +3,10 @@ Backend(api)
 -Express
 -BD (mysql)
 
+
 ---
+npm run db:migrate
+--- 
 cd backend
 npm install
 npm run dev
