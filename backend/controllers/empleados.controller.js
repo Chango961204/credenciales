@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+/* import dayjs from "dayjs";
 import Empleado from "../models/Empleados.js";
 import { buscarEmpleados } from "../services/empleados.service.js";
 
@@ -298,3 +298,4 @@ export const deleteEmpleado = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+  */

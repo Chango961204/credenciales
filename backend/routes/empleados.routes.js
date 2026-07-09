@@ -9,7 +9,7 @@ import {
   actualizarEstadoEmpleado,
   getEmpleadoById,
   deleteEmpleado,
-} from "../controllers/empleados.controller.js";
+} from "../controllers/empleados/index.js";
 import {
   generarCredencial,
   getCredencialByToken,
@@ -45,7 +45,7 @@ const uploadExcel = multer({
 
 const uploadZip = multer({
   dest: "uploads/tmp",
-  limits: { fileSize: 50 * 1024 * 1024, files: 1 },
+  limits: { fileSize: 200 * 1024 * 1024, files: 1 },
   fileFilter: filterByExtension(zipExtensions, "El archivo debe ser .zip"),
 });
 

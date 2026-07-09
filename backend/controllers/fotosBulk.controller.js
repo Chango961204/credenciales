@@ -9,15 +9,16 @@ import { syncFotosDesdeCarpeta } from "../services/fotosBulk.service.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const IMG_EXTS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
-const MAX_ZIP_ENTRIES = 1000;
+const MAX_ZIP_ENTRIES = 5000;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_EXTRACTED_BYTES = 200 * 1024 * 1024;
 
 async function extractImagesFromZip(zipPath, batchDir) {
     const directory = await unzipper.Open.file(zipPath);
+    const fileEntries = directory.files.filter((entry) => entry.type !== "Directory");
 
-    if (directory.files.length > MAX_ZIP_ENTRIES) {
-        throw new Error(`El ZIP excede el limite de ${MAX_ZIP_ENTRIES} entradas`);
+    if (fileEntries.length > MAX_ZIP_ENTRIES) {
+        throw new Error(`El ZIP excede el limite de ${MAX_ZIP_ENTRIES} archivos`);
     }
 
     const root = path.resolve(batchDir);

@@ -25,7 +25,7 @@ clearLegacyAuthStorage();
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-  timeout: 15000,
+  timeout: 150000,
 });
 
 api.interceptors.request.use(
