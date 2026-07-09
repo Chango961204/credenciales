@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, fn, col, where as seqWhere } from "sequelize";
 import dayjs from "dayjs";
 import Empleado from "../models/Empleados.js";
 import { parseExcelDate } from "../utils/date.util.js";
@@ -159,11 +159,24 @@ export const buscarEmpleados = async ({ num_trab, nombre }) => {
   }
 
   if (nombre) {
+    // split the search string into tokens (words) and require each to appear
+    // in the `nom_trab` column (AND). Use case-insensitive match by lowercasing.
+    const tokens = nombre
+      .toString()
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    if (tokens.length === 0) return [];
+
+    const conditions = tokens.map((tok) =>
+      // WHERE LOWER(nom_trab) LIKE %tok%
+      seqWhere(fn("LOWER", col("nom_trab")), { [Op.like]: `%${tok.toLowerCase()}%` })
+    );
+
     return await Empleado.findAll({
       attributes: ["id", "num_trab", "nom_trab", "estado_qr"],
-      where: {
-        nom_trab: { [Op.like]: `%${nombre}%` },
-      },
+      where: { [Op.and]: conditions },
       limit: 50,
     });
   }

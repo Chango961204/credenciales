@@ -78,6 +78,38 @@ function EmpleadosPage() {
     fetchEmpleados(1);
   };
 
+  // Búsqueda incremental por nombre (debounce)
+  useEffect(() => {
+    const nombre = nombreEmpleado.trim();
+    // if user cleared name and no number filter, reload full list
+    if (nombre === "" && numTrab.trim() === "") {
+      const t = setTimeout(() => fetchEmpleados(1), 200);
+      return () => clearTimeout(t);
+    }
+
+    const timer = setTimeout(async () => {
+      // only search by nombre if not empty
+      if (nombre !== "") {
+        setLoading(true);
+        setError("");
+        try {
+          const resultados = await buscarEmpleados({ nombre });
+          setEmpleados(resultados);
+          setEsBusqueda(true);
+          if (resultados.length === 0) setError("No se encontraron empleados");
+        } catch (err) {
+          console.error("Error buscando empleados:", err);
+          setError("Error al buscar empleados");
+          setEmpleados([]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [nombreEmpleado]);
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleBuscar();
   };

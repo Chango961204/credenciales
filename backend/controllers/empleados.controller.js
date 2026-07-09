@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { Op } from "sequelize";
 import Empleado from "../models/Empleados.js";
+import { buscarEmpleados } from "../services/empleados.service.js";
 
 
 export const getEmpleados = async (req, res) => {
@@ -102,15 +102,7 @@ export const getBuscarEmpleados = async (req, res) => {
       return res.json([]);
     }
 
-    const where = {};
-    if (num_trab) where.num_trab = num_trab;
-    if (nombre) where.nom_trab = { [Op.like]: `%${nombre}%` };
-
-    const empleados = await Empleado.findAll({
-      where,
-      limit: 20,
-      order: [["nom_trab", "ASC"]],
-    });
+    const empleados = await buscarEmpleados({ num_trab, nombre });
 
     const normalized = empleados.map((emp) => ({
       ...emp.toJSON(),
@@ -152,23 +144,7 @@ export const actualizarEmpleado = async (req, res) => {
     const before = empleado.get({ plain: true });
 
     const updates = {};
-    const allowedFields = new Set([
-      "num_trab",
-      "rfc",
-      "nom_trab",
-      "num_imss",
-      "sexo",
-      "fecha_ing",
-      "num_depto",
-      "nom_depto",
-      "categoria",
-      "puesto",
-      "sind",
-      "conf",
-      "nomina",
-      "vencimiento_contrato",
-      "estado_qr",
-    ]);
+    const allowedFields = new Set(["num_trab", "rfc", "nom_trab", "num_imss", "sexo", "fecha_ing", "num_depto", "nom_depto", "categoria", "puesto", "sind", "conf", "nomina", "vencimiento_contrato", "estado_qr",]);
     const numericFields = ["num_trab", "num_depto"];
     const dateFields = ["fecha_ing", "vencimiento_contrato"];
 
