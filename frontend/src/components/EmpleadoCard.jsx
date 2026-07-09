@@ -53,6 +53,7 @@ export default function EmpleadoCard({
   setEditForm,
   onSave,
   setResultados,
+  onDelete,
 }) {
   const vencimiento = formatDate(emp.vencimiento_contrato);
 
@@ -171,6 +172,7 @@ export default function EmpleadoCard({
             setForm={setEditForm}
             onClose={() => onEdit(null)}
             onSave={onSave}
+                onDelete={onDelete}
           />
         </div>
       )}

@@ -57,6 +57,11 @@ export const getEmpleadoById = async (id) => {
   return res.data;
 };
 
+export const deleteEmpleado = async (id) => {
+  const res = await api.delete(`/empleados/${id}`);
+  return res.data;
+};
+
 export const importarFotosZip = async (zipFile, { overwrite = false, deleteSource = false } = {}) => {
   const formData = new FormData();
   formData.append("file", zipFile);

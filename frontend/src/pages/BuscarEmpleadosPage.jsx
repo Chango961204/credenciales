@@ -3,6 +3,7 @@ import BuscarForm from "../components/BuscarForm";
 import EmpleadoCard from "../components/EmpleadoCard";
 import useEmpleados from "../../hooks/useEmpleados";
 import { Search } from "lucide-react";
+import { deleteEmpleado } from "../services/empleadosApi";
 
 export default function BuscarEmpleadosPage() {
   const {
@@ -29,6 +30,17 @@ export default function BuscarEmpleadosPage() {
       ...emp,
       vencimiento_contrato: emp.vencimiento_contrato?.split("T")[0] || "",
     });
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteEmpleado(id);
+      setResultados((prev) => prev.filter((e) => e.id !== id));
+      setModalEmpleadoId(null);
+    } catch (err) {
+      console.error("Error al eliminar empleado:", err);
+      setError("Error al eliminar empleado");
+    }
   };
 
   const handleSave = async () => {
@@ -100,6 +112,7 @@ export default function BuscarEmpleadosPage() {
                   setEditForm={setEditForm}
                   onSave={handleSave}
                   setResultados={setResultados}
+                  onDelete={handleDelete}
                 />
               ))}
             </div>
