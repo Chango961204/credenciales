@@ -151,9 +151,22 @@ export const eliminarEmpleado = async (id) => {
 };
 
 export const buscarEmpleados = async ({ num_trab, nombre }) => {
+  const searchAttributes = [
+    "id",
+    "num_trab",
+    "nom_trab",
+    "estado_qr",
+    "rfc",
+    "num_imss",
+    "nom_depto",
+    "puesto",
+    "fecha_ing",
+    "vencimiento_contrato",
+  ];
+
   if (num_trab) {
     return await Empleado.findAll({
-      attributes: ["id", "num_trab", "nom_trab", "estado_qr"],
+      attributes: searchAttributes,
       where: { num_trab },
     });
   }
@@ -175,7 +188,7 @@ export const buscarEmpleados = async ({ num_trab, nombre }) => {
     );
 
     return await Empleado.findAll({
-      attributes: ["id", "num_trab", "nom_trab", "estado_qr"],
+      attributes: searchAttributes,
       where: { [Op.and]: conditions },
       limit: 50,
     });

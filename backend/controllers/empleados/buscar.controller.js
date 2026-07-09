@@ -1,4 +1,5 @@
 import { buscarEmpleados } from "../../services/empleados.service.js";
+import dayjs from "dayjs";
 
 export const getBuscarEmpleados = async (req, res) => {
     try {

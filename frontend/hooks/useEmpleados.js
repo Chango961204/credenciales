@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   buscarEmpleados,
   generarQr,
+  getEmpleadoById,
   updateEmpleado,
 } from "../src/services/empleadosApi";
 
@@ -30,11 +31,27 @@ export function useEmpleados() {
         ? [res]
         : [];
 
-      setResultados(empleados);
-
       if (empleados.length === 0) {
+        setResultados([]);
         setError("No se encontraron empleados");
+        return;
       }
+
+      const empleadosConDetalle = await Promise.all(
+        empleados.map(async (emp) => {
+          if (!emp?.id) return emp;
+
+          try {
+            const detalle = await getEmpleadoById(emp.id);
+            return { ...emp, ...detalle };
+          } catch (error) {
+            console.error("Error cargando detalle del empleado:", error);
+            return emp;
+          }
+        })
+      );
+
+      setResultados(empleadosConDetalle);
     } catch (error) {
       console.error("Error en búsqueda:", error);
       setError("Error al buscar empleados");
